@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Litterboxd</string>
+    <string name="tagline">Know when something\'s off with your cat</string>
+    <string name="btn_sign_up">Sign up</string>
+    <string name="btn_log_in">Log in</string>
+    <string name="btn_continue_guest">Continue without account</string>
+    <string name="prompt_email">Email address</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_confirm_password">Confirm Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="msg_forgot_password_title">Password Reset</string>
+    <string name="msg_forgot_password_message">Local passwords cannot be recovered for security reasons. Would you like to create a new account instead?</string>
+    <string name="btn_create_new_account">Create new account</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="welcome_user">Welcome, %s</string>
+    <string name="welcome_guest">Welcome, Guest</string>
+    <string name="btn_logout">Log out</string>
+    <string name="msg_logout_title">Log Out</string>
+    <string name="msg_logout_message">Are you sure you want to log out?</string>
+    <string name="btn_yes">Yes</string>
+    <string name="error_invalid_email">Please enter a valid email address.</string>
+    <string name="error_invalid_password">Password must be at least 8 characters.</string>
+    <string name="error_passwords_mismatch">Passwords do not match.</string>
+</resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.1.0" type="partial_results">
+    <map id="UnsafeIntentLaunch">
+            <map id="unprotected">
+                <entry
+                    name="com.litterboxd.app.ui.splash.SplashActivity"
+                    boolean="true"/>
+            </map>
+    </map>
+    <map id="UnusedResources">
+        <location id="R.dimen.margin_vertical"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/dimens.xml"
+            line="4"
+            column="12"
+            startOffset="111"
+            endLine="4"
+            endColumn="34"
+            endOffset="133"/>
+        <location id="R.dimen.text_size_body"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/dimens.xml"
+            line="12"
+            column="12"
+            startOffset="480"
+            endLine="12"
+            endColumn="33"
+            endOffset="501"/>
+        <location id="R.color.accent_warm"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/colors.xml"
+            line="8"
+            column="12"
+            startOffset="310"
+            endLine="8"
+            endColumn="30"
+            endOffset="328"/>
+        <entry
+            name="model"
+            string="color[sage_primary(U),black(U),coral_secondary(U),surface_card(U),error_red(U),accent_warm(D),white(U),text_dark_gray(U),off_white_background(U)],dimen[corner_radius(U),margin_vertical(D),text_size_body(D),button_height(U),margin_horizontal(U),spacing_large(D),spacing_small(U),spacing_medium(U),text_size_title(U),text_size_small(U),text_size_subtitle(U)],drawable[ic_launcher_foreground(U),ic_launcher_background(U),ic_launcher_foreground_1(R)],id[tilEmail(U),tilLoginEmail(U),btnGuest(U),etPassword(U),progressBarLogin(U),tilLoginPassword(U),tvForgotPassword(U),btnLoginSubmit(U),tvTagline(D),tilPassword(U),progressBar(U),tvWelcomeUser(U),etLoginPassword(U),tvRegisterTitle(U),etConfirmPassword(U),btnRegisterSubmit(U),tvLoginTitle(U),tilConfirmPassword(U),btnLogout(U),imgMascot(U),etEmail(U),etLoginEmail(U),tvAppTitle(U),btnLogin(U),btnSignUp(U)],layout[activity_welcome(U),activity_login(U),activity_home(U),activity_register(U),activity_splash(U)],mipmap[ic_launcher_round(U),ic_launcher(U)],string[prompt_email(U),btn_logout(U),msg_logout_title(U),prompt_confirm_password(U),msg_logout_message(U),btn_log_in(U),btn_yes(U),prompt_password(U),error_passwords_mismatch(U),app_name(U),error_invalid_email(U),msg_forgot_password_title(U),btn_cancel(U),error_invalid_password(U),btn_sign_up(U),tagline(U),btn_continue_guest(U),welcome_guest(U),btn_create_new_account(U),welcome_user(U),forgot_password(U),msg_forgot_password_message(U)],style[Theme_MaterialComponents_Light_NoActionBar(R),Widget_MaterialComponents_Button_TextButton(R),Theme_Litterboxd(U),Widget_MaterialComponents_Button_OutlinedButton(R),Widget_MaterialComponents_TextInputLayout_OutlinedBox(R)],xml[data_extraction_rules(U),backup_rules(U)];14^16,30^8^d^40^36^0^11^2a^46^7^13^2d^c^45^9^10^3c^50^f^47^4e,31^8^d^3c^0^11^37^27^51^3e^18^4b^12^1c^c^9^1d^1e,32^8^d^48^0^13^c^38^9^4^50,33^8^d^45^0^11^37^24^51^3e^17^3a^20^c^9^28^26,34^8^40^0^11,35^15^14,36^15^14,4f^4d^0^6^2^1^8^3^7^4;;;"/>
+        <location id="R.dimen.spacing_large"
+            file="${:app*debug*sourceProvider*0*resDir*0}/values/dimens.xml"
+            line="7"
+            column="12"
+            startOffset="248"
+            endLine="7"
+            endColumn="32"
+            endOffset="268"/>
+    </map>
+
+</incidents>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 8.1.0" type="incidents">
+
+    <incident
+        id="DefaultLocale"
+        severity="warning"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`.">
+        <location
+            file="${:app*debug*sourceProvider*0*javaDir*0}/com/litterboxd/app/auth/LocalAuthRepository.java"
+            line="25"
+            column="74"
+            startOffset="1030"
+            endLine="25"
+            endColumn="85"
+            endOffset="1041"/>
+    </incident>
+
+    <incident
+        id="DefaultLocale"
+        severity="warning"
+        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`.">
+        <location
+            file="${:app*debug*sourceProvider*0*javaDir*0}/com/litterboxd/app/auth/LocalAuthRepository.java"
+            line="58"
+            column="74"
+            startOffset="2407"
+            endLine="58"
+            endColumn="85"
+            endOffset="2418"/>
+    </incident>
+
+    <incident
+        id="ApplySharedPref"
+        severity="warning"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background">
+        <fix-replace
+            description="Replace commit() with apply()"
+            oldPattern="(commit)\s*\("
+            replacement="apply"/>
+        <location
+            file="${:app*debug*sourceProvider*0*javaDir*0}/com/litterboxd/app/data/session/SessionManager.java"
+            line="35"
+            column="16"
+            startOffset="1347"
+            endLine="35"
+            endColumn="24"
+            endOffset="1355"/>
+    </incident>
+
+    <incident
+        id="ApplySharedPref"
+        severity="warning"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background">
+        <fix-replace
+            description="Replace commit() with apply()"
+            oldPattern="(commit)\s*\("
+            replacement="apply"/>
+        <location
+            file="${:app*debug*sourceProvider*0*javaDir*0}/com/litterboxd/app/data/session/SessionManager.java"
+            line="42"
+            column="16"
+            startOffset="1535"
+            endLine="42"
+            endColumn="24"
+            endOffset="1543"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.appcompat:appcompat than 1.6.1 is available: 1.8.0">
+        <fix-replace
+            description="Change to 1.8.0"
+            family="Update versions"
+            oldString="1.6.1"
+            replacement="1.8.0"/>
+        <location
+            file="${:app*projectDir}/build.gradle.kts"
+            line="33"
+            column="21"
+            startOffset="757"
+            endLine="33"
+            endColumn="55"
+            endOffset="791"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of com.google.android.material:material than 1.8.0 is available: 1.14.0">
+        <fix-replace
+            description="Change to 1.14.0"
+            family="Update versions"
+            oldString="1.8.0"
+            replacement="1.14.0"/>
+        <location
+            file="${:app*projectDir}/build.gradle.kts"
+            line="34"
+            column="21"
+            startOffset="814"
+            endLine="34"
+            endColumn="63"
+            endOffset="856"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.constraintlayout:constraintlayout than 2.1.4 is available: 2.2.2">
+        <fix-replace
+            description="Change to 2.2.2"
+            family="Update versions"
+            oldString="2.1.4"
+            replacement="2.2.2"/>
+        <location
+            file="${:app*projectDir}/build.gradle.kts"
+            line="35"
+            column="21"
+            startOffset="879"
+            endLine="35"
+            endColumn="69"
+            endOffset="927"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.test.ext:junit than 1.1.5 is available: 1.3.0">
+        <fix-replace
+            description="Change to 1.3.0"
+            family="Update versions"
+            oldString="1.1.5"
+            replacement="1.3.0"/>
+        <location
+            file="${:app*projectDir}/build.gradle.kts"
+            line="37"
+            column="32"
+            startOffset="1006"
+            endLine="37"
+            endColumn="61"
+            endOffset="1035"/>
+    </incident>
+
+    <incident
+        id="GradleDependency"
+        severity="warning"
+        message="A newer version of androidx.test.espresso:espresso-core than 3.5.1 is available: 3.7.0">
+        <fix-replace
+            description="Change to 3.7.0"
+            family="Update versions"
+            oldString="3.5.1"
+            replacement="3.7.0"/>
+        <location
+            file="${:app*projectDir}/build.gradle.kts"
+            line="38"
+            column="32"
+            startOffset="1069"
+            endLine="38"
+            endColumn="74"
+            endOffset="1111"/>
+    </incident>
+
+    <incident
+        id="Overdraw"
+        severity="warning"
+        message="Possible overdraw: Root element paints background `@color/off_white_background` with a theme that also paints a background (inferred theme is `@style/Theme.Litterboxd`)">
+        <location
+            file="${:app*debug*sourceProvider*0*resDir*0}/layout/activity_home.xml"
+            line="6"
+            column="5"
+            startOffset="290"
+            endLine="6"
+            endColumn="53"
+            endOffset="338"/>
+    </incident>
+
+    <incident
+        id="Overdraw"
+        severity="warning"
+        message="Possible overdraw: Root element paints background `@color/off_white_background` with a theme that also paints a background (inferred theme is `@style/Theme.Litterboxd`)">
+        <location
+            file="${:app*debug*sourceProvider*0*resDir*0}/layout/activity_login.xml"
+            line="6"
+            column="5"
+            startOffset="290"
+            endLine="6"
+            endColumn="53"
+            endOffset="338"/>
+    </incident>
+
+    <incident
+        id="Overdraw"
+        severity="warning"
+        message="Possible overdraw: Root element paints background `@color/off_white_background` with a theme that also paints a background (inferred theme is `@style/Theme.Litterboxd`)">
+        <location
+            file="${:app*debug*sourceProvider*0*resDir*0}/layout/activity_register.xml"
+            line="6"
+            column="5"
+            startOffset="290"
+            endLine="6"
+            endColumn="53"
+            endOffset="338"/>
+    </incident>
+
+    <incident
+        id="Overdraw"
+        severity="warning"
+        message="Possible overdraw: Root element paints background `@color/off_white_background` with a theme that also paints a background (inferred theme is `@style/Theme.Litterboxd`)">
+        <location
+            file="${:app*debug*sourceProvider*0*resDir*0}/layout/activity_splash.xml"
+            line="6"
+            column="5"
+            startOffset="290"
+            endLine="6"
+            endColumn="53"
+            endOffset="338"/>
+    </incident>
+
+    <incident
+        id="Overdraw"
+        severity="warning"
+        message="Possible overdraw: Root element paints background `@color/off_white_background` with a theme that also paints a background (inferred theme is `@style/Theme.Litterboxd`)">
+        <location
+            file="${:app*debug*sourceProvider*0*resDir*0}/layout/activity_welcome.xml"
+            line="6"
+            column="5"
+            startOffset="290"
+            endLine="6"
+            endColumn="53"
+            endOffset="338"/>
+    </incident>
+
+</incidents>

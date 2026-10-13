@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.litterboxd.app-mergeDebugResources-26:/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+            "map": [
+                {
+                    "source": "/Users/natashawilfrid/.gradle/caches/transforms-3/0352434434e649cb6b3331cb4fddf203/transformed/material-1.8.0/res/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "76",
+                        "endOffsets": "127"
+                    }
+                }
+            ]
+        }
+    ]
+}
