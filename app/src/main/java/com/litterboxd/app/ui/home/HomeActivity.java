@@ -86,10 +86,9 @@ public class HomeActivity extends AppCompatActivity {
     private void loadData() {
         AppExecutors.getInstance().diskIO().execute(() -> {
             String ownerName = appPrefs.getOwnerName();
-            if (ownerName == null || ownerName.isEmpty()) {
-                ownerName = "Cat Parent";
-            }
-            final String greeting = getString(R.string.home_greeting, ownerName);
+            final String greeting = (ownerName == null || ownerName.isEmpty())
+                    ? getString(R.string.home_greeting_guest)
+                    : getString(R.string.home_greeting, ownerName);
 
             // Work on locals here; the fields are only assigned on the UI thread below.
             List<Cat> cats = catDao.getAllCats();
@@ -120,14 +119,14 @@ public class HomeActivity extends AppCompatActivity {
         if (currentCat != null) {
             tvHomeCatName.setText(currentCat.getName());
             String ageStr = AgeUtils.getAgeDisplay(currentCat.getBirthday(), currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
-            String details = currentCat.getBreed() + " • " + ageStr + " • " + currentCat.getWeight() + " kg";
+            String details = getString(R.string.home_cat_summary, currentCat.getBreed(), ageStr, String.valueOf(currentCat.getWeight()));
             tvHomeCatDetails.setText(details);
 
             fileStorageHelper.showCatPhoto(imgHomeCatPhoto, currentCat.getPhotoPath());
             btnSwitchCat.setVisibility(allCats.size() > 1 ? View.VISIBLE : View.GONE);
         } else {
-            tvHomeCatName.setText("No cat selected");
-            tvHomeCatDetails.setText("");
+            tvHomeCatName.setText(R.string.no_cat_selected);
+            tvHomeCatDetails.setText(null);
             imgHomeCatPhoto.setImageResource(R.drawable.ic_cat_face);
             btnSwitchCat.setVisibility(View.GONE);
         }

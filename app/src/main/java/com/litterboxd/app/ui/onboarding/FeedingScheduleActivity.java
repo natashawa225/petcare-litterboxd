@@ -52,6 +52,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         int minute = 0;
     }
 
+    private static final int DEFAULT_PORTION_GRAMS = 50;
     private static final String STATE_LABELS = "meal_labels";
     private static final String STATE_HOURS = "meal_hours";
     private static final String STATE_MINUTES = "meal_minutes";
@@ -137,15 +138,17 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         containerMealRows.removeAllViews();
         mealRowViews.clear();
 
-        String[] defaultLabels = {"Breakfast", "Lunch", "Dinner", "Snack"};
+        String[] defaultLabels = getResources().getStringArray(R.array.default_meal_labels);
+        int paddingSmall = getResources().getDimensionPixelSize(R.dimen.spacing_small);
+        int paddingMedium = getResources().getDimensionPixelSize(R.dimen.spacing_medium);
 
         for (int i = 0; i < count; i++) {
             LinearLayout rowLayout = new LinearLayout(this);
             rowLayout.setOrientation(LinearLayout.VERTICAL);
-            rowLayout.setPadding(0, 8, 0, 16);
+            rowLayout.setPadding(0, paddingSmall, 0, paddingMedium);
 
             TextView tvHeader = new TextView(this);
-            tvHeader.setText("Meal " + (i + 1));
+            tvHeader.setText(getString(R.string.meal_header, i + 1));
             tvHeader.setTextColor(getResources().getColor(R.color.sage_primary));
             tvHeader.setTextSize(16f);
             rowLayout.addView(tvHeader);
@@ -153,8 +156,8 @@ public class FeedingScheduleActivity extends AppCompatActivity {
             TextInputLayout tilLabel = new TextInputLayout(this);
             tilLabel.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             TextInputEditText etLabel = new TextInputEditText(this);
-            etLabel.setHint("Meal Label (e.g. Breakfast)");
-            etLabel.setText(i < defaultLabels.length ? defaultLabels[i] : "Meal " + (i + 1));
+            etLabel.setHint(R.string.hint_meal_label);
+            etLabel.setText(i < defaultLabels.length ? defaultLabels[i] : getString(R.string.meal_header, i + 1));
             tilLabel.addView(etLabel);
             rowLayout.addView(tilLabel);
 
@@ -180,9 +183,9 @@ public class FeedingScheduleActivity extends AppCompatActivity {
             TextInputLayout tilPortion = new TextInputLayout(this);
             tilPortion.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             TextInputEditText etPortion = new TextInputEditText(this);
-            etPortion.setHint("Portion (grams)");
+            etPortion.setHint(R.string.meal_portion_prefix);
             etPortion.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-            etPortion.setText("50");
+            etPortion.setText(String.valueOf(DEFAULT_PORTION_GRAMS));
             mealRow.etPortion = etPortion;
             mealRow.tilPortion = tilPortion;
             tilPortion.addView(etPortion);
@@ -219,7 +222,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
             FeedingMeal meal = new FeedingMeal();
             meal.setCatId(catId);
             String label = row.etLabel.getText() != null ? row.etLabel.getText().toString().trim() : "";
-            meal.setMealLabel(label.isEmpty() ? "Meal" : label);
+            meal.setMealLabel(label.isEmpty() ? getString(R.string.meal_default_label) : label);
             meal.setMealTime(String.format(Locale.US, "%02d:%02d", row.hour, row.minute));
             meal.setPortionGrams(portion);
             meals.add(meal);
