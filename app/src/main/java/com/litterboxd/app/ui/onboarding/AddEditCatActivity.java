@@ -3,7 +3,6 @@ package com.litterboxd.app.ui.onboarding;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -34,9 +33,6 @@ import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
 import com.litterboxd.app.util.Validators;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -73,7 +69,7 @@ public class AddEditCatActivity extends AppCompatActivity {
             uri -> {
                 if (uri != null) {
                     pickedImageUri = uri;
-                    imgCatPhoto.setImageURI(uri);
+                    showPreview(uri);
                 }
             }
     );
@@ -139,7 +135,7 @@ public class AddEditCatActivity extends AppCompatActivity {
         // Fields that are not views lose their value on rotation; restore them from the Bundle.
         if (savedInstanceState != null) {
             pickedImageUri = savedInstanceState.getParcelable(STATE_PHOTO_URI);
-            if (pickedImageUri != null) imgCatPhoto.setImageURI(pickedImageUri);
+            if (pickedImageUri != null) showPreview(pickedImageUri);
             long birthday = savedInstanceState.getLong(STATE_BIRTHDAY, -1L);
             if (birthday != -1L) setBirthday(birthday);
         }
@@ -186,8 +182,17 @@ public class AddEditCatActivity extends AppCompatActivity {
 
     private void showSavedPhoto(Cat cat) {
         if (cat.getPhotoPath() == null) return;
-        File file = fileStorageHelper.getInternalImageFile(cat.getPhotoPath());
-        if (file.exists()) imgCatPhoto.setImageURI(Uri.fromFile(file));
+        showPreview(Uri.fromFile(fileStorageHelper.getInternalImageFile(cat.getPhotoPath())));
+    }
+
+    /** Decodes a small preview off the UI thread (a full-size camera photo could run out of memory). */
+    private void showPreview(Uri uri) {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            Bitmap preview = fileStorageHelper.loadScaledBitmap(uri, FileStorageHelper.PREVIEW_MIN_SIDE_PX);
+            if (preview != null) {
+                AppExecutors.getInstance().mainThread().execute(() -> imgCatPhoto.setImageBitmap(preview));
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -283,7 +288,7 @@ public class AddEditCatActivity extends AppCompatActivity {
             if (photoUri != null) {
                 String newFileName = FileStorageHelper.CAT_PHOTO_PREFIX + UUID.randomUUID().toString() + ".jpg";
                 // Only point the cat at the new file if it was actually written.
-                if (downscaleAndSaveImage(photoUri, newFileName)) {
+                if (fileStorageHelper.saveDownscaledImage(photoUri, newFileName)) {
                     photoFileName = newFileName;
                 }
             }
@@ -345,41 +350,5 @@ public class AddEditCatActivity extends AppCompatActivity {
         if ("Outdoor".equals(lifestyle)) return R.id.rbLifestyleOutdoor;
         if ("Indoor / Outdoor".equals(lifestyle)) return R.id.rbLifestyleBoth;
         return R.id.rbLifestyleIndoor;
-    }
-
-    private boolean downscaleAndSaveImage(Uri sourceUri, String fileName) {
-        try (InputStream inputStream = getContentResolver().openInputStream(sourceUri)) {
-            if (inputStream == null) return false;
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeStream(inputStream, null, options);
-
-            int scale = 1;
-            int width = options.outWidth;
-            int height = options.outHeight;
-            while (width / 2 >= 1024 && height / 2 >= 1024) {
-                width /= 2;
-                height /= 2;
-                scale *= 2;
-            }
-
-            options.inJustDecodeBounds = false;
-            options.inSampleSize = scale;
-
-            try (InputStream is2 = getContentResolver().openInputStream(sourceUri)) {
-                Bitmap bitmap = BitmapFactory.decodeStream(is2, null, options);
-                if (bitmap != null) {
-                    File file = fileStorageHelper.getInternalImageFile(fileName);
-                    try (FileOutputStream fos = new FileOutputStream(file)) {
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
-                        fos.flush();
-                        return true;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 }

@@ -3,7 +3,6 @@ package com.litterboxd.app.ui.home;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -29,7 +28,6 @@ import com.litterboxd.app.ui.settings.SettingsActivity;
 import com.litterboxd.app.util.AgeUtils;
 import com.litterboxd.app.util.AppExecutors;
 
-import java.io.File;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
@@ -125,16 +123,7 @@ public class HomeActivity extends AppCompatActivity {
             String details = currentCat.getBreed() + " • " + ageStr + " • " + currentCat.getWeight() + " kg";
             tvHomeCatDetails.setText(details);
 
-            if (currentCat.getPhotoPath() != null && !currentCat.getPhotoPath().isEmpty()) {
-                File file = fileStorageHelper.getInternalImageFile(currentCat.getPhotoPath());
-                if (file.exists()) {
-                    imgHomeCatPhoto.setImageURI(Uri.fromFile(file));
-                } else {
-                    imgHomeCatPhoto.setImageResource(R.drawable.ic_cat_face);
-                }
-            } else {
-                imgHomeCatPhoto.setImageResource(R.drawable.ic_cat_face);
-            }
+            fileStorageHelper.showCatPhoto(imgHomeCatPhoto, currentCat.getPhotoPath());
             btnSwitchCat.setVisibility(allCats.size() > 1 ? View.VISIBLE : View.GONE);
         } else {
             tvHomeCatName.setText("No cat selected");
