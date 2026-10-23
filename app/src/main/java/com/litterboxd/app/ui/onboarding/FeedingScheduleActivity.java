@@ -4,6 +4,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.method.DigitsKeyListener;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -245,7 +246,9 @@ public class FeedingScheduleActivity extends AppCompatActivity {
             tilPortion.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             TextInputEditText etPortion = new TextInputEditText(this);
             etPortion.setHint(R.string.meal_portion_prefix);
-            etPortion.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            // Accept "45.5" and "45,5" on any keyboard; keep the numeric keyboard.
+            etPortion.setKeyListener(DigitsKeyListener.getInstance(getString(R.string.decimal_digits)));
+            etPortion.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
             etPortion.setText(String.valueOf(DEFAULT_PORTION_GRAMS));
             mealRow.etPortion = etPortion;
             mealRow.tilPortion = tilPortion;

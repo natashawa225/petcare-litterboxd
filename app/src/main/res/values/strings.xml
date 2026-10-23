@@ -126,6 +126,9 @@
     <string name="section_about">About Litterboxd</string>
     <string name="about_disclaimer">Disclaimer: Litterboxd is a companion tool for cat care tracking and does not replace professional veterinary advice or diagnosis.</string>
 
+    <!-- Characters allowed in weight/portion fields: both decimal separators, parsed by Validators.parseDecimal -->
+    <string name="decimal_digits" translatable="false">0123456789.,</string>
+
     <!-- Errors and Validation -->
     <string name="error_field_required">This field is required.</string>
     <string name="error_invalid_weight">Weight must be between 0.5 and 15.0 kg.</string>
