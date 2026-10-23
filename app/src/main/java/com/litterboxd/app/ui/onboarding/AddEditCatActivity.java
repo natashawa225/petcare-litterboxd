@@ -14,8 +14,10 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -45,6 +47,8 @@ import java.util.UUID;
 public class AddEditCatActivity extends AppCompatActivity {
 
     public static final String EXTRA_CAT_ID = "cat_id";
+    private static final String STATE_PHOTO_URI = "photo_uri";
+    private static final String STATE_BIRTHDAY = "birthday";
 
     private TextInputEditText etCatName, etWeight;
     private TextInputLayout tilCatName, tilWeight;
@@ -119,20 +123,27 @@ public class AddEditCatActivity extends AppCompatActivity {
 
         btnSelectPhoto.setOnClickListener(v -> photoPickerLauncher.launch("image/*"));
 
-        Calendar calendar = Calendar.getInstance();
-        selectedBirthdayMs = calendar.getTimeInMillis();
         btnSelectBirthday.setOnClickListener(v -> {
             Calendar cal = Calendar.getInstance();
             if (selectedBirthdayMs != null) cal.setTimeInMillis(selectedBirthdayMs);
-            new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            DatePickerDialog dialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
                 Calendar c = Calendar.getInstance();
                 c.set(year, month, dayOfMonth);
-                selectedBirthdayMs = c.getTimeInMillis();
-                btnSelectBirthday.setText(year + "-" + (month + 1) + "-" + dayOfMonth);
-            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
+                setBirthday(c.getTimeInMillis());
+            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+            dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+            dialog.show();
         });
 
         btnSaveCat.setOnClickListener(v -> saveCatData());
+
+        // Fields that are not views lose their value on rotation; restore them from the Bundle.
+        if (savedInstanceState != null) {
+            pickedImageUri = savedInstanceState.getParcelable(STATE_PHOTO_URI);
+            if (pickedImageUri != null) imgCatPhoto.setImageURI(pickedImageUri);
+            long birthday = savedInstanceState.getLong(STATE_BIRTHDAY, -1L);
+            if (birthday != -1L) setBirthday(birthday);
+        }
 
         if (isEditMode()) {
             ((TextView) findViewById(R.id.tvTitle)).setText(R.string.title_edit_cat);
@@ -140,6 +151,18 @@ public class AddEditCatActivity extends AppCompatActivity {
             btnSaveCat.setText(R.string.btn_save);
             loadCatForEdit(savedInstanceState == null);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(STATE_PHOTO_URI, pickedImageUri);
+        outState.putLong(STATE_BIRTHDAY, selectedBirthdayMs != null ? selectedBirthdayMs : -1L);
+    }
+
+    private void setBirthday(long birthdayMs) {
+        selectedBirthdayMs = birthdayMs;
+        btnSelectBirthday.setText(DateFormatUtils.formatDate(birthdayMs));
     }
 
     private boolean isEditMode() {
@@ -157,8 +180,15 @@ public class AddEditCatActivity extends AppCompatActivity {
                 }
                 editingCat = cat;
                 if (fillForm) fillForm(cat);
+                if (pickedImageUri == null) showSavedPhoto(cat);
             });
         });
+    }
+
+    private void showSavedPhoto(Cat cat) {
+        if (cat.getPhotoPath() == null) return;
+        File file = fileStorageHelper.getInternalImageFile(cat.getPhotoPath());
+        if (file.exists()) imgCatPhoto.setImageURI(Uri.fromFile(file));
     }
 
     @SuppressWarnings("unchecked")
@@ -168,8 +198,7 @@ public class AddEditCatActivity extends AppCompatActivity {
 
         if (cat.getBirthday() != null) {
             rgAgeType.check(R.id.rbBirthday);
-            selectedBirthdayMs = cat.getBirthday();
-            btnSelectBirthday.setText(DateFormatUtils.formatDate(cat.getBirthday()));
+            setBirthday(cat.getBirthday());
         } else {
             rgAgeType.check(R.id.rbApproxAge);
             spinnerYears.setSelection(Math.min(cat.getApproxAgeYears(), spinnerYears.getCount() - 1));
@@ -184,11 +213,6 @@ public class AddEditCatActivity extends AppCompatActivity {
         rgNeutered.check(cat.isNeutered() ? R.id.rbNeuteredYes : R.id.rbNeuteredNo);
         rgCoatColor.check(coatToId(cat.getCoatColor()));
         rgLifestyle.check(lifestyleToId(cat.getLifestyle()));
-
-        if (cat.getPhotoPath() != null) {
-            File file = fileStorageHelper.getInternalImageFile(cat.getPhotoPath());
-            if (file.exists()) imgCatPhoto.setImageURI(Uri.fromFile(file));
-        }
     }
 
     private void setupSpinners() {
@@ -221,6 +245,11 @@ public class AddEditCatActivity extends AppCompatActivity {
         tilCatName.setError(null);
 
         String weightStr = etWeight.getText() != null ? etWeight.getText().toString().trim() : "";
+        if (rgAgeType.getCheckedRadioButtonId() == R.id.rbBirthday && selectedBirthdayMs == null) {
+            Toast.makeText(this, R.string.error_select_birthday, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Double weight = Validators.parseDecimal(weightStr);
         if (weight == null || !Validators.isValidWeight(weight)) {
             tilWeight.setError(getString(R.string.error_invalid_weight));
