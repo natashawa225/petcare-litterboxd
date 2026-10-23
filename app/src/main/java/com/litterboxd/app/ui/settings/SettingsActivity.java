@@ -77,6 +77,18 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void loadSampleData() {
         AppExecutors.getInstance().diskIO().execute(() -> {
+            // Loading twice would duplicate Mochi and Biscuit.
+            boolean hasMochi = false, hasBiscuit = false;
+            for (Cat c : catDao.getAllCats()) {
+                if ("Mochi".equals(c.getName())) hasMochi = true;
+                if ("Biscuit".equals(c.getName())) hasBiscuit = true;
+            }
+            if (hasMochi && hasBiscuit) {
+                AppExecutors.getInstance().mainThread().execute(() ->
+                        Toast.makeText(this, R.string.msg_sample_data_already_loaded, Toast.LENGTH_SHORT).show());
+                return;
+            }
+
             // Mochi
             Cat mochi = new Cat();
             mochi.setName("Mochi");
@@ -101,14 +113,14 @@ public class SettingsActivity extends AppCompatActivity {
             FeedingMeal m1 = new FeedingMeal();
             m1.setCatId(mochiId);
             m1.setMealLabel("Breakfast");
-            m1.setMealTime("08:00 AM");
+            m1.setMealTime("08:00"); // same 24-hour HH:mm format as the feeding schedule screen
             m1.setPortionGrams(45.0);
             feedingScheduleDao.insertFeedingMeal(m1);
 
             FeedingMeal m2 = new FeedingMeal();
             m2.setCatId(mochiId);
             m2.setMealLabel("Dinner");
-            m2.setMealTime("06:00 PM");
+            m2.setMealTime("18:00");
             m2.setPortionGrams(45.0);
             feedingScheduleDao.insertFeedingMeal(m2);
 
@@ -136,7 +148,7 @@ public class SettingsActivity extends AppCompatActivity {
             FeedingMeal bm1 = new FeedingMeal();
             bm1.setCatId(biscuitId);
             bm1.setMealLabel("Morning Feed");
-            bm1.setMealTime("07:30 AM");
+            bm1.setMealTime("07:30");
             bm1.setPortionGrams(70.0);
             feedingScheduleDao.insertFeedingMeal(bm1);
 

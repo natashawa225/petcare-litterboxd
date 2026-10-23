@@ -117,6 +117,7 @@
     <string name="msg_owner_name_updated">Owner name updated</string>
     <string name="section_demo_tools">Demo Tools</string>
     <string name="btn_load_sample_data">Load Sample Data</string>
+    <string name="msg_sample_data_already_loaded">Sample cats are already loaded.</string>
     <string name="msg_sample_data_loaded">Sample cats (Mochi &amp; Biscuit) loaded successfully!</string>
     <string name="section_app_data">App Data</string>
     <string name="btn_reset_app">Reset App</string>
