@@ -5,25 +5,104 @@
     <string name="title_right">xd</string>
     <string name="subtitle_text">for every chapter of their nine lives</string>
     <string name="tagline">for every chapter of their nine lives</string>
-    <string name="btn_sign_up">Sign up</string>
     <string name="btn_get_started">Get started</string>
-    <string name="btn_log_in">I already have an account</string>
-    <string name="btn_continue_guest">Continue without an account</string>
-    <string name="prompt_email">Email address</string>
-    <string name="prompt_password">Password</string>
-    <string name="prompt_confirm_password">Confirm Password</string>
-    <string name="forgot_password">Forgot password?</string>
-    <string name="msg_forgot_password_title">Password Reset</string>
-    <string name="msg_forgot_password_message">Local passwords cannot be recovered for security reasons. Would you like to create a new account instead?</string>
-    <string name="btn_create_new_account">Create new account</string>
+    <string name="btn_continue">Continue</string>
+    <string name="btn_skip">Skip</string>
+    <string name="btn_save">Save</string>
     <string name="btn_cancel">Cancel</string>
-    <string name="welcome_user">Welcome, %s</string>
-    <string name="welcome_guest">Welcome, Guest</string>
-    <string name="btn_logout">Log out</string>
-    <string name="msg_logout_title">Log Out</string>
-    <string name="msg_logout_message">Are you sure you want to log out?</string>
     <string name="btn_yes">Yes</string>
-    <string name="error_invalid_email">Please enter a valid email address.</string>
-    <string name="error_invalid_password">Password must be at least 8 characters.</string>
-    <string name="error_passwords_mismatch">Passwords do not match.</string>
+    <string name="btn_no">No</string>
+    <string name="btn_add">Add</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_edit">Edit</string>
+
+    <!-- Onboarding Step 1 -->
+    <string name="onboarding_step_1">Step 1 of 3</string>
+    <string name="prompt_owner_name">What should we call you?</string>
+    <string name="hint_owner_name">Your name or nickname</string>
+
+    <!-- Onboarding Step 2 / Add Edit Cat -->
+    <string name="onboarding_step_2">Step 2 of 3</string>
+    <string name="title_add_cat">Add Cat Profile</string>
+    <string name="title_edit_cat">Edit Cat Profile</string>
+    <string name="prompt_cat_name">Cat Name</string>
+    <string name="prompt_cat_breed">Breed</string>
+    <string name="prompt_cat_sex">Sex</string>
+    <string name="sex_male">Male</string>
+    <string name="sex_female">Female</string>
+    <string name="prompt_cat_neutered">Neutered / Spayed</string>
+    <string name="prompt_cat_weight">Weight (kg)</string>
+    <string name="prompt_cat_lifestyle">Lifestyle</string>
+    <string name="lifestyle_indoor">Indoor only</string>
+    <string name="lifestyle_outdoor">Outdoor</string>
+    <string name="lifestyle_indoor_outdoor">Indoor / Outdoor</string>
+    <string name="prompt_coat_color">Coat Color</string>
+    <string name="btn_select_photo">Select Photo</string>
+    <string name="btn_select_birthday">Select Birthday</string>
+    <string name="color_black">Black</string>
+    <string name="color_white">White</string>
+    <string name="color_ginger">Ginger</string>
+    <string name="color_grey">Grey</string>
+    <string name="color_calico">Calico</string>
+    <string name="color_tabby">Tabby</string>
+    <string name="label_age_type">Age Type</string>
+    <string name="radio_birthday">Exact Birthday</string>
+    <string name="radio_approx_age">Approximate Age</string>
+    <string name="prompt_years">Years</string>
+    <string name="prompt_months">Months</string>
+
+    <!-- Onboarding Step 3 -->
+    <string name="onboarding_step_3">Step 3 of 3</string>
+    <string name="title_feeding_schedule">Feeding Schedule</string>
+    <string name="prompt_meals_per_day">Meals per day</string>
+    <string name="meal_label_prefix">Meal %d Label</string>
+    <string name="meal_time_prefix">Time: %s</string>
+    <string name="meal_portion_prefix">Portion (grams)</string>
+
+    <!-- Home Activity -->
+    <string name="home_greeting">Hello, %s!</string>
+    <string name="home_greeting_guest">Hello, Cat Parent!</string>
+    <string name="nav_cat_profile">Cat Profile</string>
+    <string name="nav_settings">Settings</string>
+    <string name="switch_cat">Switch Cat</string>
+    <string name="title_cat_switcher">Select Cat</string>
+    <string name="card_daily_checkin_title">Daily Check-in</string>
+    <string name="card_daily_checkin_subtitle">Coming soon: track daily mood and litterbox habits.</string>
+    <string name="card_care_tasks_title">Care Tasks</string>
+    <string name="card_care_tasks_subtitle">Coming soon: medication and grooming reminders.</string>
+    <string name="card_alerts_title">Health Alerts</string>
+    <string name="card_alerts_subtitle">Coming soon: weight anomaly and vet alerts.</string>
+
+    <!-- Cat Profile Activity -->
+    <string name="title_cat_profile">Cat Profile</string>
+    <string name="label_life_stage">Life Stage: %s</string>
+    <string name="section_weight_history">Weight History</string>
+    <string name="btn_add_weight">Add Weight</string>
+    <string name="dialog_add_weight_title">Log New Weight</string>
+    <string name="prompt_weight_grams">Weight (kg)</string>
+    <string name="prompt_weight_notes">Notes (optional)</string>
+    <string name="section_feeding_schedule">Feeding Schedule</string>
+    <string name="btn_delete_cat">Delete Cat</string>
+    <string name="msg_delete_cat_title">Delete Cat Profile</string>
+    <string name="msg_delete_cat_message">Are you sure you want to delete %s? All associated weight logs and feeding schedules will be removed.</string>
+
+    <!-- Settings Activity -->
+    <string name="title_settings">Settings</string>
+    <string name="section_owner_settings">Owner Settings</string>
+    <string name="btn_update_name">Update Name</string>
+    <string name="section_demo_tools">Demo Tools</string>
+    <string name="btn_load_sample_data">Load Sample Data</string>
+    <string name="msg_sample_data_loaded">Sample cats (Mochi &amp; Biscuit) loaded successfully!</string>
+    <string name="section_app_data">App Data</string>
+    <string name="btn_reset_app">Reset App</string>
+    <string name="msg_reset_app_title">Reset App</string>
+    <string name="msg_reset_app_message">Are you sure you want to reset all app data and start over?</string>
+    <string name="section_about">About Litterboxd</string>
+    <string name="about_disclaimer">Disclaimer: Litterboxd is a companion tool for cat care tracking and does not replace professional veterinary advice or diagnosis.</string>
+
+    <!-- Errors and Validation -->
+    <string name="error_field_required">This field is required.</string>
+    <string name="error_invalid_weight">Weight must be between 0.5 and 15.0 kg.</string>
+    <string name="error_invalid_portion">Please enter a valid portion in grams.</string>
+    <string name="error_select_cat_name">Please enter a cat name.</string>
 </resources>

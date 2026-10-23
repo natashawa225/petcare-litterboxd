@@ -7,12 +7,13 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
+        android:name=".LitterboxdApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/app_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/app_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Litterboxd"
         tools:targetApi="31">
@@ -31,15 +32,27 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.auth.LoginActivity"
+            android:name=".ui.onboarding.OwnerNameActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.auth.RegisterActivity"
+            android:name=".ui.onboarding.AddEditCatActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.onboarding.FeedingScheduleActivity"
             android:exported="false" />
 
         <activity
             android:name=".ui.home.HomeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.profile.CatProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.settings.SettingsActivity"
             android:exported="false" />
 
     </application>
