@@ -231,32 +231,32 @@ public class AddEditCatActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         btnSaveCat.setEnabled(false);
 
-        final double finalWeight = weight;
+        // Read every view here on the UI thread; the worker thread only touches files and the database.
+        Cat cat = isEditMode() ? editingCat : new Cat();
+        cat.setName(name);
+        if (rgAgeType.getCheckedRadioButtonId() == R.id.rbBirthday) {
+            cat.setBirthday(selectedBirthdayMs);
+        } else {
+            cat.setBirthday(null);
+            cat.setApproxAgeYears((Integer) spinnerYears.getSelectedItem());
+            cat.setApproxAgeMonths((Integer) spinnerMonths.getSelectedItem());
+        }
+        cat.setBreed(spinnerBreed.getSelectedItem().toString());
+        cat.setSex(rgSex.getCheckedRadioButtonId() == R.id.rbMale ? "Male" : "Female");
+        cat.setNeutered(rgNeutered.getCheckedRadioButtonId() == R.id.rbNeuteredYes);
+        cat.setWeight(weight);
+        cat.setCoatColor(idToCoat(rgCoatColor.getCheckedRadioButtonId()));
+        cat.setLifestyle(idToLifestyle(rgLifestyle.getCheckedRadioButtonId()));
+        final String oldPhoto = cat.getPhotoPath();
+        final Uri photoUri = pickedImageUri;
+
         AppExecutors.getInstance().diskIO().execute(() -> {
-            String oldPhoto = isEditMode() ? editingCat.getPhotoPath() : null;
             savedPhotoFileName = oldPhoto;
-            if (pickedImageUri != null) {
+            if (photoUri != null) {
                 savedPhotoFileName = "cat_photo_" + UUID.randomUUID().toString() + ".jpg";
-                downscaleAndSaveImage(pickedImageUri, savedPhotoFileName);
+                downscaleAndSaveImage(photoUri, savedPhotoFileName);
             }
-
-            Cat cat = isEditMode() ? editingCat : new Cat();
-            cat.setName(name);
             cat.setPhotoPath(savedPhotoFileName);
-            if (rgAgeType.getCheckedRadioButtonId() == R.id.rbBirthday) {
-                cat.setBirthday(selectedBirthdayMs);
-            } else {
-                cat.setBirthday(null);
-                cat.setApproxAgeYears((Integer) spinnerYears.getSelectedItem());
-                cat.setApproxAgeMonths((Integer) spinnerMonths.getSelectedItem());
-            }
-
-            cat.setBreed(spinnerBreed.getSelectedItem().toString());
-            cat.setSex(rgSex.getCheckedRadioButtonId() == R.id.rbMale ? "Male" : "Female");
-            cat.setNeutered(rgNeutered.getCheckedRadioButtonId() == R.id.rbNeuteredYes);
-            cat.setWeight(finalWeight);
-            cat.setCoatColor(idToCoat(rgCoatColor.getCheckedRadioButtonId()));
-            cat.setLifestyle(idToLifestyle(rgLifestyle.getCheckedRadioButtonId()));
 
             if (isEditMode()) {
                 catDao.updateCat(cat);
