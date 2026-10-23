@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
@@ -51,6 +52,15 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         int minute = 0;
     }
 
+    private static final String STATE_LABELS = "meal_labels";
+    private static final String STATE_HOURS = "meal_hours";
+    private static final String STATE_MINUTES = "meal_minutes";
+    private static final String STATE_PORTIONS = "meal_portions";
+
+    // Row values to re-apply the next time the rows are rebuilt (after rotation or a meal-count change).
+    private String[] pendingLabels, pendingPortions;
+    private int[] pendingHours, pendingMinutes;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +75,13 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         btnSaveSchedule = findViewById(R.id.btnSaveSchedule);
         btnSkipSchedule = findViewById(R.id.btnSkipSchedule);
+
+        if (savedInstanceState != null) {
+            pendingLabels = savedInstanceState.getStringArray(STATE_LABELS);
+            pendingHours = savedInstanceState.getIntArray(STATE_HOURS);
+            pendingMinutes = savedInstanceState.getIntArray(STATE_MINUTES);
+            pendingPortions = savedInstanceState.getStringArray(STATE_PORTIONS);
+        }
 
         Integer[] mealCounts = {1, 2, 3, 4};
         ArrayAdapter<Integer> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, mealCounts);
@@ -87,7 +104,36 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         btnSkipSchedule.setOnClickListener(v -> finishOnboarding());
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        captureRows();
+        outState.putStringArray(STATE_LABELS, pendingLabels);
+        outState.putIntArray(STATE_HOURS, pendingHours);
+        outState.putIntArray(STATE_MINUTES, pendingMinutes);
+        outState.putStringArray(STATE_PORTIONS, pendingPortions);
+    }
+
+    /** Copies what the user typed in the current rows into the pending arrays. */
+    private void captureRows() {
+        int n = mealRowViews.size();
+        pendingLabels = new String[n];
+        pendingPortions = new String[n];
+        pendingHours = new int[n];
+        pendingMinutes = new int[n];
+        for (int i = 0; i < n; i++) {
+            MealRowView row = mealRowViews.get(i);
+            pendingLabels[i] = row.etLabel.getText() != null ? row.etLabel.getText().toString() : "";
+            pendingPortions[i] = row.etPortion.getText() != null ? row.etPortion.getText().toString() : "";
+            pendingHours[i] = row.hour;
+            pendingMinutes[i] = row.minute;
+        }
+    }
+
     private void buildMealRows(int count) {
+        if (pendingLabels == null && !mealRowViews.isEmpty()) {
+            captureRows();
+        }
         containerMealRows.removeAllViews();
         mealRowViews.clear();
 
@@ -142,9 +188,21 @@ public class FeedingScheduleActivity extends AppCompatActivity {
             tilPortion.addView(etPortion);
             rowLayout.addView(tilPortion);
 
+            if (pendingLabels != null && i < pendingLabels.length) {
+                etLabel.setText(pendingLabels[i]);
+                etPortion.setText(pendingPortions[i]);
+                mealRow.hour = pendingHours[i];
+                mealRow.minute = pendingMinutes[i];
+                btnTime.setText(String.format(Locale.US, "%02d:%02d", mealRow.hour, mealRow.minute));
+            }
+
             containerMealRows.addView(rowLayout);
             mealRowViews.add(mealRow);
         }
+        pendingLabels = null;
+        pendingPortions = null;
+        pendingHours = null;
+        pendingMinutes = null;
     }
 
     private void saveScheduleAndFinish() {
