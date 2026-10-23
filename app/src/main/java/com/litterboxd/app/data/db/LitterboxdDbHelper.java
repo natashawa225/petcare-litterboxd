@@ -63,8 +63,17 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         return instance;
     }
 
+    /** In-memory database (nothing written to disk), for instrumented tests only. */
+    public static LitterboxdDbHelper createInMemoryForTests(Context context) {
+        return new LitterboxdDbHelper(context.getApplicationContext(), null);
+    }
+
     private LitterboxdDbHelper(Context context) {
-        super(context, LitterboxdContract.DATABASE_NAME, null, LitterboxdContract.DATABASE_VERSION);
+        this(context, LitterboxdContract.DATABASE_NAME);
+    }
+
+    private LitterboxdDbHelper(Context context, String databaseName) {
+        super(context, databaseName, null, LitterboxdContract.DATABASE_VERSION);
     }
 
     @Override
