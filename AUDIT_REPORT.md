@@ -296,3 +296,100 @@ Run with JDK 17 (`JAVA_HOME=~/Library/Java/JavaVirtualMachines/jbr-17.0.14/...`)
 **Will not touch:** WelcomeActivity / activity_welcome.xml (F1, report only), the Feature 1/2 hooks (F2), and Gradle versions.
 
 *Phase 3 sections (fixed / skipped / final results) and MANUAL_TEST_CHECKLIST.md will be added after Phase 2.*
+
+---
+
+# Phase 2 / Phase 3 results (2026-10-24)
+
+Branch: `audit-fixes` (from `main` @ `310d553`), **not pushed**. One commit per item, in priority order.
+
+- The first commit, `6fdf724`, snapshots the audited but uncommitted source exactly as it was before any fix, so every later commit holds a single change.
+- `6e4c1c4` adds `docs/course_reference.md`.
+- Build/IDE output is left out of every commit until the final `.gitignore` commit.
+
+## What was fixed
+
+| Plan item | Audit IDs | Commit | Notes |
+|---|---|---|---|
+| 1 | A1 | `975ef45` | `POST_NOTIFICATIONS` declared; denial shows a Toast (`onRequestPermissionsResult`). |
+| 2 | A2, A21 | `1444309` | Edit mode in AddEditCatActivity: pre-fill, update, delete the replaced photo, finish back to Profile. |
+| 3 | A3, A4 | `d95aae4`, `a6c0f6f` | `Validators.parseDecimal` (`,` or `.`) + range check in onboarding and the add-weight dialog. **Found on the emulator:** in an English locale the `numberDecimal` listener silently dropped `,`; fields now allow `0123456789.,` via `android:digits` / `DigitsKeyListener`. |
+| 4 | A7, A8 | `94cdb7d` | Back on step 3 completes onboarding like Skip; Splash resumes at step 3 if a cat exists but onboarding is incomplete. |
+| 5 | A9 | `a8e9e83` | Deleting the last cat goes to Splash, which shows Welcome; selection only changes if the deleted cat was the selected one. |
+| 6 | A5, A6 | `2205e20` | Views read on the UI thread before the executor; fields assigned only on the UI thread; add-weight re-reads the cat. Meal portions are validated with the existing `isValidPortion`. |
+| 7 | A11, A13 | `b74289e` | Photo URI and birthday saved in `onSaveInstanceState`; birthday must be picked (no silent "today"); `setMaxDate(now)`. |
+| 8 | A12 | `3b12d23` | Meal rows saved across rotation and meals-per-day changes. |
+| 9 | A16, A17, A22 | `e97a8fd` | Reset uses `db.delete()` on the three tables + deletes `cat_photo_*` + clears prefs (no direct `onUpgrade()` call). Deleting a cat deletes its photo. A failed photo save records no path. |
+| 10 | A20, C3, B5 | `5e2fb53` | One `inSampleSize` decoder in `FileStorageHelper` for saving and previews; previews decoded off the UI thread (`View.post`); the unused full-size copy method was replaced. |
+| 11 | A23 | `cc74a86` | Empty `values-night/themes.xml` removed. |
+| 12 | E1 | `42a250f` | Coat-colour RadioGroup is vertical. |
+| F1 | Welcome | `e335a54`, `a618e36` | Only the two approved fixes: the `&& isPlaying` guard, and try-with-resources for the wallpaper stream (its now-unused `Bitmap` import was removed and `IOException` imported). Nothing else touched in WelcomeActivity; `activity_welcome.xml` is untouched; the package was not moved. |
+| 13 | C1, C2, C4, C6 | `8d3a82c` | UI text → `strings.xml` (placeholders), px padding → dimens. C6 (date text) was already done in item 7 via `DateFormatUtils`. |
+| 14 | C5 | `3f298fe` | Breeds in `<string-array name="cat_breeds">` + `android:entries`. |
+| 15 | C8 | `f87706f` | `ContextCompat.getColor`. |
+| 16 | F3 channel | `a663063` | Channel ID `care_reminders` (`LitterboxdApplication.CARE_REMINDERS_CHANNEL_ID`); name/description in `strings.xml`; the old `litterboxd_feeding_channel` is deleted on existing installs. |
+| F3 | Edit schedule | `5d9fef5` | Profile → "Edit Schedule" → FeedingScheduleActivity `EXTRA_EDIT_MODE`: loads meals, no step indicator or Skip, Save replaces meals and `finish()`es, Back just finishes. |
+| F3 | Add another cat | `efe7328` | Home switcher dialog gets a last row, "+ Add another cat". AddEditCat `EXTRA_ADD_ANOTHER` (no step indicator) → selects the new cat → FeedingSchedule edit mode → back to Home. `onboarding_complete` is never touched. Switch Cat is now shown whenever a cat exists (otherwise the dialog was unreachable with one cat). |
+| 17 | B1, B2, B3 | `89380f7` | CenterCropVideoView, auth `Validator`, `DROP TABLE users` removed. |
+| 18 | B8, B9, B10, B11 | `e75f6fb`, `dfce072`, `277ad9a` | Unused resources, model all-args constructors, `SDK_INT >= O` guard, and stray `res/` root files removed. |
+| 19 | C7 | `39be4c4` | `AgeUtils.totalMonths()` shared; 2 new unit tests for the birthday path. |
+| 20 | C9 | `8fc55af` | `LitterboxdDbHelper.getInstance(context)` (application context); the constructor is private. |
+| 21 | A18 | `4b96027` | Sample meal times `08:00` / `18:00` / `07:30`; a second tap shows "already loaded". |
+| 22 | A24 | `7f44545` | `CatDaoTest` uses an in-memory DB (`createInMemoryForTests`) and adds a cascade-delete test. |
+| 25 | E2 | `f1428ca` | OwnerName wrapped in a ScrollView (fillViewport), Continue constrained below the input, `adjustResize`. |
+| 26 | E5 | `2089fd1` | TimePicker in 24-hour mode. |
+| 27 | E9 | `b106ad6` | Root backgrounds that repeated the theme's `windowBackground` removed (lint Overdraw now 0). |
+| 24 | B12 | *last commit* | `.gitignore` + `git rm --cached` of build/IDE files; done last and separately, not pushed. |
+
+## Skipped, kept, or left alone — and why
+
+- **23 / B4 (AppExecutors simplification):** skipped as instructed.
+- **28 / E8 (launcher icon):** skipped as instructed. The `ic_launcher*` mipmaps and drawables are therefore also kept (they are the 4 remaining UnusedResources warnings). Image Asset Studio will regenerate or replace them.
+- **B6 `exportCsv`, B7 `formatTime`:** kept as instructed (Feature 2 and the report).
+- **C10 (layout nesting), C11 (hard-coded colours in drawables):** not in the approved plan, so left.
+- **Feature 1/2 hooks:** Home "Coming soon" cards, the DB TODO for future tables, `LocationHelper` and the location permissions are untouched. The channel exists as `care_reminders`. The sample-data generator still has no TODO hooks (there were none to keep).
+- **Still in Java, deliberately:** sample-data names/notes and the stored values for sex/coat/lifestyle are *database values*, not UI text. `AgeUtils` life-stage labels ("Kitten" …) are still English literals because they're unit-tested utility output; moving them to resources would need a `Context` in `AgeUtils`.
+- **Deprecation notes from `javac`:** `onBackPressed()` (FeedingSchedule) and `Bundle.getParcelable(String)` (AddEditCat). Both work on targetSdk 33 and match what the course teaches; the newer replacements (`OnBackPressedDispatcher`, the typed `getParcelable`) aren't in the course reference.
+
+## Final results (after the last code commit, `a6c0f6f`)
+
+| Check | Result |
+|---|---|
+| `./gradlew assembleDebug` | SUCCESS |
+| `./gradlew testDebugUnitTest` | **11 tests, 0 failures** (AgeUtilsTest 7, ValidatorsTest 4) |
+| `./gradlew lint` | **0 errors, 17 warnings** (was 57): GradleDependency 5 (versions frozen), IconLauncherShape 5 + IconDipSize 1 + IconDuplicatesConfig 1 (icon, item 28 skipped), UnusedResources 4 (launcher files, see above), CustomSplashScreen 1 (F5). SetTextI18n, Overdraw, ObsoleteSdkInt and PluralsCandidate are now 0. |
+| Instrumented `CatDaoTest` | **2/2 pass** on the emulator (run with `adb install -r` + `am instrument`, so the app's data was not wiped; the test uses an in-memory DB). |
+
+## Emulator verification (actually run, not inferred)
+
+The automated adb/uiautomator walk-through ran on `emulator-5554` (Pixel 6 image, Android API 37; the app targets 33). The app's existing emulator data was backed up first and restored afterwards. Verified:
+
+- **Onboarding:**
+  - Fresh install → Welcome → OwnerName (Continue visible in landscape) → AddEditCat.
+  - Save is blocked until a birthday is picked; Tabby is reachable.
+  - Weight typed as `4,2` is stored as `4.2`.
+  - Step 3: an edited label survives a meals-per-day change and rotation; Save stores `HH:mm` times.
+- **Notifications:** the system notification dialog appears on first Home; both "Don't allow" and "Allow" were exercised. The denial **Toast itself was not captured** (toasts aren't in the UI hierarchy).
+- **Home:** greeting uses the owner name; Back from Home leaves the app.
+- **Profile:**
+  - Add weight `4,5` → stored as 4.5 in `weight_logs` and on the cat.
+  - Edit Schedule loads saved meals, hides step/Skip; Back returns to Profile; Save replaces meals and returns; `onboarding_complete` unchanged.
+  - Edit cat pre-fills, renames, and returns to Profile; still exactly 1 cat.
+- **Add another cat:** add → no step indicator → schedule (edit mode) → Home shows the new cat selected; `onboarding_complete` unchanged.
+- **Photos:**
+  - A photo picked, then rotated, is still saved.
+  - Replacing a photo deletes the old file.
+  - Deleting a cat removes its photo, cascades its meals, and moves the selection to the remaining cat.
+- **Settings:**
+  - Load sample data twice → no duplicates; times are `HH:mm`.
+  - Reset → Welcome with empty tables, empty prefs and no photo files; Back then exits (task cleared).
+- **Lifecycle:** force-stop after step 2 → relaunch resumes at step 3 (no duplicate cat); Back there → Home. Deleting the last cat → Welcome.
+- **Crashes:** no `FATAL EXCEPTION` in logcat during the run.
+
+**Not verified on a device:**
+- The visual look of each screen in dark mode after the night-theme removal (checked only by reasoning: one Light theme now applies).
+- Small-screen layouts other than the Pixel 6 size.
+- An Android 13 (API 33) image specifically.
+- The Welcome-screen fixes beyond compiling: the animation was not re-tested in this phase.
+
+See `MANUAL_TEST_CHECKLIST.md` for the manual pass.
