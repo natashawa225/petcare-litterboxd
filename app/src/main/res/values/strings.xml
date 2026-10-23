@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Litterboxd</string>
-    <string name="title_left">Litterb</string>
-    <string name="title_right">xd</string>
     <string name="subtitle_text">for every chapter of their nine lives</string>
-    <string name="tagline">for every chapter of their nine lives</string>
     <string name="btn_get_started">Get started</string>
     <string name="btn_continue">Continue</string>
     <string name="btn_skip">Skip</string>
@@ -12,8 +9,6 @@
     <string name="btn_cancel">Cancel</string>
     <string name="btn_yes">Yes</string>
     <string name="btn_no">No</string>
-    <string name="btn_add">Add</string>
-    <string name="btn_delete">Delete</string>
     <string name="btn_edit">Edit</string>
 
     <!-- Onboarding Step 1 -->
@@ -66,8 +61,6 @@
     <string name="onboarding_step_3">Step 3 of 3</string>
     <string name="title_feeding_schedule">Feeding Schedule</string>
     <string name="prompt_meals_per_day">Meals per day</string>
-    <string name="meal_label_prefix">Meal %d Label</string>
-    <string name="meal_time_prefix">Time: %s</string>
     <string name="meal_portion_prefix">Portion (grams)</string>
     <string name="meal_header">Meal %d</string>
     <string name="hint_meal_label">Meal label (e.g. Breakfast)</string>
@@ -86,7 +79,6 @@
     <string name="no_cat_selected">No cat selected</string>
     <string name="home_cat_summary">%1$s • %2$s • %3$s kg</string>
     <string name="nav_cat_profile">Cat Profile</string>
-    <string name="nav_settings">Settings</string>
     <string name="switch_cat">Switch Cat</string>
     <string name="title_cat_switcher">Select Cat</string>
     <string name="add_another_cat">+ Add another cat</string>
