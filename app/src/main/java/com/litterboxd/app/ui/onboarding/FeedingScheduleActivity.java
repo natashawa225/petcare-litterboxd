@@ -237,7 +237,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
                     mealRow.hour = hourOfDay;
                     mealRow.minute = minute;
                     btnTime.setText(String.format(Locale.US, "%02d:%02d", hourOfDay, minute));
-                }, mealRow.hour, mealRow.minute, false).show();
+                }, mealRow.hour, mealRow.minute, true).show(); // 24-hour, matching the HH:mm shown and stored
             });
             rowLayout.addView(btnTime);
 
