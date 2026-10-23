@@ -61,7 +61,7 @@ public class WelcomeActivity extends AppCompatActivity implements TextureView.Su
         rootWelcomeLayout.setOnClickListener(animationTriggerListener);
 
         btnGetStarted.setOnClickListener(v -> {
-            Intent intent = new Intent(WelcomeActivity.this, RegisterActivity.class);
+            Intent intent = new Intent(WelcomeActivity.this, com.litterboxd.app.ui.onboarding.OwnerNameActivity.class);
             startActivity(intent);
         });
     }
