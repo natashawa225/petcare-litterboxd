@@ -105,6 +105,7 @@
     <string name="prompt_weight_grams">Weight (kg)</string>
     <string name="prompt_weight_notes">Notes (optional)</string>
     <string name="section_feeding_schedule">Feeding Schedule</string>
+    <string name="btn_edit_schedule">Edit Schedule</string>
     <string name="profile_details">Breed: %1$s\nAge: %2$s | Weight: %3$s kg\nSex: %4$s | Neutered: %5$s\nCoat: %6$s | Lifestyle: %7$s</string>
     <string name="empty_weight_logs">No weight logs recorded yet.</string>
     <string name="weight_log_row">• %1$s kg on %2$s</string>

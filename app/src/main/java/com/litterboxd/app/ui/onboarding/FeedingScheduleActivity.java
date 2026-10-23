@@ -32,7 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Onboarding mode (default): step 3; Save/Skip/Back complete onboarding and open Home.
+ * Edit mode (EXTRA_EDIT_MODE): loads the cat's meals; Save replaces them and Back just closes.
+ */
 public class FeedingScheduleActivity extends AppCompatActivity {
+
+    public static final String EXTRA_CAT_ID = "cat_id";
+    public static final String EXTRA_EDIT_MODE = "edit_mode";
 
     private Spinner spinnerMealsPerDay;
     private LinearLayout containerMealRows;
@@ -40,6 +47,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
     private MaterialButton btnSaveSchedule, btnSkipSchedule;
 
     private long catId = -1L;
+    private boolean editMode;
     private AppPrefs appPrefs;
     private FeedingScheduleDao feedingScheduleDao;
     private final List<MealRowView> mealRowViews = new ArrayList<>();
@@ -68,7 +76,8 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feeding_schedule);
 
-        catId = getIntent().getLongExtra("cat_id", -1L);
+        catId = getIntent().getLongExtra(EXTRA_CAT_ID, -1L);
+        editMode = getIntent().getBooleanExtra(EXTRA_EDIT_MODE, false);
         appPrefs = new AppPrefs(this);
         feedingScheduleDao = new FeedingScheduleDao(new LitterboxdDbHelper(this));
 
@@ -104,12 +113,63 @@ public class FeedingScheduleActivity extends AppCompatActivity {
 
         btnSaveSchedule.setOnClickListener(v -> saveScheduleAndFinish());
         btnSkipSchedule.setOnClickListener(v -> finishOnboarding());
+
+        if (editMode) {
+            findViewById(R.id.tvStepIndicator).setVisibility(View.GONE);
+            btnSkipSchedule.setVisibility(View.GONE);
+            if (savedInstanceState == null) loadExistingMeals();
+        }
+    }
+
+    /** Edit mode: shows the cat's saved meals instead of the defaults. */
+    private void loadExistingMeals() {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            List<FeedingMeal> meals = feedingScheduleDao.getFeedingMealsForCat(catId);
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                if (meals.isEmpty()) return; // keep the default rows
+                int count = Math.min(meals.size(), spinnerMealsPerDay.getCount());
+                pendingLabels = new String[count];
+                pendingPortions = new String[count];
+                pendingHours = new int[count];
+                pendingMinutes = new int[count];
+                for (int i = 0; i < count; i++) {
+                    FeedingMeal meal = meals.get(i);
+                    pendingLabels[i] = meal.getMealLabel();
+                    pendingPortions[i] = String.valueOf(meal.getPortionGrams());
+                    int[] time = parseTime(meal.getMealTime());
+                    pendingHours[i] = time[0];
+                    pendingMinutes[i] = time[1];
+                }
+                if (spinnerMealsPerDay.getSelectedItemPosition() == count - 1) {
+                    buildMealRows(count); // selection unchanged, so the listener will not fire
+                } else {
+                    spinnerMealsPerDay.setSelection(count - 1);
+                }
+            });
+        });
+    }
+
+    /** Parses "HH:mm" (also tolerates older "hh:mm AM/PM" values); falls back to 08:00. */
+    private static int[] parseTime(String time) {
+        try {
+            String[] parts = time.trim().split("[: ]");
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+            if (parts.length > 2) {
+                boolean pm = parts[2].equalsIgnoreCase("PM");
+                if (hour == 12) hour = 0;
+                if (pm) hour += 12;
+            }
+            return new int[]{hour, minute};
+        } catch (RuntimeException e) {
+            return new int[]{8, 0};
+        }
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        captureRows();
+        if (pendingLabels == null) captureRows(); // rows not built yet: keep what is pending
         outState.putStringArray(STATE_LABELS, pendingLabels);
         outState.putIntArray(STATE_HOURS, pendingHours);
         outState.putIntArray(STATE_MINUTES, pendingMinutes);
@@ -240,22 +300,31 @@ public class FeedingScheduleActivity extends AppCompatActivity {
                 }
             }
 
-            appPrefs.setOnboardingComplete(true);
+            if (!editMode) appPrefs.setOnboardingComplete(true);
 
             AppExecutors.getInstance().mainThread().execute(() -> {
                 progressBar.setVisibility(View.GONE);
-                navigateToHome();
+                if (editMode) {
+                    finish();
+                } else {
+                    navigateToHome();
+                }
             });
         });
     }
 
     /**
-     * The cat was already saved in step 2, so going back to step 1 would let the user
-     * add the same cat twice. Back here behaves like Skip instead.
+     * Onboarding: the cat was already saved in step 2, so going back to step 1 would let the
+     * user add the same cat twice. Back here behaves like Skip instead.
+     * Edit mode: Back just closes without saving.
      */
     @Override
     public void onBackPressed() {
-        finishOnboarding();
+        if (editMode) {
+            super.onBackPressed();
+        } else {
+            finishOnboarding();
+        }
     }
 
     private void finishOnboarding() {
