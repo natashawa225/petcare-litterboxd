@@ -82,7 +82,6 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.FeedingScheduleEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.WeightLogEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CatEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS users");
         onCreate(db);
     }
 }
