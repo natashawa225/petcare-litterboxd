@@ -23,6 +23,7 @@ import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.session.AppPrefs;
+import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
 import com.litterboxd.app.ui.profile.CatProfileActivity;
 import com.litterboxd.app.ui.settings.SettingsActivity;
 import com.litterboxd.app.util.AgeUtils;
@@ -123,7 +124,8 @@ public class HomeActivity extends AppCompatActivity {
             tvHomeCatDetails.setText(details);
 
             fileStorageHelper.showCatPhoto(imgHomeCatPhoto, currentCat.getPhotoPath());
-            btnSwitchCat.setVisibility(allCats.size() > 1 ? View.VISIBLE : View.GONE);
+            // Always available: the switcher dialog is also where a second cat is added.
+            btnSwitchCat.setVisibility(View.VISIBLE);
         } else {
             tvHomeCatName.setText(R.string.no_cat_selected);
             tvHomeCatDetails.setText(null);
@@ -134,14 +136,22 @@ public class HomeActivity extends AppCompatActivity {
 
     private void showCatSwitcherDialog() {
         if (allCats == null || allCats.isEmpty()) return;
-        String[] catNames = new String[allCats.size()];
+        // One row per cat, plus a last row to add another cat.
+        String[] items = new String[allCats.size() + 1];
         for (int i = 0; i < allCats.size(); i++) {
-            catNames[i] = allCats.get(i).getName();
+            items[i] = allCats.get(i).getName();
         }
+        items[allCats.size()] = getString(R.string.add_another_cat);
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.title_cat_switcher)
-                .setItems(catNames, (dialog, which) -> {
+                .setItems(items, (dialog, which) -> {
+                    if (which == allCats.size()) {
+                        Intent intent = new Intent(this, AddEditCatActivity.class);
+                        intent.putExtra(AddEditCatActivity.EXTRA_ADD_ANOTHER, true);
+                        startActivity(intent);
+                        return;
+                    }
                     Cat chosen = allCats.get(which);
                     appPrefs.setSelectedCatId(chosen.getId());
                     currentCat = chosen;

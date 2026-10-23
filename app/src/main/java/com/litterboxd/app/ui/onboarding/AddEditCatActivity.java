@@ -38,11 +38,14 @@ import java.util.UUID;
 
 /**
  * Add mode (default): onboarding step 2, inserts a cat and continues to the feeding schedule.
+ * Add-another mode (EXTRA_ADD_ANOTHER, from Home): inserts and selects the cat, then opens its
+ * feeding schedule in edit mode, which returns to Home. Never touches onboarding_complete.
  * Edit mode (EXTRA_CAT_ID set): pre-fills the cat, updates it and returns to the caller.
  */
 public class AddEditCatActivity extends AppCompatActivity {
 
     public static final String EXTRA_CAT_ID = "cat_id";
+    public static final String EXTRA_ADD_ANOTHER = "add_another";
     private static final String STATE_PHOTO_URI = "photo_uri";
     private static final String STATE_BIRTHDAY = "birthday";
 
@@ -62,6 +65,7 @@ public class AddEditCatActivity extends AppCompatActivity {
     private CatDao catDao;
 
     private long editCatId = -1L;
+    private boolean addAnother;
     private Cat editingCat;
 
     private final ActivityResultLauncher<String> photoPickerLauncher = registerForActivityResult(
@@ -83,6 +87,7 @@ public class AddEditCatActivity extends AppCompatActivity {
         appPrefs = new AppPrefs(this);
         catDao = new CatDao(new LitterboxdDbHelper(this));
         editCatId = getIntent().getLongExtra(EXTRA_CAT_ID, -1L);
+        addAnother = getIntent().getBooleanExtra(EXTRA_ADD_ANOTHER, false);
 
         etCatName = findViewById(R.id.etCatName);
         etWeight = findViewById(R.id.etWeight);
@@ -138,6 +143,10 @@ public class AddEditCatActivity extends AppCompatActivity {
             if (pickedImageUri != null) showPreview(pickedImageUri);
             long birthday = savedInstanceState.getLong(STATE_BIRTHDAY, -1L);
             if (birthday != -1L) setBirthday(birthday);
+        }
+
+        if (addAnother) {
+            findViewById(R.id.tvStepIndicator).setVisibility(View.GONE);
         }
 
         if (isEditMode()) {
@@ -304,7 +313,7 @@ public class AddEditCatActivity extends AppCompatActivity {
 
             cat.setCreatedAt(System.currentTimeMillis());
             long catId = catDao.insertCat(cat);
-            if (appPrefs.getSelectedCatId() == -1L) {
+            if (addAnother || appPrefs.getSelectedCatId() == -1L) {
                 appPrefs.setSelectedCatId(catId);
             }
 
@@ -312,7 +321,9 @@ public class AddEditCatActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 btnSaveCat.setEnabled(true);
                 Intent intent = new Intent(AddEditCatActivity.this, FeedingScheduleActivity.class);
-                intent.putExtra("cat_id", catId);
+                intent.putExtra(FeedingScheduleActivity.EXTRA_CAT_ID, catId);
+                // From Home: edit mode, so Save/Back return to Home without onboarding logic.
+                intent.putExtra(FeedingScheduleActivity.EXTRA_EDIT_MODE, addAnother);
                 startActivity(intent);
                 finish();
             });

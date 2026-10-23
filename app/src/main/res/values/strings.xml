@@ -89,6 +89,7 @@
     <string name="nav_settings">Settings</string>
     <string name="switch_cat">Switch Cat</string>
     <string name="title_cat_switcher">Select Cat</string>
+    <string name="add_another_cat">+ Add another cat</string>
     <string name="card_daily_checkin_title">Daily Check-in</string>
     <string name="card_daily_checkin_subtitle">Coming soon: track daily mood and litterbox habits.</string>
     <string name="card_care_tasks_title">Care Tasks</string>
