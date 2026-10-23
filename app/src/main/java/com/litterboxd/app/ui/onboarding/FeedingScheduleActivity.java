@@ -176,6 +176,15 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * The cat was already saved in step 2, so going back to step 1 would let the user
+     * add the same cat twice. Back here behaves like Skip instead.
+     */
+    @Override
+    public void onBackPressed() {
+        finishOnboarding();
+    }
+
     private void finishOnboarding() {
         appPrefs.setOnboardingComplete(true);
         navigateToHome();
