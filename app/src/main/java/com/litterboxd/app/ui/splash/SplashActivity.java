@@ -24,7 +24,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         AppPrefs appPrefs = new AppPrefs(this);
-        LitterboxdDbHelper dbHelper = new LitterboxdDbHelper(this);
+        LitterboxdDbHelper dbHelper = LitterboxdDbHelper.getInstance(this);
         CatDao catDao = new CatDao(dbHelper);
 
         List<Cat> cats = catDao.getAllCats();

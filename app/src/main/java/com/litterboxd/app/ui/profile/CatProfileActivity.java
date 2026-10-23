@@ -57,7 +57,7 @@ public class CatProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_cat_profile);
 
         catId = getIntent().getLongExtra("cat_id", -1L);
-        LitterboxdDbHelper dbHelper = new LitterboxdDbHelper(this);
+        LitterboxdDbHelper dbHelper = LitterboxdDbHelper.getInstance(this);
         catDao = new CatDao(dbHelper);
         weightLogDao = new WeightLogDao(dbHelper);
         feedingScheduleDao = new FeedingScheduleDao(dbHelper);

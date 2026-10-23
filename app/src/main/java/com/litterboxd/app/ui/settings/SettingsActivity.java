@@ -44,7 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         appPrefs = new AppPrefs(this);
-        dbHelper = new LitterboxdDbHelper(this);
+        dbHelper = LitterboxdDbHelper.getInstance(this);
         catDao = new CatDao(dbHelper);
         weightLogDao = new WeightLogDao(dbHelper);
         feedingScheduleDao = new FeedingScheduleDao(dbHelper);

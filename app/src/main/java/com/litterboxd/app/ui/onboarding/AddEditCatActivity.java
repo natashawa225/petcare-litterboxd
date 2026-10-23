@@ -85,7 +85,7 @@ public class AddEditCatActivity extends AppCompatActivity {
 
         fileStorageHelper = new FileStorageHelper(this);
         appPrefs = new AppPrefs(this);
-        catDao = new CatDao(new LitterboxdDbHelper(this));
+        catDao = new CatDao(LitterboxdDbHelper.getInstance(this));
         editCatId = getIntent().getLongExtra(EXTRA_CAT_ID, -1L);
         addAnother = getIntent().getBooleanExtra(EXTRA_ADD_ANOTHER, false);
 
