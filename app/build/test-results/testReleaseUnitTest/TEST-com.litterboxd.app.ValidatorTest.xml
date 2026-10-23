@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.litterboxd.app.ValidatorTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-13T18:07:34" hostname="Natashas-MacBook-Pro-2.local" time="0.001">
-  <properties/>
-  <testcase name="testPasswordsMatch" classname="com.litterboxd.app.ValidatorTest" time="0.001"/>
-  <testcase name="testPasswordValidation" classname="com.litterboxd.app.ValidatorTest" time="0.0"/>
-  <testcase name="testEmailValidation" classname="com.litterboxd.app.ValidatorTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
