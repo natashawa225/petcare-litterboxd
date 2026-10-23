@@ -4,22 +4,24 @@ import java.util.Calendar;
 
 public class AgeUtils {
 
-    public static String calculateLifeStage(Long birthdayMs, int approxYears, int approxMonths) {
-        int totalMonths;
-        if (birthdayMs != null && birthdayMs > 0) {
-            Calendar dob = Calendar.getInstance();
-            dob.setTimeInMillis(birthdayMs);
-            Calendar now = Calendar.getInstance();
-            int years = now.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
-            int months = now.get(Calendar.MONTH) - dob.get(Calendar.MONTH);
-            totalMonths = years * 12 + months;
-            if (now.get(Calendar.DAY_OF_MONTH) < dob.get(Calendar.DAY_OF_MONTH)) {
-                totalMonths--;
-            }
-            if (totalMonths < 0) totalMonths = 0;
-        } else {
-            totalMonths = approxYears * 12 + approxMonths;
+    /** Age in whole months, from the birthday if known, otherwise from the approximate age. */
+    private static int totalMonths(Long birthdayMs, int approxYears, int approxMonths) {
+        if (birthdayMs == null || birthdayMs <= 0) {
+            return approxYears * 12 + approxMonths;
         }
+        Calendar dob = Calendar.getInstance();
+        dob.setTimeInMillis(birthdayMs);
+        Calendar now = Calendar.getInstance();
+        int totalMonths = (now.get(Calendar.YEAR) - dob.get(Calendar.YEAR)) * 12
+                + (now.get(Calendar.MONTH) - dob.get(Calendar.MONTH));
+        if (now.get(Calendar.DAY_OF_MONTH) < dob.get(Calendar.DAY_OF_MONTH)) {
+            totalMonths--;
+        }
+        return Math.max(totalMonths, 0);
+    }
+
+    public static String calculateLifeStage(Long birthdayMs, int approxYears, int approxMonths) {
+        int totalMonths = totalMonths(birthdayMs, approxYears, approxMonths);
 
         // AAHA/AAFP life stages:
         // Kitten: 0 to < 12 months (0-1 yr)
@@ -42,21 +44,7 @@ public class AgeUtils {
     }
 
     public static String getAgeDisplay(Long birthdayMs, int approxYears, int approxMonths) {
-        int totalMonths;
-        if (birthdayMs != null && birthdayMs > 0) {
-            Calendar dob = Calendar.getInstance();
-            dob.setTimeInMillis(birthdayMs);
-            Calendar now = Calendar.getInstance();
-            int years = now.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
-            int months = now.get(Calendar.MONTH) - dob.get(Calendar.MONTH);
-            totalMonths = years * 12 + months;
-            if (now.get(Calendar.DAY_OF_MONTH) < dob.get(Calendar.DAY_OF_MONTH)) {
-                totalMonths--;
-            }
-            if (totalMonths < 0) totalMonths = 0;
-        } else {
-            totalMonths = approxYears * 12 + approxMonths;
-        }
+        int totalMonths = totalMonths(birthdayMs, approxYears, approxMonths);
 
         int years = totalMonths / 12;
         int months = totalMonths % 12;
