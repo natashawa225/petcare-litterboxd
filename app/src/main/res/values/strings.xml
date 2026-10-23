@@ -138,6 +138,10 @@
     <string name="error_select_cat_name">Please enter a cat name.</string>
     <string name="error_select_birthday">Please select a birthday, or choose Approximate Age.</string>
 
+    <!-- Notifications -->
+    <string name="channel_care_reminders_name">Care reminders</string>
+    <string name="channel_care_reminders_description">Feeding schedule and cat care reminders</string>
+
     <!-- Permissions -->
     <string name="msg_notifications_denied">Notifications are off. You can turn them on later in system Settings.</string>
 </resources>

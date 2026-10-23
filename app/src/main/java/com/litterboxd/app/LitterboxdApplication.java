@@ -6,7 +6,9 @@ import android.app.NotificationManager;
 import android.os.Build;
 
 public class LitterboxdApplication extends Application {
-    public static final String FEEDING_CHANNEL_ID = "litterboxd_feeding_channel";
+    /** Channel for Feature 2 (care reminders). Created at startup so it exists before any notification is posted. */
+    public static final String CARE_REMINDERS_CHANNEL_ID = "care_reminders";
+    private static final String OLD_CHANNEL_ID = "litterboxd_feeding_channel";
 
     @Override
     public void onCreate() {
@@ -16,13 +18,15 @@ public class LitterboxdApplication extends Application {
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Litterboxd Notifications";
-            String description = "Notifications for feeding schedule and cat care reminders";
+            CharSequence name = getString(R.string.channel_care_reminders_name);
+            String description = getString(R.string.channel_care_reminders_description);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(FEEDING_CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(CARE_REMINDERS_CHANNEL_ID, name, importance);
             channel.setDescription(description);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             if (notificationManager != null) {
+                // Remove the channel created under the previous ID on existing installs.
+                notificationManager.deleteNotificationChannel(OLD_CHANNEL_ID);
                 notificationManager.createNotificationChannel(channel);
             }
         }
