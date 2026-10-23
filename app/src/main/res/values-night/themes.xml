@@ -1,5 +1,0 @@
-<resources>
-    <style name="Theme.Litterboxd" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Light theme enforced even in night mode per requirements -->
-    </style>
-</resources>
