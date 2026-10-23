@@ -12,6 +12,7 @@ import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.model.FeedingMeal;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,17 +31,21 @@ public class CatDaoTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        dbHelper = LitterboxdDbHelper.getInstance(context);
+        // In-memory database: the tests never touch the app's real data.
+        dbHelper = LitterboxdDbHelper.createInMemoryForTests(context);
         catDao = new CatDao(dbHelper);
         weightLogDao = new WeightLogDao(dbHelper);
         feedingScheduleDao = new FeedingScheduleDao(dbHelper);
     }
 
+    @After
+    public void tearDown() {
+        dbHelper.close();
+    }
 
-    @Test
-    public void testInsertAndGetCat() {
+    private Cat newCat(String name) {
         Cat cat = new Cat();
-        cat.setName("Mochi");
+        cat.setName(name);
         cat.setBreed("Domestic Shorthair");
         cat.setSex("Female");
         cat.setNeutered(true);
@@ -48,8 +53,12 @@ public class CatDaoTest {
         cat.setCoatColor("Calico");
         cat.setLifestyle("Indoor only");
         cat.setCreatedAt(System.currentTimeMillis());
+        return cat;
+    }
 
-        long catId = catDao.insertCat(cat);
+    @Test
+    public void testInsertAndGetCat() {
+        long catId = catDao.insertCat(newCat("Mochi"));
         assertTrue(catId > 0);
 
         Cat fetched = catDao.getCatById(catId);
@@ -62,5 +71,41 @@ public class CatDaoTest {
 
         catDao.deleteCat(catId);
         assertNull(catDao.getCatById(catId));
+    }
+
+    @Test
+    public void testDeletingCatCascadesToWeightLogsAndMeals() {
+        long catId = catDao.insertCat(newCat("Biscuit"));
+        long otherId = catDao.insertCat(newCat("Mochi"));
+
+        WeightLog log = new WeightLog();
+        log.setCatId(catId);
+        log.setWeight(6.7);
+        log.setDate(System.currentTimeMillis());
+        weightLogDao.insertWeightLog(log);
+
+        FeedingMeal meal = new FeedingMeal();
+        meal.setCatId(catId);
+        meal.setMealLabel("Breakfast");
+        meal.setMealTime("08:00");
+        meal.setPortionGrams(50);
+        feedingScheduleDao.insertFeedingMeal(meal);
+
+        FeedingMeal otherMeal = new FeedingMeal();
+        otherMeal.setCatId(otherId);
+        otherMeal.setMealLabel("Dinner");
+        otherMeal.setMealTime("18:00");
+        otherMeal.setPortionGrams(45);
+        feedingScheduleDao.insertFeedingMeal(otherMeal);
+
+        assertEquals(1, weightLogDao.getWeightLogsForCat(catId).size());
+        assertEquals(1, feedingScheduleDao.getFeedingMealsForCat(catId).size());
+
+        catDao.deleteCat(catId);
+
+        // ON DELETE CASCADE only works because onConfigure enables foreign keys.
+        assertTrue(weightLogDao.getWeightLogsForCat(catId).isEmpty());
+        assertTrue(feedingScheduleDao.getFeedingMealsForCat(catId).isEmpty());
+        assertEquals(1, feedingScheduleDao.getFeedingMealsForCat(otherId).size());
     }
 }
