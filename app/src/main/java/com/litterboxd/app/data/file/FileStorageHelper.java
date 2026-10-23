@@ -22,6 +22,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class FileStorageHelper {
+    public static final String CAT_PHOTO_PREFIX = "cat_photo_";
+
     private final Context context;
 
     public FileStorageHelper(Context context) {
@@ -58,6 +60,22 @@ public class FileStorageHelper {
      */
     public File getInternalImageFile(String fileName) {
         return new File(context.getFilesDir(), fileName);
+    }
+
+    /** Deletes one cat photo from internal storage; null or missing files are ignored. */
+    public void deleteImage(String fileName) {
+        if (fileName == null || fileName.isEmpty()) return;
+        File file = getInternalImageFile(fileName);
+        if (file.exists()) file.delete();
+    }
+
+    /** Deletes every cat photo (files named cat_photo_*) from internal storage. Used by Reset app. */
+    public void deleteAllCatPhotos() {
+        File[] files = context.getFilesDir().listFiles();
+        if (files == null) return;
+        for (File file : files) {
+            if (file.getName().startsWith(CAT_PHOTO_PREFIX)) file.delete();
+        }
     }
 
     /**

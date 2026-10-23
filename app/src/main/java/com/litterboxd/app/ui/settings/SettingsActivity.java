@@ -1,6 +1,7 @@
 package com.litterboxd.app.ui.settings;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -14,7 +15,9 @@ import com.litterboxd.app.R;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.FeedingScheduleDao;
 import com.litterboxd.app.data.dao.WeightLogDao;
+import com.litterboxd.app.data.db.LitterboxdContract;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
+import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.FeedingMeal;
 import com.litterboxd.app.data.model.WeightLog;
@@ -154,8 +157,13 @@ public class SettingsActivity extends AppCompatActivity {
                 .setMessage(R.string.msg_reset_app_message)
                 .setPositiveButton(R.string.btn_yes, (dialog, which) -> {
                     AppExecutors.getInstance().diskIO().execute(() -> {
+                        // Children first (they reference cats), then cats, then photos and preferences.
+                        SQLiteDatabase db = dbHelper.getWritableDatabase();
+                        db.delete(LitterboxdContract.FeedingScheduleEntry.TABLE_NAME, null, null);
+                        db.delete(LitterboxdContract.WeightLogEntry.TABLE_NAME, null, null);
+                        db.delete(LitterboxdContract.CatEntry.TABLE_NAME, null, null);
+                        new FileStorageHelper(this).deleteAllCatPhotos();
                         appPrefs.clear();
-                        dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 2, 2);
 
                         AppExecutors.getInstance().mainThread().execute(() -> {
                             Intent intent = new Intent(this, SplashActivity.class);

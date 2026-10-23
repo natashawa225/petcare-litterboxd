@@ -61,7 +61,6 @@ public class AddEditCatActivity extends AppCompatActivity {
 
     private Long selectedBirthdayMs = null;
     private Uri pickedImageUri = null;
-    private String savedPhotoFileName = null;
     private FileStorageHelper fileStorageHelper;
     private AppPrefs appPrefs;
     private CatDao catDao;
@@ -280,18 +279,21 @@ public class AddEditCatActivity extends AppCompatActivity {
         final Uri photoUri = pickedImageUri;
 
         AppExecutors.getInstance().diskIO().execute(() -> {
-            savedPhotoFileName = oldPhoto;
+            String photoFileName = oldPhoto;
             if (photoUri != null) {
-                savedPhotoFileName = "cat_photo_" + UUID.randomUUID().toString() + ".jpg";
-                downscaleAndSaveImage(photoUri, savedPhotoFileName);
+                String newFileName = FileStorageHelper.CAT_PHOTO_PREFIX + UUID.randomUUID().toString() + ".jpg";
+                // Only point the cat at the new file if it was actually written.
+                if (downscaleAndSaveImage(photoUri, newFileName)) {
+                    photoFileName = newFileName;
+                }
             }
-            cat.setPhotoPath(savedPhotoFileName);
+            cat.setPhotoPath(photoFileName);
 
             if (isEditMode()) {
                 catDao.updateCat(cat);
                 // Replaced photo: remove the old file so it does not linger in internal storage.
-                if (oldPhoto != null && !oldPhoto.equals(savedPhotoFileName)) {
-                    fileStorageHelper.getInternalImageFile(oldPhoto).delete();
+                if (oldPhoto != null && !oldPhoto.equals(photoFileName)) {
+                    fileStorageHelper.deleteImage(oldPhoto);
                 }
                 AppExecutors.getInstance().mainThread().execute(this::finish);
                 return;
@@ -345,9 +347,9 @@ public class AddEditCatActivity extends AppCompatActivity {
         return R.id.rbLifestyleIndoor;
     }
 
-    private void downscaleAndSaveImage(Uri sourceUri, String fileName) {
+    private boolean downscaleAndSaveImage(Uri sourceUri, String fileName) {
         try (InputStream inputStream = getContentResolver().openInputStream(sourceUri)) {
-            if (inputStream == null) return;
+            if (inputStream == null) return false;
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(inputStream, null, options);
@@ -371,11 +373,13 @@ public class AddEditCatActivity extends AppCompatActivity {
                     try (FileOutputStream fos = new FileOutputStream(file)) {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
                         fos.flush();
+                        return true;
                     }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 }
