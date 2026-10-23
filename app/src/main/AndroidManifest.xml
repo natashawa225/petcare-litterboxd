@@ -36,7 +36,8 @@
 
         <activity
             android:name=".ui.onboarding.OwnerNameActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.onboarding.AddEditCatActivity"
