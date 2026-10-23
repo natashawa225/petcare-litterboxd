@@ -235,7 +235,9 @@ public class CatProfileActivity extends AppCompatActivity {
                 .setMessage(getString(R.string.msg_delete_cat_message, catName))
                 .setPositiveButton(R.string.btn_yes, (dialog, which) -> {
                     AppExecutors.getInstance().diskIO().execute(() -> {
-                        catDao.deleteCat(catId);
+                        Cat toDelete = catDao.getCatById(catId);
+                        catDao.deleteCat(catId); // weight logs and meals go too (ON DELETE CASCADE)
+                        if (toDelete != null) fileStorageHelper.deleteImage(toDelete.getPhotoPath());
                         List<Cat> remaining = catDao.getAllCats();
                         if (!remaining.isEmpty()) {
                             if (appPrefs.getSelectedCatId() == catId) {
