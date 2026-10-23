@@ -1,6 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../CPT204/CPT204-group-project" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../Seleksi" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../can201/Coursework1" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../can201/sdn traffic/Codes" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../cpt208-functional-system" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../cpt208-portfolio" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../depo-pompa" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../fyp-rrevisage/chiAPP2026" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../fyp-rrevisage/fyp_kaggle_package" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../fyp-rrevisage/temp_emnlp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../fyp-rrevisage/temp_mpaq" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../fyp_math" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../ielts-feedback-app (1) copy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../meshquiz/mesh-quiz-paper/programming-classroom" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../nat 2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../next/commerce" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../other/my potfolio" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../personal-portfolio 2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../portfolio" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/brandy-ecommerce" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/chi app 2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/chi-app" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/chiAPP" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/chiAPP2026" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/chiAPP2026 copy" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/classroom-programming-exercise 2" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/ielts-essay-analyzer" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/ielts-feedback-app (1)" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/java practice" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/lang-learn" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/personal-portfolio" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/personal-portfolio-main" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/programming-classroom" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/reflectnote-baseline" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../projects/talk2cart" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../udemy/web developement" vcs="Git" />
   </component>
 </project>
