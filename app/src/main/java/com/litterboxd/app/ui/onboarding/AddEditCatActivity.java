@@ -195,7 +195,6 @@ public class AddEditCatActivity extends AppCompatActivity {
         });
     }
 
-    @SuppressWarnings("unchecked")
     private void fillForm(Cat cat) {
         etCatName.setText(cat.getName());
         etWeight.setText(String.valueOf(cat.getWeight()));
@@ -209,9 +208,13 @@ public class AddEditCatActivity extends AppCompatActivity {
             spinnerMonths.setSelection(Math.min(cat.getApproxAgeMonths(), spinnerMonths.getCount() - 1));
         }
 
-        ArrayAdapter<String> breedAdapter = (ArrayAdapter<String>) spinnerBreed.getAdapter();
-        int breedPos = breedAdapter.getPosition(cat.getBreed());
-        spinnerBreed.setSelection(breedPos >= 0 ? breedPos : breedAdapter.getCount() - 1);
+        // Breeds come from @array/cat_breeds (android:entries); unknown values fall back to the last item, "Other".
+        String[] breeds = getResources().getStringArray(R.array.cat_breeds);
+        int breedPos = breeds.length - 1;
+        for (int i = 0; i < breeds.length; i++) {
+            if (breeds[i].equals(cat.getBreed())) breedPos = i;
+        }
+        spinnerBreed.setSelection(breedPos);
 
         rgSex.check("Male".equals(cat.getSex()) ? R.id.rbMale : R.id.rbFemale);
         rgNeutered.check(cat.isNeutered() ? R.id.rbNeuteredYes : R.id.rbNeuteredNo);
@@ -220,11 +223,6 @@ public class AddEditCatActivity extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        String[] breeds = {"Domestic Shorthair", "Maine Coon", "Siamese", "Persian", "Ragdoll", "British Shorthair", "Sphynx", "Bengal", "Other"};
-        ArrayAdapter<String> breedAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, breeds);
-        breedAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerBreed.setAdapter(breedAdapter);
-
         Integer[] years = new Integer[26];
         for (int i = 0; i <= 25; i++) years[i] = i;
         ArrayAdapter<Integer> yearsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, years);
