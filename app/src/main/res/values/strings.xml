@@ -105,4 +105,7 @@
     <string name="error_invalid_weight">Weight must be between 0.5 and 15.0 kg.</string>
     <string name="error_invalid_portion">Please enter a valid portion in grams.</string>
     <string name="error_select_cat_name">Please enter a cat name.</string>
+
+    <!-- Permissions -->
+    <string name="msg_notifications_denied">Notifications are off. You can turn them on later in system Settings.</string>
 </resources>
