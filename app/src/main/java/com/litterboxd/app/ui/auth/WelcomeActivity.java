@@ -1,7 +1,6 @@
 package com.litterboxd.app.ui.auth;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
@@ -20,6 +19,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.google.android.material.button.MaterialButton;
 import com.litterboxd.app.R;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -152,13 +152,10 @@ public class WelcomeActivity extends AppCompatActivity implements TextureView.Su
     }
 
     private void loadStaticCatWallpaper() {
-        try {
-            InputStream is = getResources().openRawResource(R.raw.homepage_cat);
-            Bitmap bitmap = BitmapFactory.decodeStream(is);
-            imgCatStatic.setImageBitmap(bitmap);
-            is.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        try (InputStream is = getResources().openRawResource(R.raw.homepage_cat)) {
+            imgCatStatic.setImageBitmap(BitmapFactory.decodeStream(is));
+        } catch (IOException e) {
+            Log.e("LitterboxdVideo", "Failed to load static wallpaper", e);
         }
     }
 
