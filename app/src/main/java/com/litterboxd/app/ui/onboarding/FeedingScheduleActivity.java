@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -149,7 +150,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
 
             TextView tvHeader = new TextView(this);
             tvHeader.setText(getString(R.string.meal_header, i + 1));
-            tvHeader.setTextColor(getResources().getColor(R.color.sage_primary));
+            tvHeader.setTextColor(ContextCompat.getColor(this, R.color.sage_primary));
             tvHeader.setTextSize(16f);
             rowLayout.addView(tvHeader);
 
