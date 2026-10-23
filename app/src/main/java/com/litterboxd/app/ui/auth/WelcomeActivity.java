@@ -11,24 +11,22 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.google.android.material.button.MaterialButton;
 import com.litterboxd.app.R;
-import com.litterboxd.app.data.session.SessionManager;
-import com.litterboxd.app.ui.home.HomeActivity;
 
 import java.io.InputStream;
 
 /**
  * WelcomeActivity: landing screen with full-screen cat wallpaper background,
  * interactive cat animation using TextureView with precise centerCrop matrix scaling
- * identical to ImageView.ScaleType.CENTER_CROP, and static title header.
+ * identical to ImageView.ScaleType.CENTER_CROP, static title header,
+ * and a single "Get started" button.
  */
 public class WelcomeActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener {
 
@@ -49,9 +47,7 @@ public class WelcomeActivity extends AppCompatActivity implements TextureView.Su
         textureViewCat = findViewById(R.id.textureViewCat);
         rootWelcomeLayout = findViewById(R.id.rootWelcomeLayout);
 
-        Button btnSignUp = findViewById(R.id.btnSignUp);
-        Button btnLogin = findViewById(R.id.btnLogin);
-        TextView btnGuest = findViewById(R.id.btnGuest);
+        MaterialButton btnGetStarted = findViewById(R.id.btnGetStarted);
 
         // Load static cat wallpaper as default idle state filling the full screen
         loadStaticCatWallpaper();
@@ -64,23 +60,9 @@ public class WelcomeActivity extends AppCompatActivity implements TextureView.Su
         textureViewCat.setOnClickListener(animationTriggerListener);
         rootWelcomeLayout.setOnClickListener(animationTriggerListener);
 
-        btnSignUp.setOnClickListener(v -> {
+        btnGetStarted.setOnClickListener(v -> {
             Intent intent = new Intent(WelcomeActivity.this, RegisterActivity.class);
             startActivity(intent);
-        });
-
-        btnLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(WelcomeActivity.this, LoginActivity.class);
-            startActivity(intent);
-        });
-
-        btnGuest.setOnClickListener(v -> {
-            SessionManager sessionManager = new SessionManager(WelcomeActivity.this);
-            sessionManager.createGuestSession();
-            Intent intent = new Intent(WelcomeActivity.this, HomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
         });
     }
 
@@ -129,7 +111,7 @@ public class WelcomeActivity extends AppCompatActivity implements TextureView.Su
                 mediaPlayer.setOnCompletionListener(mp -> resetToIdleState());
                 mediaPlayer.setOnVideoSizeChangedListener((mp, w, h) -> adjustVideoScaling(w, h));
                 mediaPlayer.setOnInfoListener((mp, what, extra) -> {
-                    if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START && isPlaying) {
+                    if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
                         // First video frame rendered: seamlessly hide static image
                         imgCatStatic.setVisibility(View.GONE);
                         return true;
