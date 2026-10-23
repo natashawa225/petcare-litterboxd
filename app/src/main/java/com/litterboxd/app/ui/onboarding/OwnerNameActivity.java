@@ -48,7 +48,7 @@ public class OwnerNameActivity extends AppCompatActivity {
 
         btnSkip.setOnClickListener(v -> {
             if (appPrefs.getOwnerName().isEmpty()) {
-                appPrefs.setOwnerName("Cat Parent");
+                appPrefs.setOwnerName(getString(R.string.default_owner_name));
             }
             startAddEditCat();
         });

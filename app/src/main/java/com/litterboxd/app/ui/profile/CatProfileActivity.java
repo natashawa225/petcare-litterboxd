@@ -106,7 +106,10 @@ public class CatProfileActivity extends AppCompatActivity {
                     tvProfileLifeStage.setText(getString(R.string.label_life_stage, lifeStage));
 
                     String ageStr = AgeUtils.getAgeDisplay(currentCat.getBirthday(), currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
-                    String details = "Breed: " + currentCat.getBreed() + "\nAge: " + ageStr + " | Weight: " + currentCat.getWeight() + " kg\nSex: " + currentCat.getSex() + " | Neutered: " + (currentCat.isNeutered() ? "Yes" : "No") + "\nCoat: " + currentCat.getCoatColor() + " | Lifestyle: " + currentCat.getLifestyle();
+                    String details = getString(R.string.profile_details,
+                            currentCat.getBreed(), ageStr, String.valueOf(currentCat.getWeight()),
+                            currentCat.getSex(), getString(currentCat.isNeutered() ? R.string.btn_yes : R.string.btn_no),
+                            currentCat.getCoatColor(), currentCat.getLifestyle());
                     tvProfileDetails.setText(details);
 
                     fileStorageHelper.showCatPhoto(imgProfilePhoto, currentCat.getPhotoPath());
@@ -121,10 +124,11 @@ public class CatProfileActivity extends AppCompatActivity {
     }
 
     private void populateWeightLogs(List<WeightLog> logs) {
+        int rowPadding = getResources().getDimensionPixelSize(R.dimen.spacing_tiny);
         containerWeightLogs.removeAllViews();
         if (logs.isEmpty()) {
             TextView tv = new TextView(this);
-            tv.setText("No weight logs recorded yet.");
+            tv.setText(R.string.empty_weight_logs);
             tv.setTextColor(getResources().getColor(R.color.text_dark_gray));
             containerWeightLogs.addView(tv);
             return;
@@ -133,22 +137,22 @@ public class CatProfileActivity extends AppCompatActivity {
         for (WeightLog log : logs) {
             TextView tv = new TextView(this);
             String dateStr = DateFormatUtils.formatDate(log.getDate());
-            String text = "• " + log.getWeight() + " kg on " + dateStr;
-            if (log.getNotes() != null && !log.getNotes().isEmpty()) {
-                text += " (" + log.getNotes() + ")";
-            }
+            String text = (log.getNotes() != null && !log.getNotes().isEmpty())
+                    ? getString(R.string.weight_log_row_with_notes, String.valueOf(log.getWeight()), dateStr, log.getNotes())
+                    : getString(R.string.weight_log_row, String.valueOf(log.getWeight()), dateStr);
             tv.setText(text);
             tv.setTextColor(getResources().getColor(R.color.black));
-            tv.setPadding(0, 4, 0, 4);
+            tv.setPadding(0, rowPadding, 0, rowPadding);
             containerWeightLogs.addView(tv);
         }
     }
 
     private void populateFeedingMeals(List<FeedingMeal> meals) {
+        int rowPadding = getResources().getDimensionPixelSize(R.dimen.spacing_tiny);
         containerFeedingMeals.removeAllViews();
         if (meals.isEmpty()) {
             TextView tv = new TextView(this);
-            tv.setText("No feeding schedule configured.");
+            tv.setText(R.string.empty_feeding_schedule);
             tv.setTextColor(getResources().getColor(R.color.text_dark_gray));
             containerFeedingMeals.addView(tv);
             return;
@@ -156,10 +160,10 @@ public class CatProfileActivity extends AppCompatActivity {
 
         for (FeedingMeal meal : meals) {
             TextView tv = new TextView(this);
-            String text = "• " + meal.getMealLabel() + " at " + meal.getMealTime() + " — " + meal.getPortionGrams() + "g";
+            String text = getString(R.string.feeding_meal_row, meal.getMealLabel(), meal.getMealTime(), String.valueOf(meal.getPortionGrams()));
             tv.setText(text);
             tv.setTextColor(getResources().getColor(R.color.black));
-            tv.setPadding(0, 4, 0, 4);
+            tv.setPadding(0, rowPadding, 0, rowPadding);
             containerFeedingMeals.addView(tv);
         }
     }
@@ -167,7 +171,9 @@ public class CatProfileActivity extends AppCompatActivity {
     private void showAddWeightDialog() {
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(32, 16, 32, 16);
+        int padH = getResources().getDimensionPixelSize(R.dimen.spacing_large);
+        int padV = getResources().getDimensionPixelSize(R.dimen.spacing_small);
+        layout.setPadding(padH, padV, padH, padV);
 
         TextInputLayout tilWeight = new TextInputLayout(this);
         tilWeight.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -218,7 +224,7 @@ public class CatProfileActivity extends AppCompatActivity {
     }
 
     private void showDeleteConfirmationDialog() {
-        String catName = currentCat != null ? currentCat.getName() : "this cat";
+        String catName = currentCat != null ? currentCat.getName() : getString(R.string.this_cat);
         new AlertDialog.Builder(this)
                 .setTitle(R.string.msg_delete_cat_title)
                 .setMessage(getString(R.string.msg_delete_cat_message, catName))

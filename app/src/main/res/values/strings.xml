@@ -58,10 +58,22 @@
     <string name="meal_label_prefix">Meal %d Label</string>
     <string name="meal_time_prefix">Time: %s</string>
     <string name="meal_portion_prefix">Portion (grams)</string>
+    <string name="meal_header">Meal %d</string>
+    <string name="hint_meal_label">Meal label (e.g. Breakfast)</string>
+    <string name="meal_default_label">Meal</string>
+    <string-array name="default_meal_labels">
+        <item>Breakfast</item>
+        <item>Lunch</item>
+        <item>Dinner</item>
+        <item>Snack</item>
+    </string-array>
 
     <!-- Home Activity -->
     <string name="home_greeting">Hello, %s!</string>
     <string name="home_greeting_guest">Hello, Cat Parent!</string>
+    <string name="default_owner_name">Cat Parent</string>
+    <string name="no_cat_selected">No cat selected</string>
+    <string name="home_cat_summary">%1$s • %2$s • %3$s kg</string>
     <string name="nav_cat_profile">Cat Profile</string>
     <string name="nav_settings">Settings</string>
     <string name="switch_cat">Switch Cat</string>
@@ -82,6 +94,13 @@
     <string name="prompt_weight_grams">Weight (kg)</string>
     <string name="prompt_weight_notes">Notes (optional)</string>
     <string name="section_feeding_schedule">Feeding Schedule</string>
+    <string name="profile_details">Breed: %1$s\nAge: %2$s | Weight: %3$s kg\nSex: %4$s | Neutered: %5$s\nCoat: %6$s | Lifestyle: %7$s</string>
+    <string name="empty_weight_logs">No weight logs recorded yet.</string>
+    <string name="weight_log_row">• %1$s kg on %2$s</string>
+    <string name="weight_log_row_with_notes">• %1$s kg on %2$s (%3$s)</string>
+    <string name="empty_feeding_schedule">No feeding schedule configured.</string>
+    <string name="feeding_meal_row">• %1$s at %2$s — %3$sg</string>
+    <string name="this_cat">this cat</string>
     <string name="btn_delete_cat">Delete Cat</string>
     <string name="msg_delete_cat_title">Delete Cat Profile</string>
     <string name="msg_delete_cat_message">Are you sure you want to delete %s? All associated weight logs and feeding schedules will be removed.</string>
@@ -90,6 +109,7 @@
     <string name="title_settings">Settings</string>
     <string name="section_owner_settings">Owner Settings</string>
     <string name="btn_update_name">Update Name</string>
+    <string name="msg_owner_name_updated">Owner name updated</string>
     <string name="section_demo_tools">Demo Tools</string>
     <string name="btn_load_sample_data">Load Sample Data</string>
     <string name="msg_sample_data_loaded">Sample cats (Mochi &amp; Biscuit) loaded successfully!</string>

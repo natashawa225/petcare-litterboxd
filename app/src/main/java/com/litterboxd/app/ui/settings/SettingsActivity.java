@@ -68,7 +68,7 @@ public class SettingsActivity extends AppCompatActivity {
             }
             tilSettingsOwnerName.setError(null);
             appPrefs.setOwnerName(name);
-            Toast.makeText(this, "Owner name updated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.msg_owner_name_updated, Toast.LENGTH_SHORT).show();
         });
 
         btnLoadSampleData.setOnClickListener(v -> loadSampleData());
