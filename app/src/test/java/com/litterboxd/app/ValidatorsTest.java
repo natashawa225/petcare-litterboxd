@@ -28,4 +28,15 @@ public class ValidatorsTest {
         assertFalse(Validators.isValidPortion(0.0));
         assertFalse(Validators.isValidPortion(-5.0));
     }
+
+    @Test
+    public void testParseDecimal() {
+        assertEquals(4.2, Validators.parseDecimal("4.2"), 0.0001);
+        assertEquals(4.2, Validators.parseDecimal("4,2"), 0.0001);
+        assertEquals(4.2, Validators.parseDecimal(" 4,2 "), 0.0001);
+        assertNull(Validators.parseDecimal(""));
+        assertNull(Validators.parseDecimal("   "));
+        assertNull(Validators.parseDecimal("abc"));
+        assertNull(Validators.parseDecimal(null));
+    }
 }

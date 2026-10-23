@@ -221,12 +221,8 @@ public class AddEditCatActivity extends AppCompatActivity {
         tilCatName.setError(null);
 
         String weightStr = etWeight.getText() != null ? etWeight.getText().toString().trim() : "";
-        double weight = 4.0;
-        try {
-            weight = Double.parseDouble(weightStr);
-        } catch (NumberFormatException ignored) {}
-
-        if (!Validators.isValidWeight(weight)) {
+        Double weight = Validators.parseDecimal(weightStr);
+        if (weight == null || !Validators.isValidWeight(weight)) {
             tilWeight.setError(getString(R.string.error_invalid_weight));
             return;
         }

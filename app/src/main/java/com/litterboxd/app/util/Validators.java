@@ -17,4 +17,19 @@ public class Validators {
     public static boolean isValidOwnerName(String name) {
         return name != null && !name.trim().isEmpty();
     }
+
+    /**
+     * Parses a user-typed decimal such as "4.2" or "4,2" (comma keyboards).
+     * Returns null for empty or non-numeric input instead of throwing.
+     */
+    public static Double parseDecimal(String text) {
+        if (text == null) return null;
+        String s = text.trim().replace(',', '.');
+        if (s.isEmpty()) return null;
+        try {
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }
