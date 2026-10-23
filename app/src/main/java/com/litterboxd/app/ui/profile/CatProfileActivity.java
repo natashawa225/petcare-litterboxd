@@ -27,6 +27,7 @@ import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
+import com.litterboxd.app.ui.onboarding.FeedingScheduleActivity;
 import com.litterboxd.app.ui.splash.SplashActivity;
 import com.litterboxd.app.util.AgeUtils;
 import com.litterboxd.app.util.AppExecutors;
@@ -80,6 +81,12 @@ public class CatProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
         btnDeleteCat.setOnClickListener(v -> showDeleteConfirmationDialog());
+        findViewById(R.id.btnEditSchedule).setOnClickListener(v -> {
+            Intent intent = new Intent(this, FeedingScheduleActivity.class);
+            intent.putExtra(FeedingScheduleActivity.EXTRA_CAT_ID, catId);
+            intent.putExtra(FeedingScheduleActivity.EXTRA_EDIT_MODE, true);
+            startActivity(intent);
+        });
     }
 
     @Override
