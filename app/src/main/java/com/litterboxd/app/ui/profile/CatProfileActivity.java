@@ -27,6 +27,7 @@ import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
+import com.litterboxd.app.ui.splash.SplashActivity;
 import com.litterboxd.app.util.AgeUtils;
 import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
@@ -232,14 +233,18 @@ public class CatProfileActivity extends AppCompatActivity {
                         catDao.deleteCat(catId);
                         List<Cat> remaining = catDao.getAllCats();
                         if (!remaining.isEmpty()) {
-                            appPrefs.setSelectedCatId(remaining.get(0).getId());
+                            if (appPrefs.getSelectedCatId() == catId) {
+                                appPrefs.setSelectedCatId(remaining.get(0).getId());
+                            }
                         } else {
                             appPrefs.setSelectedCatId(-1L);
                             appPrefs.setOnboardingComplete(false);
                         }
 
                         AppExecutors.getInstance().mainThread().execute(() -> {
-                            Intent intent = new Intent(this, HomeActivity.class);
+                            // No cats left: let Splash route back to Welcome/onboarding.
+                            Class<?> target = remaining.isEmpty() ? SplashActivity.class : HomeActivity.class;
+                            Intent intent = new Intent(this, target);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                             finish();
