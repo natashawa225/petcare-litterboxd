@@ -6,7 +6,8 @@
     <string name="subtitle_text">for every chapter of their nine lives</string>
     <string name="tagline">for every chapter of their nine lives</string>
     <string name="btn_sign_up">Sign up</string>
-    <string name="btn_log_in">Log in</string>
+    <string name="btn_get_started">Get started</string>
+    <string name="btn_log_in">I already have an account</string>
     <string name="btn_continue_guest">Continue without an account</string>
     <string name="prompt_email">Email address</string>
     <string name="prompt_password">Password</string>

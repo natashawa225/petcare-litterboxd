@@ -126,6 +126,12 @@ public class SplashActivity extends AppCompatActivity {
 /Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/drawable/ic_small_heart.xml:1: Warning: The resource R.drawable.ic_small_heart appears to be unused [UnusedResources]
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
 ^
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/drawable/marker_highlight_background.xml:2: Warning: The resource R.drawable.marker_highlight_background appears to be unused [UnusedResources]
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+^
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/drawable/neobrutalist_button_secondary.xml:2: Warning: The resource R.drawable.neobrutalist_button_secondary appears to be unused [UnusedResources]
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+^
 /Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/strings.xml:4: Warning: The resource R.string.title_left appears to be unused [UnusedResources]
     <string name="title_left">Litterb</string>
             ~~~~~~~~~~~~~~~~~
@@ -135,6 +141,9 @@ public class SplashActivity extends AppCompatActivity {
 /Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/strings.xml:7: Warning: The resource R.string.tagline appears to be unused [UnusedResources]
     <string name="tagline">for every chapter of their nine lives</string>
             ~~~~~~~~~~~~~~
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/strings.xml:11: Warning: The resource R.string.btn_continue_guest appears to be unused [UnusedResources]
+    <string name="btn_continue_guest">Continue without an account</string>
+            ~~~~~~~~~~~~~~~~~~~~~~~~~
 
    Explanation for issues of type "UnusedResources":
    Unused resources make applications larger and slow down builds.
@@ -150,4 +159,4 @@ public class SplashActivity extends AppCompatActivity {
    lint.unused-resources.exclude-tests =true.
    ,
 
-0 errors, 25 warnings
+0 errors, 28 warnings

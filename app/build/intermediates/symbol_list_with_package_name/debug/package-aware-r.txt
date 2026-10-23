@@ -2923,12 +2923,10 @@ id bounce
 id bounceBoth
 id bounceEnd
 id bounceStart
-id btnGuest
-id btnLogin
+id btnGetStarted
 id btnLoginSubmit
 id btnLogout
 id btnRegisterSubmit
-id btnSignUp
 id buttonPanel
 id cache_measures
 id callMeasure
@@ -3577,6 +3575,7 @@ string bottomsheet_drag_handle_content_description
 string btn_cancel
 string btn_continue_guest
 string btn_create_new_account
+string btn_get_started
 string btn_log_in
 string btn_logout
 string btn_sign_up

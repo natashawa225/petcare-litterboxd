@@ -26,7 +26,8 @@
     <string name="btn_cancel">Cancel</string>
     <string name="btn_continue_guest">Continue without an account</string>
     <string name="btn_create_new_account">Create new account</string>
-    <string name="btn_log_in">Log in</string>
+    <string name="btn_get_started">Get started</string>
+    <string name="btn_log_in">I already have an account</string>
     <string name="btn_logout">Log out</string>
     <string name="btn_sign_up">Sign up</string>
     <string name="btn_yes">Yes</string>

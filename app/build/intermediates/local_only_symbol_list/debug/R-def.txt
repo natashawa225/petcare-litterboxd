@@ -31,12 +31,10 @@ drawable neobrutalist_button_primary
 drawable neobrutalist_button_secondary
 font subtitle_font
 font title_font
-id btnGuest
-id btnLogin
+id btnGetStarted
 id btnLoginSubmit
 id btnLogout
 id btnRegisterSubmit
-id btnSignUp
 id etConfirmPassword
 id etEmail
 id etLoginEmail
@@ -72,6 +70,7 @@ string app_name
 string btn_cancel
 string btn_continue_guest
 string btn_create_new_account
+string btn_get_started
 string btn_log_in
 string btn_logout
 string btn_sign_up
