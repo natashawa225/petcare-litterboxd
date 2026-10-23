@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -28,6 +29,7 @@ import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.util.AppExecutors;
+import com.litterboxd.app.util.DateFormatUtils;
 import com.litterboxd.app.util.Validators;
 
 import java.io.File;
@@ -36,7 +38,13 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.UUID;
 
+/**
+ * Add mode (default): onboarding step 2, inserts a cat and continues to the feeding schedule.
+ * Edit mode (EXTRA_CAT_ID set): pre-fills the cat, updates it and returns to the caller.
+ */
 public class AddEditCatActivity extends AppCompatActivity {
+
+    public static final String EXTRA_CAT_ID = "cat_id";
 
     private TextInputEditText etCatName, etWeight;
     private TextInputLayout tilCatName, tilWeight;
@@ -53,6 +61,9 @@ public class AddEditCatActivity extends AppCompatActivity {
     private FileStorageHelper fileStorageHelper;
     private AppPrefs appPrefs;
     private CatDao catDao;
+
+    private long editCatId = -1L;
+    private Cat editingCat;
 
     private final ActivityResultLauncher<String> photoPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -72,6 +83,7 @@ public class AddEditCatActivity extends AppCompatActivity {
         fileStorageHelper = new FileStorageHelper(this);
         appPrefs = new AppPrefs(this);
         catDao = new CatDao(new LitterboxdDbHelper(this));
+        editCatId = getIntent().getLongExtra(EXTRA_CAT_ID, -1L);
 
         etCatName = findViewById(R.id.etCatName);
         etWeight = findViewById(R.id.etWeight);
@@ -121,6 +133,62 @@ public class AddEditCatActivity extends AppCompatActivity {
         });
 
         btnSaveCat.setOnClickListener(v -> saveCatData());
+
+        if (isEditMode()) {
+            ((TextView) findViewById(R.id.tvTitle)).setText(R.string.title_edit_cat);
+            findViewById(R.id.tvStepIndicator).setVisibility(View.GONE);
+            btnSaveCat.setText(R.string.btn_save);
+            loadCatForEdit(savedInstanceState == null);
+        }
+    }
+
+    private boolean isEditMode() {
+        return editCatId != -1L;
+    }
+
+    /** Loads the cat being edited; fills the form only on first creation (views restore themselves after rotation). */
+    private void loadCatForEdit(boolean fillForm) {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            Cat cat = catDao.getCatById(editCatId);
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                if (cat == null) {
+                    finish();
+                    return;
+                }
+                editingCat = cat;
+                if (fillForm) fillForm(cat);
+            });
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void fillForm(Cat cat) {
+        etCatName.setText(cat.getName());
+        etWeight.setText(String.valueOf(cat.getWeight()));
+
+        if (cat.getBirthday() != null) {
+            rgAgeType.check(R.id.rbBirthday);
+            selectedBirthdayMs = cat.getBirthday();
+            btnSelectBirthday.setText(DateFormatUtils.formatDate(cat.getBirthday()));
+        } else {
+            rgAgeType.check(R.id.rbApproxAge);
+            spinnerYears.setSelection(Math.min(cat.getApproxAgeYears(), spinnerYears.getCount() - 1));
+            spinnerMonths.setSelection(Math.min(cat.getApproxAgeMonths(), spinnerMonths.getCount() - 1));
+        }
+
+        ArrayAdapter<String> breedAdapter = (ArrayAdapter<String>) spinnerBreed.getAdapter();
+        int breedPos = breedAdapter.getPosition(cat.getBreed());
+        spinnerBreed.setSelection(breedPos >= 0 ? breedPos : breedAdapter.getCount() - 1);
+
+        rgSex.check("Male".equals(cat.getSex()) ? R.id.rbMale : R.id.rbFemale);
+        rgNeutered.check(cat.isNeutered() ? R.id.rbNeuteredYes : R.id.rbNeuteredNo);
+        rgCoatColor.check(coatToId(cat.getCoatColor()));
+        rgLifestyle.check(lifestyleToId(cat.getLifestyle()));
+
+        if (cat.getPhotoPath() != null) {
+            File file = fileStorageHelper.getInternalImageFile(cat.getPhotoPath());
+            if (file.exists()) imgCatPhoto.setImageURI(Uri.fromFile(file));
+        }
     }
 
     private void setupSpinners() {
@@ -143,6 +211,8 @@ public class AddEditCatActivity extends AppCompatActivity {
     }
 
     private void saveCatData() {
+        if (isEditMode() && editingCat == null) return; // still loading
+
         String name = etCatName.getText() != null ? etCatName.getText().toString().trim() : "";
         if (!Validators.isValidCatName(name)) {
             tilCatName.setError(getString(R.string.error_select_cat_name));
@@ -167,12 +237,14 @@ public class AddEditCatActivity extends AppCompatActivity {
 
         final double finalWeight = weight;
         AppExecutors.getInstance().diskIO().execute(() -> {
+            String oldPhoto = isEditMode() ? editingCat.getPhotoPath() : null;
+            savedPhotoFileName = oldPhoto;
             if (pickedImageUri != null) {
                 savedPhotoFileName = "cat_photo_" + UUID.randomUUID().toString() + ".jpg";
                 downscaleAndSaveImage(pickedImageUri, savedPhotoFileName);
             }
 
-            Cat cat = new Cat();
+            Cat cat = isEditMode() ? editingCat : new Cat();
             cat.setName(name);
             cat.setPhotoPath(savedPhotoFileName);
             if (rgAgeType.getCheckedRadioButtonId() == R.id.rbBirthday) {
@@ -187,24 +259,20 @@ public class AddEditCatActivity extends AppCompatActivity {
             cat.setSex(rgSex.getCheckedRadioButtonId() == R.id.rbMale ? "Male" : "Female");
             cat.setNeutered(rgNeutered.getCheckedRadioButtonId() == R.id.rbNeuteredYes);
             cat.setWeight(finalWeight);
+            cat.setCoatColor(idToCoat(rgCoatColor.getCheckedRadioButtonId()));
+            cat.setLifestyle(idToLifestyle(rgLifestyle.getCheckedRadioButtonId()));
 
-            String coat = "Black";
-            int coatId = rgCoatColor.getCheckedRadioButtonId();
-            if (coatId == R.id.rbColorWhite) coat = "White";
-            else if (coatId == R.id.rbColorOrange) coat = "Ginger";
-            else if (coatId == R.id.rbColorGrey) coat = "Grey";
-            else if (coatId == R.id.rbColorCalico) coat = "Calico";
-            else if (coatId == R.id.rbColorTabby) coat = "Tabby";
-            cat.setCoatColor(coat);
-
-            String lifestyle = "Indoor only";
-            int lifeId = rgLifestyle.getCheckedRadioButtonId();
-            if (lifeId == R.id.rbLifestyleOutdoor) lifestyle = "Outdoor";
-            else if (lifeId == R.id.rbLifestyleBoth) lifestyle = "Indoor / Outdoor";
-            cat.setLifestyle(lifestyle);
+            if (isEditMode()) {
+                catDao.updateCat(cat);
+                // Replaced photo: remove the old file so it does not linger in internal storage.
+                if (oldPhoto != null && !oldPhoto.equals(savedPhotoFileName)) {
+                    fileStorageHelper.getInternalImageFile(oldPhoto).delete();
+                }
+                AppExecutors.getInstance().mainThread().execute(this::finish);
+                return;
+            }
 
             cat.setCreatedAt(System.currentTimeMillis());
-
             long catId = catDao.insertCat(cat);
             if (appPrefs.getSelectedCatId() == -1L) {
                 appPrefs.setSelectedCatId(catId);
@@ -219,6 +287,37 @@ public class AddEditCatActivity extends AppCompatActivity {
                 finish();
             });
         });
+    }
+
+    // Coat colour and lifestyle are stored as plain English values in the database.
+    private static String idToCoat(int id) {
+        if (id == R.id.rbColorWhite) return "White";
+        if (id == R.id.rbColorOrange) return "Ginger";
+        if (id == R.id.rbColorGrey) return "Grey";
+        if (id == R.id.rbColorCalico) return "Calico";
+        if (id == R.id.rbColorTabby) return "Tabby";
+        return "Black";
+    }
+
+    private static int coatToId(String coat) {
+        if ("White".equals(coat)) return R.id.rbColorWhite;
+        if ("Ginger".equals(coat)) return R.id.rbColorOrange;
+        if ("Grey".equals(coat)) return R.id.rbColorGrey;
+        if ("Calico".equals(coat)) return R.id.rbColorCalico;
+        if ("Tabby".equals(coat)) return R.id.rbColorTabby;
+        return R.id.rbColorBlack;
+    }
+
+    private static String idToLifestyle(int id) {
+        if (id == R.id.rbLifestyleOutdoor) return "Outdoor";
+        if (id == R.id.rbLifestyleBoth) return "Indoor / Outdoor";
+        return "Indoor only";
+    }
+
+    private static int lifestyleToId(String lifestyle) {
+        if ("Outdoor".equals(lifestyle)) return R.id.rbLifestyleOutdoor;
+        if ("Indoor / Outdoor".equals(lifestyle)) return R.id.rbLifestyleBoth;
+        return R.id.rbLifestyleIndoor;
     }
 
     private void downscaleAndSaveImage(Uri sourceUri, String fileName) {
