@@ -24,6 +24,7 @@ import com.litterboxd.app.data.model.FeedingMeal;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.util.AppExecutors;
+import com.litterboxd.app.util.Validators;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         TextInputEditText etLabel;
         MaterialButton btnTime;
         TextInputEditText etPortion;
+        TextInputLayout tilPortion;
         int hour = 8;
         int minute = 0;
     }
@@ -136,6 +138,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
             etPortion.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
             etPortion.setText("50");
             mealRow.etPortion = etPortion;
+            mealRow.tilPortion = tilPortion;
             tilPortion.addView(etPortion);
             rowLayout.addView(tilPortion);
 
@@ -145,24 +148,32 @@ public class FeedingScheduleActivity extends AppCompatActivity {
     }
 
     private void saveScheduleAndFinish() {
+        // Read the rows on the UI thread; the worker thread only writes to the database.
+        List<FeedingMeal> meals = new ArrayList<>();
+        for (MealRowView row : mealRowViews) {
+            Double portion = Validators.parseDecimal(row.etPortion.getText() != null ? row.etPortion.getText().toString() : "");
+            if (portion == null || !Validators.isValidPortion(portion)) {
+                row.tilPortion.setError(getString(R.string.error_invalid_portion));
+                return;
+            }
+            row.tilPortion.setError(null);
+
+            FeedingMeal meal = new FeedingMeal();
+            meal.setCatId(catId);
+            String label = row.etLabel.getText() != null ? row.etLabel.getText().toString().trim() : "";
+            meal.setMealLabel(label.isEmpty() ? "Meal" : label);
+            meal.setMealTime(String.format(Locale.US, "%02d:%02d", row.hour, row.minute));
+            meal.setPortionGrams(portion);
+            meals.add(meal);
+        }
+
         progressBar.setVisibility(View.VISIBLE);
         btnSaveSchedule.setEnabled(false);
 
         AppExecutors.getInstance().diskIO().execute(() -> {
             if (catId != -1L) {
                 feedingScheduleDao.deleteFeedingMealsForCat(catId);
-                for (MealRowView row : mealRowViews) {
-                    FeedingMeal meal = new FeedingMeal();
-                    meal.setCatId(catId);
-                    String label = row.etLabel.getText() != null ? row.etLabel.getText().toString().trim() : "Meal";
-                    meal.setMealLabel(label.isEmpty() ? "Meal" : label);
-                    meal.setMealTime(row.btnTime.getText().toString());
-                    double portion = 50.0;
-                    try {
-                        String pStr = row.etPortion.getText() != null ? row.etPortion.getText().toString().trim() : "";
-                        portion = Double.parseDouble(pStr);
-                    } catch (NumberFormatException ignored) {}
-                    meal.setPortionGrams(portion);
+                for (FeedingMeal meal : meals) {
                     feedingScheduleDao.insertFeedingMeal(meal);
                 }
             }

@@ -93,23 +93,25 @@ public class HomeActivity extends AppCompatActivity {
             }
             final String greeting = getString(R.string.home_greeting, ownerName);
 
-            allCats = catDao.getAllCats();
+            // Work on locals here; the fields are only assigned on the UI thread below.
+            List<Cat> cats = catDao.getAllCats();
             long selectedId = appPrefs.getSelectedCatId();
-            currentCat = null;
-            if (!allCats.isEmpty()) {
-                for (Cat c : allCats) {
-                    if (c.getId() == selectedId) {
-                        currentCat = c;
-                        break;
-                    }
-                }
-                if (currentCat == null) {
-                    currentCat = allCats.get(0);
-                    appPrefs.setSelectedCatId(currentCat.getId());
+            Cat selected = null;
+            for (Cat c : cats) {
+                if (c.getId() == selectedId) {
+                    selected = c;
+                    break;
                 }
             }
+            if (selected == null && !cats.isEmpty()) {
+                selected = cats.get(0);
+                appPrefs.setSelectedCatId(selected.getId());
+            }
+            final Cat finalSelected = selected;
 
             AppExecutors.getInstance().mainThread().execute(() -> {
+                allCats = cats;
+                currentCat = finalSelected;
                 tvWelcomeUser.setText(greeting);
                 updateCatCard();
             });

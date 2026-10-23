@@ -96,11 +96,12 @@ public class CatProfileActivity extends AppCompatActivity {
         }
 
         AppExecutors.getInstance().diskIO().execute(() -> {
-            currentCat = catDao.getCatById(catId);
+            Cat loaded = catDao.getCatById(catId);
             List<WeightLog> weightLogs = weightLogDao.getWeightLogsForCat(catId);
             List<FeedingMeal> feedingMeals = feedingScheduleDao.getFeedingMealsForCat(catId);
 
             AppExecutors.getInstance().mainThread().execute(() -> {
+                currentCat = loaded;
                 if (currentCat != null) {
                     tvProfileName.setText(currentCat.getName());
                     String lifeStage = AgeUtils.calculateLifeStage(currentCat.getBirthday(), currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
@@ -213,8 +214,12 @@ public class CatProfileActivity extends AppCompatActivity {
                         log.setNotes(notes);
                         weightLogDao.insertWeightLog(log);
 
-                        currentCat.setWeight(weight);
-                        catDao.updateCat(currentCat);
+                        // Re-read the cat here instead of using currentCat, which belongs to the UI thread.
+                        Cat cat = catDao.getCatById(catId);
+                        if (cat != null) {
+                            cat.setWeight(weight);
+                            catDao.updateCat(cat);
+                        }
 
                         AppExecutors.getInstance().mainThread().execute(this::loadCatProfile);
                     });
