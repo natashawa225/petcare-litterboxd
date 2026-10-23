@@ -79,7 +79,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         catId = getIntent().getLongExtra(EXTRA_CAT_ID, -1L);
         editMode = getIntent().getBooleanExtra(EXTRA_EDIT_MODE, false);
         appPrefs = new AppPrefs(this);
-        feedingScheduleDao = new FeedingScheduleDao(new LitterboxdDbHelper(this));
+        feedingScheduleDao = new FeedingScheduleDao(LitterboxdDbHelper.getInstance(this));
 
         spinnerMealsPerDay = findViewById(R.id.spinnerMealsPerDay);
         containerMealRows = findViewById(R.id.containerMealRows);

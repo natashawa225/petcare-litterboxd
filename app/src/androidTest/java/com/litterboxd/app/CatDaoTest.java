@@ -12,7 +12,6 @@ import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.model.FeedingMeal;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,16 +30,12 @@ public class CatDaoTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        dbHelper = new LitterboxdDbHelper(context);
+        dbHelper = LitterboxdDbHelper.getInstance(context);
         catDao = new CatDao(dbHelper);
         weightLogDao = new WeightLogDao(dbHelper);
         feedingScheduleDao = new FeedingScheduleDao(dbHelper);
     }
 
-    @After
-    public void tearDown() {
-        dbHelper.close();
-    }
 
     @Test
     public void testInsertAndGetCat() {

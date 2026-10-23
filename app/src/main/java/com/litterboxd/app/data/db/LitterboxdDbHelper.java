@@ -50,7 +50,20 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
             "CREATE INDEX idx_feeding_schedule_cat_id ON " + LitterboxdContract.FeedingScheduleEntry.TABLE_NAME +
                     "(" + LitterboxdContract.FeedingScheduleEntry.COLUMN_CAT_ID + ")";
 
-    public LitterboxdDbHelper(Context context) {
+    private static LitterboxdDbHelper instance;
+
+    /**
+     * One shared helper for the whole app, so every Activity and worker thread uses the same
+     * database connection (separate helpers can hit "database is locked").
+     */
+    public static synchronized LitterboxdDbHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new LitterboxdDbHelper(context.getApplicationContext());
+        }
+        return instance;
+    }
+
+    private LitterboxdDbHelper(Context context) {
         super(context, LitterboxdContract.DATABASE_NAME, null, LitterboxdContract.DATABASE_VERSION);
     }
 

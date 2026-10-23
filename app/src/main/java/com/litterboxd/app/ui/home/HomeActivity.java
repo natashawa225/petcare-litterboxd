@@ -51,7 +51,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         appPrefs = new AppPrefs(this);
-        catDao = new CatDao(new LitterboxdDbHelper(this));
+        catDao = new CatDao(LitterboxdDbHelper.getInstance(this));
         fileStorageHelper = new FileStorageHelper(this);
 
         tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
