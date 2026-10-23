@@ -11,18 +11,25 @@ package com.litterboxd.app.data.file;
  */
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.widget.ImageView;
+
+import com.litterboxd.app.R;
+import com.litterboxd.app.util.AppExecutors;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class FileStorageHelper {
     public static final String CAT_PHOTO_PREFIX = "cat_photo_";
+    public static final int PREVIEW_MIN_SIDE_PX = 256;
+    private static final int SAVED_PHOTO_MIN_SIDE_PX = 1024;
 
     private final Context context;
 
@@ -31,28 +38,78 @@ public class FileStorageHelper {
     }
 
     /**
-     * Saves a cat profile image from a content URI (e.g. ACTION_GET_CONTENT) to internal storage.
-     * Should be called on a background thread.
+     * Saves a picked image (e.g. from ACTION_GET_CONTENT) into internal storage as a JPEG,
+     * downscaled so its shorter side is at most ~2048 px. Call on a background thread.
      *
-     * @param sourceUri content URI of the picked image
-     * @param fileName  target filename in internal storage
-     * @return true if successful, false otherwise
+     * @return true if the file was written
      */
-    public boolean saveImageToInternal(Uri sourceUri, String fileName) {
-        try (InputStream inputStream = context.getContentResolver().openInputStream(sourceUri);
-             FileOutputStream outputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE)) {
-            if (inputStream == null) return false;
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            outputStream.flush();
+    public boolean saveDownscaledImage(Uri sourceUri, String fileName) {
+        Bitmap bitmap = loadScaledBitmap(sourceUri, SAVED_PHOTO_MIN_SIDE_PX);
+        if (bitmap == null) return false;
+        try (FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_PRIVATE)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
+            fos.flush();
             return true;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * Decodes an image (content:// or file:// Uri) using inSampleSize so a large camera photo
+     * is never loaded at full resolution (avoids OutOfMemoryError). The result's shorter side is
+     * at least minSidePx. Call on a background thread; returns null if it cannot be read.
+     */
+    public Bitmap loadScaledBitmap(Uri uri, int minSidePx) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+            if (is == null) return null;
+            BitmapFactory.decodeStream(is, null, options);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        int scale = 1;
+        int width = options.outWidth;
+        int height = options.outHeight;
+        while (width / 2 >= minSidePx && height / 2 >= minSidePx) {
+            width /= 2;
+            height /= 2;
+            scale *= 2;
+        }
+
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = scale;
+        try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+            if (is == null) return null;
+            return BitmapFactory.decodeStream(is, null, options);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Shows a saved cat photo in an ImageView: placeholder first, then the downscaled photo
+     * decoded on a worker thread and posted back with View.post(). Call from the UI thread.
+     */
+    public void showCatPhoto(ImageView imageView, String fileName) {
+        imageView.setImageResource(R.drawable.ic_cat_face);
+        imageView.setTag(fileName);
+        if (fileName == null || fileName.isEmpty()) return;
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            File file = getInternalImageFile(fileName);
+            Bitmap bitmap = file.exists() ? loadScaledBitmap(Uri.fromFile(file), PREVIEW_MIN_SIDE_PX) : null;
+            imageView.post(() -> {
+                // Skip if the view was asked to show a different cat in the meantime.
+                if (bitmap != null && fileName.equals(imageView.getTag())) {
+                    imageView.setImageBitmap(bitmap);
+                }
+            });
+        });
     }
 
     /**

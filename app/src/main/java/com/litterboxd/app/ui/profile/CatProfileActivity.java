@@ -1,7 +1,6 @@
 package com.litterboxd.app.ui.profile;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.widget.ImageView;
@@ -33,7 +32,6 @@ import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
 import com.litterboxd.app.util.Validators;
 
-import java.io.File;
 import java.util.List;
 
 public class CatProfileActivity extends AppCompatActivity {
@@ -111,16 +109,7 @@ public class CatProfileActivity extends AppCompatActivity {
                     String details = "Breed: " + currentCat.getBreed() + "\nAge: " + ageStr + " | Weight: " + currentCat.getWeight() + " kg\nSex: " + currentCat.getSex() + " | Neutered: " + (currentCat.isNeutered() ? "Yes" : "No") + "\nCoat: " + currentCat.getCoatColor() + " | Lifestyle: " + currentCat.getLifestyle();
                     tvProfileDetails.setText(details);
 
-                    if (currentCat.getPhotoPath() != null && !currentCat.getPhotoPath().isEmpty()) {
-                        File file = fileStorageHelper.getInternalImageFile(currentCat.getPhotoPath());
-                        if (file.exists()) {
-                            imgProfilePhoto.setImageURI(Uri.fromFile(file));
-                        } else {
-                            imgProfilePhoto.setImageResource(R.drawable.ic_cat_face);
-                        }
-                    } else {
-                        imgProfilePhoto.setImageResource(R.drawable.ic_cat_face);
-                    }
+                    fileStorageHelper.showCatPhoto(imgProfilePhoto, currentCat.getPhotoPath());
 
                     populateWeightLogs(weightLogs);
                     populateFeedingMeals(feedingMeals);
