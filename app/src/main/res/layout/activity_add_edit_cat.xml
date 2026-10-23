@@ -282,14 +282,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <RadioButton android:id="@+id/rbColorBlack" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="@string/color_black" android:textColor="@color/black" />
-            <RadioButton android:id="@+id/rbColorWhite" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/color_white" android:textColor="@color/black" />
-            <RadioButton android:id="@+id/rbColorOrange" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/color_ginger" android:textColor="@color/black" />
-            <RadioButton android:id="@+id/rbColorGrey" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/color_grey" android:textColor="@color/black" />
-            <RadioButton android:id="@+id/rbColorCalico" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/color_calico" android:textColor="@color/black" />
-            <RadioButton android:id="@+id/rbColorTabby" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/color_tabby" android:textColor="@color/black" />
+            <RadioButton android:id="@+id/rbColorWhite" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/color_white" android:textColor="@color/black" />
+            <RadioButton android:id="@+id/rbColorOrange" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/color_ginger" android:textColor="@color/black" />
+            <RadioButton android:id="@+id/rbColorGrey" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/color_grey" android:textColor="@color/black" />
+            <RadioButton android:id="@+id/rbColorCalico" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/color_calico" android:textColor="@color/black" />
+            <RadioButton android:id="@+id/rbColorTabby" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/color_tabby" android:textColor="@color/black" />
         </RadioGroup>
 
         <!-- Lifestyle RadioGroup -->
