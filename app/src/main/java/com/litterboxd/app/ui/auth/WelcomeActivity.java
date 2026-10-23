@@ -111,7 +111,7 @@ public class WelcomeActivity extends AppCompatActivity implements TextureView.Su
                 mediaPlayer.setOnCompletionListener(mp -> resetToIdleState());
                 mediaPlayer.setOnVideoSizeChangedListener((mp, w, h) -> adjustVideoScaling(w, h));
                 mediaPlayer.setOnInfoListener((mp, what, extra) -> {
-                    if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START && isPlaying) {
                         // First video frame rendered: seamlessly hide static image
                         imgCatStatic.setVisibility(View.GONE);
                         return true;
