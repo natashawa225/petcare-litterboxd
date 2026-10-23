@@ -9,14 +9,6 @@ public class FeedingMeal {
 
     public FeedingMeal() {}
 
-    public FeedingMeal(long id, long catId, String mealLabel, String mealTime, double portionGrams) {
-        this.id = id;
-        this.catId = catId;
-        this.mealLabel = mealLabel;
-        this.mealTime = mealTime;
-        this.portionGrams = portionGrams;
-    }
-
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 

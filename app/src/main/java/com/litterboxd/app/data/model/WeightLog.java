@@ -9,14 +9,6 @@ public class WeightLog {
 
     public WeightLog() {}
 
-    public WeightLog(long id, long catId, double weight, long date, String notes) {
-        this.id = id;
-        this.catId = catId;
-        this.weight = weight;
-        this.date = date;
-        this.notes = notes;
-    }
-
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 

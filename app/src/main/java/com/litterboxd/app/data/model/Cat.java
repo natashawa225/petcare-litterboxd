@@ -17,23 +17,6 @@ public class Cat {
 
     public Cat() {}
 
-    public Cat(long id, String name, String photoPath, Long birthday, int approxAgeYears, int approxAgeMonths,
-               String breed, String sex, boolean neutered, double weight, String coatColor, String lifestyle, long createdAt) {
-        this.id = id;
-        this.name = name;
-        this.photoPath = photoPath;
-        this.birthday = birthday;
-        this.approxAgeYears = approxAgeYears;
-        this.approxAgeMonths = approxAgeMonths;
-        this.breed = breed;
-        this.sex = sex;
-        this.neutered = neutered;
-        this.weight = weight;
-        this.coatColor = coatColor;
-        this.lifestyle = lifestyle;
-        this.createdAt = createdAt;
-    }
-
     public long getId() { return id; }
     public void setId(long id) { this.id = id; }
 
