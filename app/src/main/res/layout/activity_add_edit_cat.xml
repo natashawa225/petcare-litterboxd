@@ -183,6 +183,7 @@
 
         <Spinner
             android:id="@+id/spinnerBreed"
+            android:entries="@array/cat_breeds"
             android:layout_width="match_parent"
             android:layout_height="@dimen/button_height"
             android:layout_marginTop="4dp" />

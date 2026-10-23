@@ -27,6 +27,17 @@
     <string name="title_edit_cat">Edit Cat Profile</string>
     <string name="prompt_cat_name">Cat Name</string>
     <string name="prompt_cat_breed">Breed</string>
+    <string-array name="cat_breeds">
+        <item>Domestic Shorthair</item>
+        <item>Maine Coon</item>
+        <item>Siamese</item>
+        <item>Persian</item>
+        <item>Ragdoll</item>
+        <item>British Shorthair</item>
+        <item>Sphynx</item>
+        <item>Bengal</item>
+        <item>Other</item>
+    </string-array>
     <string name="prompt_cat_sex">Sex</string>
     <string name="sex_male">Male</string>
     <string name="sex_female">Female</string>
