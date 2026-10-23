@@ -7,6 +7,7 @@ import android.text.InputType;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +30,7 @@ import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
 import com.litterboxd.app.util.AgeUtils;
 import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
+import com.litterboxd.app.util.Validators;
 
 import java.io.File;
 import java.util.List;
@@ -195,26 +197,26 @@ public class CatProfileActivity extends AppCompatActivity {
                 .setTitle(R.string.dialog_add_weight_title)
                 .setView(layout)
                 .setPositiveButton(R.string.btn_save, (dialog, which) -> {
-                    String wStr = etWeight.getText() != null ? etWeight.getText().toString().trim() : "";
+                    String wStr = etWeight.getText() != null ? etWeight.getText().toString() : "";
                     String notes = etNotes.getText() != null ? etNotes.getText().toString().trim() : "";
-                    try {
-                        double weight = Double.parseDouble(wStr);
-                        if (weight > 0) {
-                            AppExecutors.getInstance().diskIO().execute(() -> {
-                                WeightLog log = new WeightLog();
-                                log.setCatId(catId);
-                                log.setWeight(weight);
-                                log.setDate(System.currentTimeMillis());
-                                log.setNotes(notes);
-                                weightLogDao.insertWeightLog(log);
+                    Double weight = Validators.parseDecimal(wStr);
+                    if (weight == null || !Validators.isValidWeight(weight)) {
+                        Toast.makeText(this, R.string.error_invalid_weight, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    AppExecutors.getInstance().diskIO().execute(() -> {
+                        WeightLog log = new WeightLog();
+                        log.setCatId(catId);
+                        log.setWeight(weight);
+                        log.setDate(System.currentTimeMillis());
+                        log.setNotes(notes);
+                        weightLogDao.insertWeightLog(log);
 
-                                currentCat.setWeight(weight);
-                                catDao.updateCat(currentCat);
+                        currentCat.setWeight(weight);
+                        catDao.updateCat(currentCat);
 
-                                AppExecutors.getInstance().mainThread().execute(this::loadCatProfile);
-                            });
-                        }
-                    } catch (NumberFormatException ignored) {}
+                        AppExecutors.getInstance().mainThread().execute(this::loadCatProfile);
+                    });
                 })
                 .setNegativeButton(R.string.btn_cancel, null)
                 .show();
