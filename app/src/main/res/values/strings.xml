@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Litterboxd</string>
-    <string name="tagline">Know when something\'s off with your cat</string>
+    <string name="title_left">Litterb</string>
+    <string name="title_right">xd</string>
+    <string name="subtitle_text">for every chapter of their nine lives</string>
+    <string name="tagline">for every chapter of their nine lives</string>
     <string name="btn_sign_up">Sign up</string>
     <string name="btn_log_in">Log in</string>
-    <string name="btn_continue_guest">Continue without account</string>
+    <string name="btn_continue_guest">Continue without an account</string>
     <string name="prompt_email">Email address</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_confirm_password">Confirm Password</string>

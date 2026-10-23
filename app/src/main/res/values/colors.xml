@@ -9,4 +9,6 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="error_red">#BA1A1A</color>
+    <color name="dark_olive_green">#3B4D3C</color>
+    <color name="muted_pinkish_brown">#A67C7A</color>
 </resources>

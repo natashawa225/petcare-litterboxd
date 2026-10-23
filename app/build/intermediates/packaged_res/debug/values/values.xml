@@ -3,7 +3,9 @@
     <color name="accent_warm">#e5d1c4</color>
     <color name="black">#000000</color>
     <color name="coral_secondary">#F4A58A</color>
+    <color name="dark_olive_green">#3B4D3C</color>
     <color name="error_red">#BA1A1A</color>
+    <color name="muted_pinkish_brown">#A67C7A</color>
     <color name="off_white_background">#F8F6F0</color>
     <color name="sage_primary">#718565</color>
     <color name="surface_card">#D9D9C7</color>
@@ -22,7 +24,7 @@
     <dimen name="text_size_title">28sp</dimen>
     <string name="app_name">Litterboxd</string>
     <string name="btn_cancel">Cancel</string>
-    <string name="btn_continue_guest">Continue without account</string>
+    <string name="btn_continue_guest">Continue without an account</string>
     <string name="btn_create_new_account">Create new account</string>
     <string name="btn_log_in">Log in</string>
     <string name="btn_logout">Log out</string>
@@ -39,7 +41,10 @@
     <string name="prompt_confirm_password">Confirm Password</string>
     <string name="prompt_email">Email address</string>
     <string name="prompt_password">Password</string>
-    <string name="tagline">Know when something\'s off with your cat</string>
+    <string name="subtitle_text">for every chapter of their nine lives</string>
+    <string name="tagline">for every chapter of their nine lives</string>
+    <string name="title_left">Litterb</string>
+    <string name="title_right">xd</string>
     <string name="welcome_guest">Welcome, Guest</string>
     <string name="welcome_user">Welcome, %s</string>
     <style name="Theme.Litterboxd" parent="Theme.MaterialComponents.Light.NoActionBar">

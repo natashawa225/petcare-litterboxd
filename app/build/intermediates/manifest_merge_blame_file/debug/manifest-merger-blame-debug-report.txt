@@ -47,72 +47,71 @@
 30-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:15:9-54
 31        android:supportsRtl="true"
 31-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:16:9-35
-32        android:testOnly="true"
-33        android:theme="@style/Theme.Litterboxd" >
-33-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:17:9-48
-34        <activity
-34-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:20:9-27:20
-35            android:name="com.litterboxd.app.ui.splash.SplashActivity"
-35-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:21:13-53
-36            android:exported="true" >
-36-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:22:13-36
-37            <intent-filter>
-37-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:23:13-26:29
-38                <action android:name="android.intent.action.MAIN" />
-38-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:24:17-69
-38-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:24:25-66
-39
-40                <category android:name="android.intent.category.LAUNCHER" />
-40-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:25:17-77
-40-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:25:27-74
-41            </intent-filter>
-42        </activity>
-43        <activity
-43-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:29:9-31:40
-44            android:name="com.litterboxd.app.ui.auth.WelcomeActivity"
-44-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:30:13-52
-45            android:exported="false" />
-45-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:31:13-37
-46        <activity
-46-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:33:9-35:40
-47            android:name="com.litterboxd.app.ui.auth.LoginActivity"
-47-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:34:13-50
-48            android:exported="false" />
-48-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:35:13-37
-49        <activity
-49-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:37:9-39:40
-50            android:name="com.litterboxd.app.ui.auth.RegisterActivity"
-50-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:38:13-53
-51            android:exported="false" />
-51-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:39:13-37
-52        <activity
-52-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:41:9-43:40
-53            android:name="com.litterboxd.app.ui.home.HomeActivity"
-53-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:42:13-49
-54            android:exported="false" />
-54-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:43:13-37
-55
-56        <provider
-56-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:24:9-32:20
-57            android:name="androidx.startup.InitializationProvider"
-57-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:25:13-67
-58            android:authorities="com.litterboxd.app.androidx-startup"
-58-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:26:13-68
-59            android:exported="false" >
-59-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:27:13-37
-60            <meta-data
-60-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
-61                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-61-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:30:17-75
-62                android:value="androidx.startup" />
-62-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:31:17-49
-63            <meta-data
-63-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/natashawilfrid/.gradle/caches/transforms-3/e96a8fa6cb4c2ba95c23d2e19a47da1d/transformed/lifecycle-process-2.4.1/AndroidManifest.xml:31:13-33:52
-64                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-64-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/natashawilfrid/.gradle/caches/transforms-3/e96a8fa6cb4c2ba95c23d2e19a47da1d/transformed/lifecycle-process-2.4.1/AndroidManifest.xml:32:17-78
-65                android:value="androidx.startup" />
-65-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/natashawilfrid/.gradle/caches/transforms-3/e96a8fa6cb4c2ba95c23d2e19a47da1d/transformed/lifecycle-process-2.4.1/AndroidManifest.xml:33:17-49
-66        </provider>
-67    </application>
-68
-69</manifest>
+32        android:theme="@style/Theme.Litterboxd" >
+32-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:17:9-48
+33        <activity
+33-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:20:9-27:20
+34            android:name="com.litterboxd.app.ui.splash.SplashActivity"
+34-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:21:13-53
+35            android:exported="true" >
+35-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:22:13-36
+36            <intent-filter>
+36-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:23:13-26:29
+37                <action android:name="android.intent.action.MAIN" />
+37-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:24:17-69
+37-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:24:25-66
+38
+39                <category android:name="android.intent.category.LAUNCHER" />
+39-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:25:17-77
+39-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:25:27-74
+40            </intent-filter>
+41        </activity>
+42        <activity
+42-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:29:9-31:40
+43            android:name="com.litterboxd.app.ui.auth.WelcomeActivity"
+43-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:30:13-52
+44            android:exported="false" />
+44-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:31:13-37
+45        <activity
+45-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:33:9-35:40
+46            android:name="com.litterboxd.app.ui.auth.LoginActivity"
+46-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:34:13-50
+47            android:exported="false" />
+47-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:35:13-37
+48        <activity
+48-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:37:9-39:40
+49            android:name="com.litterboxd.app.ui.auth.RegisterActivity"
+49-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:38:13-53
+50            android:exported="false" />
+50-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:39:13-37
+51        <activity
+51-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:41:9-43:40
+52            android:name="com.litterboxd.app.ui.home.HomeActivity"
+52-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:42:13-49
+53            android:exported="false" />
+53-->/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/AndroidManifest.xml:43:13-37
+54
+55        <provider
+55-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:24:9-32:20
+56            android:name="androidx.startup.InitializationProvider"
+56-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:25:13-67
+57            android:authorities="com.litterboxd.app.androidx-startup"
+57-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:26:13-68
+58            android:exported="false" >
+58-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:27:13-37
+59            <meta-data
+59-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
+60                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+60-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:30:17-75
+61                android:value="androidx.startup" />
+61-->[androidx.emoji2:emoji2:1.2.0] /Users/natashawilfrid/.gradle/caches/transforms-3/58dace9c7703ce1d1a5fa78c07b1ccdd/transformed/emoji2-1.2.0/AndroidManifest.xml:31:17-49
+62            <meta-data
+62-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/natashawilfrid/.gradle/caches/transforms-3/e96a8fa6cb4c2ba95c23d2e19a47da1d/transformed/lifecycle-process-2.4.1/AndroidManifest.xml:31:13-33:52
+63                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+63-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/natashawilfrid/.gradle/caches/transforms-3/e96a8fa6cb4c2ba95c23d2e19a47da1d/transformed/lifecycle-process-2.4.1/AndroidManifest.xml:32:17-78
+64                android:value="androidx.startup" />
+64-->[androidx.lifecycle:lifecycle-process:2.4.1] /Users/natashawilfrid/.gradle/caches/transforms-3/e96a8fa6cb4c2ba95c23d2e19a47da1d/transformed/lifecycle-process-2.4.1/AndroidManifest.xml:33:17-49
+65        </provider>
+66    </application>
+67
+68</manifest>

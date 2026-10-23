@@ -80,9 +80,6 @@ public class SplashActivity extends AppCompatActivity {
 /Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/layout/activity_splash.xml:6: Warning: Possible overdraw: Root element paints background @color/off_white_background with a theme that also paints a background (inferred theme is @style/Theme.Litterboxd) [Overdraw]
     android:background="@color/off_white_background">
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/layout/activity_welcome.xml:6: Warning: Possible overdraw: Root element paints background @color/off_white_background with a theme that also paints a background (inferred theme is @style/Theme.Litterboxd) [Overdraw]
-    android:background="@color/off_white_background"
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
    Explanation for issues of type "Overdraw":
    If you set a background drawable on a root view, then you should use a
@@ -111,12 +108,33 @@ public class SplashActivity extends AppCompatActivity {
 /Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/dimens.xml:4: Warning: The resource R.dimen.margin_vertical appears to be unused [UnusedResources]
     <dimen name="margin_vertical">16dp</dimen>
            ~~~~~~~~~~~~~~~~~~~~~~
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/dimens.xml:5: Warning: The resource R.dimen.spacing_small appears to be unused [UnusedResources]
+    <dimen name="spacing_small">8dp</dimen>
+           ~~~~~~~~~~~~~~~~~~~~
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/dimens.xml:6: Warning: The resource R.dimen.spacing_medium appears to be unused [UnusedResources]
+    <dimen name="spacing_medium">16dp</dimen>
+           ~~~~~~~~~~~~~~~~~~~~~
 /Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/dimens.xml:7: Warning: The resource R.dimen.spacing_large appears to be unused [UnusedResources]
     <dimen name="spacing_large">24dp</dimen>
            ~~~~~~~~~~~~~~~~~~~~
 /Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/dimens.xml:12: Warning: The resource R.dimen.text_size_body appears to be unused [UnusedResources]
     <dimen name="text_size_body">16sp</dimen>
            ~~~~~~~~~~~~~~~~~~~~~
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/drawable/ic_cat_face.xml:1: Warning: The resource R.drawable.ic_cat_face appears to be unused [UnusedResources]
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+^
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/drawable/ic_small_heart.xml:1: Warning: The resource R.drawable.ic_small_heart appears to be unused [UnusedResources]
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+^
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/strings.xml:4: Warning: The resource R.string.title_left appears to be unused [UnusedResources]
+    <string name="title_left">Litterb</string>
+            ~~~~~~~~~~~~~~~~~
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/strings.xml:5: Warning: The resource R.string.title_right appears to be unused [UnusedResources]
+    <string name="title_right">xd</string>
+            ~~~~~~~~~~~~~~~~~~
+/Users/natashawilfrid/Downloads/litterboxd/Litterboxd/app/src/main/res/values/strings.xml:7: Warning: The resource R.string.tagline appears to be unused [UnusedResources]
+    <string name="tagline">for every chapter of their nine lives</string>
+            ~~~~~~~~~~~~~~
 
    Explanation for issues of type "UnusedResources":
    Unused resources make applications larger and slow down builds.
@@ -132,4 +150,4 @@ public class SplashActivity extends AppCompatActivity {
    lint.unused-resources.exclude-tests =true.
    ,
 
-0 errors, 19 warnings
+0 errors, 25 warnings

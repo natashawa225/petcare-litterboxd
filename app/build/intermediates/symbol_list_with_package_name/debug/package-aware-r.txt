@@ -1319,6 +1319,7 @@ color cardview_light_background
 color cardview_shadow_end_color
 color cardview_shadow_start_color
 color coral_secondary
+color dark_olive_green
 color design_bottom_navigation_shadow_color
 color design_box_stroke_color
 color design_dark_default_color_background
@@ -1888,6 +1889,7 @@ color mtrl_textinput_disabled_color
 color mtrl_textinput_filled_box_default_background_color
 color mtrl_textinput_focused_box_stroke_color
 color mtrl_textinput_hovered_box_stroke_color
+color muted_pinkish_brown
 color notification_action_color_filter
 color notification_icon_bg_color
 color off_white_background
@@ -2729,6 +2731,7 @@ drawable design_ic_visibility_off
 drawable design_password_eye
 drawable design_snackbar_background
 drawable ic_arrow_back_black_24
+drawable ic_cat_face
 drawable ic_clear_black_24
 drawable ic_clock_black_24dp
 drawable ic_keyboard_black_24dp
@@ -2742,6 +2745,7 @@ drawable ic_mtrl_chip_checked_black
 drawable ic_mtrl_chip_checked_circle
 drawable ic_mtrl_chip_close_circle
 drawable ic_search_black_24
+drawable ic_small_heart
 drawable m3_appbar_background
 drawable m3_avd_hide_password
 drawable m3_avd_show_password
@@ -2753,6 +2757,7 @@ drawable m3_tabs_background
 drawable m3_tabs_line_indicator
 drawable m3_tabs_rounded_line_indicator
 drawable m3_tabs_transparent_background
+drawable marker_highlight_background
 drawable material_cursor_drawable
 drawable material_ic_calendar_black_24dp
 drawable material_ic_clear_black_24dp
@@ -2801,6 +2806,8 @@ drawable mtrl_switch_track
 drawable mtrl_switch_track_decoration
 drawable mtrl_tabs_default_indicator
 drawable navigation_empty_icon
+drawable neobrutalist_button_primary
+drawable neobrutalist_button_secondary
 drawable notification_action_background
 drawable notification_bg
 drawable notification_bg_low
@@ -2816,6 +2823,8 @@ drawable notify_panel_notification_icon_bg
 drawable test_level_drawable
 drawable tooltip_frame_dark
 drawable tooltip_frame_light
+font subtitle_font
+font title_font
 id ALT
 id BOTTOM_END
 id BOTTOM_START
@@ -3032,6 +3041,7 @@ id graph_wrap
 id group_divider
 id grouping
 id groups
+id headerContainer
 id header_title
 id hideable
 id home
@@ -3044,7 +3054,7 @@ id ifRoom
 id ignore
 id ignoreRequest
 id image
-id imgMascot
+id imgCatStatic
 id immediateStop
 id included
 id indeterminate
@@ -3176,6 +3186,7 @@ id right
 id rightToLeft
 id right_icon
 id right_side
+id rootWelcomeLayout
 id rounded
 id row_index_key
 id save_non_transition_alpha
@@ -3283,6 +3294,7 @@ id textinput_helper_text
 id textinput_placeholder
 id textinput_prefix_text
 id textinput_suffix_text
+id textureViewCat
 id tilConfirmPassword
 id tilEmail
 id tilLoginEmail
@@ -3304,11 +3316,11 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
-id tvAppTitle
 id tvForgotPassword
 id tvLoginTitle
 id tvRegisterTitle
-id tvTagline
+id tvSubtitle
+id tvTitle
 id tvWelcomeUser
 id unchecked
 id uniform
@@ -3524,6 +3536,8 @@ layout support_simple_spinner_dropdown_item
 mipmap ic_launcher
 mipmap ic_launcher_round
 plurals mtrl_badge_content_description
+raw home_page_animation
+raw homepage_cat
 string abc_action_bar_home_description
 string abc_action_bar_up_description
 string abc_action_menu_overflow_description
@@ -3697,7 +3711,10 @@ string searchview_navigation_content_description
 string side_sheet_accessibility_pane_title
 string side_sheet_behavior
 string status_bar_notification_info_overflow
+string subtitle_text
 string tagline
+string title_left
+string title_right
 string welcome_guest
 string welcome_user
 style AlertDialog_AppCompat

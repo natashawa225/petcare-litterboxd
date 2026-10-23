@@ -1,82 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootWelcomeLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/off_white_background"
-    android:padding="@dimen/margin_horizontal">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/imgMascot"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="64dp"
-        android:contentDescription="@string/app_name"
-        android:src="@mipmap/ic_launcher"
+    <!-- Full-screen cat rolling video. Always laid out so its surface exists before the first tap;
+         the static image above it covers it while idle. -->
+    <TextureView
+        android:id="@+id/textureViewCat"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tvAppTitle"
+    <!-- Full-screen static cat wallpaper, drawn above the video and hidden only while it plays -->
+    <ImageView
+        android:id="@+id/imgCatStatic"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/app_name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Semi-transparent dark overlay for text and UI readability over photo wallpaper -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#26000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Stylized Typography Header Container -->
+    <LinearLayout
+        android:id="@+id/headerContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/app_name"
-        android:textColor="@color/sage_primary"
-        android:textSize="@dimen/text_size_title"
-        android:textStyle="bold"
+        android:layout_marginTop="72dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgMascot" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/tvTagline"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:text="@string/tagline"
-        android:textColor="@color/text_dark_gray"
-        android:textSize="@dimen/text_size_subtitle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAppTitle" />
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/title_font"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/app_name"
+            android:textColor="@color/dark_olive_green"
+            android:textSize="40sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/subtitle_font"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/subtitle_text"
+            android:textColor="@color/muted_pinkish_brown"
+            android:textSize="16sp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="48dp"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_max="480dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSignUp"
             android:layout_width="match_parent"
             android:layout_height="@dimen/button_height"
+            android:background="@drawable/neobrutalist_button_primary"
             android:text="@string/btn_sign_up"
-            app:cornerRadius="@dimen/corner_radius" />
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null"
+            app:elevation="0dp"
+            app:rippleColor="#33000000" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="@dimen/button_height"
-            android:layout_marginTop="@dimen/spacing_medium"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/neobrutalist_button_secondary"
             android:text="@string/btn_log_in"
-            app:cornerRadius="@dimen/corner_radius"
-            app:strokeColor="@color/sage_primary" />
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null"
+            app:elevation="0dp"
+            app:rippleColor="#33000000" />
 
-        <com.google.android.material.button.MaterialButton
+        <TextView
             android:id="@+id/btnGuest"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/button_height"
-            android:layout_marginTop="@dimen/spacing_small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/marker_highlight_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:paddingStart="20dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="10dp"
             android:text="@string/btn_continue_guest"
-            android:textColor="@color/text_dark_gray" />
+            android:textColor="#000000"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:foreground="?attr/selectableItemBackground" />
 
     </LinearLayout>
 

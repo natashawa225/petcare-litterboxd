@@ -216,18 +216,4 @@
             endOffset="338"/>
     </incident>
 
-    <incident
-        id="Overdraw"
-        severity="warning"
-        message="Possible overdraw: Root element paints background `@color/off_white_background` with a theme that also paints a background (inferred theme is `@style/Theme.Litterboxd`)">
-        <location
-            file="${:app*debug*sourceProvider*0*resDir*0}/layout/activity_welcome.xml"
-            line="6"
-            column="5"
-            startOffset="290"
-            endLine="6"
-            endColumn="53"
-            endOffset="338"/>
-    </incident>
-
 </incidents>
