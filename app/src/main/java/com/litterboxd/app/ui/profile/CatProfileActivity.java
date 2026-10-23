@@ -3,6 +3,7 @@ package com.litterboxd.app.ui.profile;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.method.DigitsKeyListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -187,7 +188,9 @@ public class CatProfileActivity extends AppCompatActivity {
         tilWeight.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         TextInputEditText etWeight = new TextInputEditText(this);
         etWeight.setHint(R.string.prompt_weight_grams);
-        etWeight.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        // Accept "4.2" and "4,2" on any keyboard; keep the numeric keyboard.
+        etWeight.setKeyListener(DigitsKeyListener.getInstance(getString(R.string.decimal_digits)));
+        etWeight.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         tilWeight.addView(etWeight);
         layout.addView(tilWeight);
 
