@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -129,7 +130,7 @@ public class CatProfileActivity extends AppCompatActivity {
         if (logs.isEmpty()) {
             TextView tv = new TextView(this);
             tv.setText(R.string.empty_weight_logs);
-            tv.setTextColor(getResources().getColor(R.color.text_dark_gray));
+            tv.setTextColor(ContextCompat.getColor(this, R.color.text_dark_gray));
             containerWeightLogs.addView(tv);
             return;
         }
@@ -141,7 +142,7 @@ public class CatProfileActivity extends AppCompatActivity {
                     ? getString(R.string.weight_log_row_with_notes, String.valueOf(log.getWeight()), dateStr, log.getNotes())
                     : getString(R.string.weight_log_row, String.valueOf(log.getWeight()), dateStr);
             tv.setText(text);
-            tv.setTextColor(getResources().getColor(R.color.black));
+            tv.setTextColor(ContextCompat.getColor(this, R.color.black));
             tv.setPadding(0, rowPadding, 0, rowPadding);
             containerWeightLogs.addView(tv);
         }
@@ -153,7 +154,7 @@ public class CatProfileActivity extends AppCompatActivity {
         if (meals.isEmpty()) {
             TextView tv = new TextView(this);
             tv.setText(R.string.empty_feeding_schedule);
-            tv.setTextColor(getResources().getColor(R.color.text_dark_gray));
+            tv.setTextColor(ContextCompat.getColor(this, R.color.text_dark_gray));
             containerFeedingMeals.addView(tv);
             return;
         }
@@ -162,7 +163,7 @@ public class CatProfileActivity extends AppCompatActivity {
             TextView tv = new TextView(this);
             String text = getString(R.string.feeding_meal_row, meal.getMealLabel(), meal.getMealTime(), String.valueOf(meal.getPortionGrams()));
             tv.setText(text);
-            tv.setTextColor(getResources().getColor(R.color.black));
+            tv.setTextColor(ContextCompat.getColor(this, R.color.black));
             tv.setPadding(0, rowPadding, 0, rowPadding);
             containerFeedingMeals.addView(tv);
         }
