@@ -1,0 +1,182 @@
+package com.litterboxd.app.ui.home;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.button.MaterialButton;
+import com.litterboxd.app.R;
+import com.litterboxd.app.data.dao.CatDao;
+import com.litterboxd.app.data.db.LitterboxdDbHelper;
+import com.litterboxd.app.data.file.FileStorageHelper;
+import com.litterboxd.app.data.model.Cat;
+import com.litterboxd.app.data.session.AppPrefs;
+import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
+import com.litterboxd.app.ui.profile.CatProfileActivity;
+import com.litterboxd.app.ui.settings.SettingsActivity;
+import com.litterboxd.app.util.AgeUtils;
+import com.litterboxd.app.util.AppExecutors;
+
+import java.util.List;
+
+public class HomeActivity extends AppCompatActivity {
+
+    private TextView tvWelcomeUser, tvHomeCatName, tvHomeCatDetails;
+    private ImageView imgHomeCatPhoto;
+    private MaterialButton btnSwitchCat, btnViewCatProfile, btnSettings;
+
+    private AppPrefs appPrefs;
+    private CatDao catDao;
+    private FileStorageHelper fileStorageHelper;
+    private Cat currentCat;
+    private List<Cat> allCats;
+
+    private static final int PERMISSION_REQUEST_CODE_NOTIFICATION = 1001;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
+
+        appPrefs = new AppPrefs(this);
+        catDao = new CatDao(LitterboxdDbHelper.getInstance(this));
+        fileStorageHelper = new FileStorageHelper(this);
+
+        tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
+        tvHomeCatName = findViewById(R.id.tvHomeCatName);
+        tvHomeCatDetails = findViewById(R.id.tvHomeCatDetails);
+        imgHomeCatPhoto = findViewById(R.id.imgHomeCatPhoto);
+        btnSwitchCat = findViewById(R.id.btnSwitchCat);
+        btnViewCatProfile = findViewById(R.id.btnViewCatProfile);
+        btnSettings = findViewById(R.id.btnSettings);
+
+        btnSwitchCat.setOnClickListener(v -> showCatSwitcherDialog());
+        btnViewCatProfile.setOnClickListener(v -> {
+            if (currentCat != null) {
+                Intent intent = new Intent(this, CatProfileActivity.class);
+                intent.putExtra("cat_id", currentCat.getId());
+                startActivity(intent);
+            }
+        });
+        btnSettings.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+        });
+
+        checkNotificationPermission();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
+    }
+
+    private void loadData() {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            String ownerName = appPrefs.getOwnerName();
+            final String greeting = (ownerName == null || ownerName.isEmpty())
+                    ? getString(R.string.home_greeting_guest)
+                    : getString(R.string.home_greeting, ownerName);
+
+            // Work on locals here; the fields are only assigned on the UI thread below.
+            List<Cat> cats = catDao.getAllCats();
+            long selectedId = appPrefs.getSelectedCatId();
+            Cat selected = null;
+            for (Cat c : cats) {
+                if (c.getId() == selectedId) {
+                    selected = c;
+                    break;
+                }
+            }
+            if (selected == null && !cats.isEmpty()) {
+                selected = cats.get(0);
+                appPrefs.setSelectedCatId(selected.getId());
+            }
+            final Cat finalSelected = selected;
+
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                allCats = cats;
+                currentCat = finalSelected;
+                tvWelcomeUser.setText(greeting);
+                updateCatCard();
+            });
+        });
+    }
+
+    private void updateCatCard() {
+        if (currentCat != null) {
+            tvHomeCatName.setText(currentCat.getName());
+            String ageStr = AgeUtils.getAgeDisplay(currentCat.getBirthday(), currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
+            String details = getString(R.string.home_cat_summary, currentCat.getBreed(), ageStr, String.valueOf(currentCat.getWeight()));
+            tvHomeCatDetails.setText(details);
+
+            fileStorageHelper.showCatPhoto(imgHomeCatPhoto, currentCat.getPhotoPath());
+            // Always available: the switcher dialog is also where a second cat is added.
+            btnSwitchCat.setVisibility(View.VISIBLE);
+        } else {
+            tvHomeCatName.setText(R.string.no_cat_selected);
+            tvHomeCatDetails.setText(null);
+            imgHomeCatPhoto.setImageResource(R.drawable.ic_cat_face);
+            btnSwitchCat.setVisibility(View.GONE);
+        }
+    }
+
+    private void showCatSwitcherDialog() {
+        if (allCats == null || allCats.isEmpty()) return;
+        // One row per cat, plus a last row to add another cat.
+        String[] items = new String[allCats.size() + 1];
+        for (int i = 0; i < allCats.size(); i++) {
+            items[i] = allCats.get(i).getName();
+        }
+        items[allCats.size()] = getString(R.string.add_another_cat);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.title_cat_switcher)
+                .setItems(items, (dialog, which) -> {
+                    if (which == allCats.size()) {
+                        Intent intent = new Intent(this, AddEditCatActivity.class);
+                        intent.putExtra(AddEditCatActivity.EXTRA_ADD_ANOTHER, true);
+                        startActivity(intent);
+                        return;
+                    }
+                    Cat chosen = allCats.get(which);
+                    appPrefs.setSelectedCatId(chosen.getId());
+                    currentCat = chosen;
+                    updateCatCard();
+                })
+                .show();
+    }
+
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!appPrefs.isNotificationPermissionAsked()) {
+                appPrefs.setNotificationPermissionAsked(true);
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE_NOTIFICATION);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE_NOTIFICATION
+                && (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
+            Toast.makeText(this, R.string.msg_notifications_denied, Toast.LENGTH_LONG).show();
+        }
+    }
+}
