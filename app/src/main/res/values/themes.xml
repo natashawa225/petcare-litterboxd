@@ -1,0 +1,18 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Litterboxd" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/sage_primary</item>
+        <item name="colorPrimaryVariant">@color/sage_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/coral_secondary</item>
+        <item name="colorSecondaryVariant">@color/coral_secondary</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Background and surface -->
+        <item name="android:windowBackground">@color/off_white_background</item>
+        <item name="colorSurface">@color/surface_card</item>
+        <item name="colorOnSurface">@color/text_dark_gray</item>
+        <item name="colorError">@color/error_red</item>
+    </style>
+</resources>
