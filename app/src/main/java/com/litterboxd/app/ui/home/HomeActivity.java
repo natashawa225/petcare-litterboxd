@@ -39,6 +39,7 @@ import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.TaskFrequency;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.reminders.CareReminderScheduler;
+import com.litterboxd.app.ui.checkin.CheckInActivity;
 import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
 import com.litterboxd.app.ui.profile.CatProfileActivity;
 import com.litterboxd.app.ui.settings.SettingsActivity;
@@ -111,6 +112,13 @@ public class HomeActivity extends AppCompatActivity {
         btnSettings.setOnClickListener(v -> {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+        });
+        findViewById(R.id.cardDailyCheckin).setOnClickListener(v -> {
+            if (currentCat != null) {
+                Intent intent = new Intent(this, CheckInActivity.class);
+                intent.putExtra(CheckInActivity.EXTRA_CAT_ID, currentCat.getId());
+                startActivity(intent);
+            }
         });
         btnAddCareTask.setOnClickListener(v -> {
             if (currentCat != null) {
