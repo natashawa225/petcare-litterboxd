@@ -81,6 +81,34 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
             "CREATE INDEX idx_care_task_logs_task_id ON " + LitterboxdContract.CareTaskLogEntry.TABLE_NAME +
                     "(" + LitterboxdContract.CareTaskLogEntry.COLUMN_TASK_ID + ")";
 
+    private static final String SQL_CREATE_DAILY_CHECKINS =
+            "CREATE TABLE " + LitterboxdContract.DailyCheckinEntry.TABLE_NAME + " (" +
+                    LitterboxdContract.DailyCheckinEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    LitterboxdContract.DailyCheckinEntry.COLUMN_CAT_ID + " INTEGER NOT NULL, " +
+                    LitterboxdContract.DailyCheckinEntry.COLUMN_CHECKIN_DATE + " TEXT NOT NULL, " +
+                    LitterboxdContract.DailyCheckinEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL, " +
+                    LitterboxdContract.DailyCheckinEntry.COLUMN_UPDATED_AT + " INTEGER NOT NULL, " +
+                    "UNIQUE(" + LitterboxdContract.DailyCheckinEntry.COLUMN_CAT_ID + ", " +
+                    LitterboxdContract.DailyCheckinEntry.COLUMN_CHECKIN_DATE + "), " +
+                    "FOREIGN KEY(" + LitterboxdContract.DailyCheckinEntry.COLUMN_CAT_ID + ") REFERENCES " +
+                    LitterboxdContract.CatEntry.TABLE_NAME + "(" + LitterboxdContract.CatEntry.COLUMN_ID + ") ON DELETE CASCADE)";
+
+    private static final String SQL_CREATE_CHECKIN_ANSWERS =
+            "CREATE TABLE " + LitterboxdContract.CheckinAnswerEntry.TABLE_NAME + " (" +
+                    LitterboxdContract.CheckinAnswerEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    LitterboxdContract.CheckinAnswerEntry.COLUMN_CHECKIN_ID + " INTEGER NOT NULL, " +
+                    LitterboxdContract.CheckinAnswerEntry.COLUMN_QUESTION_ID + " TEXT NOT NULL, " +
+                    LitterboxdContract.CheckinAnswerEntry.COLUMN_ANSWER_VALUE + " TEXT NOT NULL, " +
+                    "UNIQUE(" + LitterboxdContract.CheckinAnswerEntry.COLUMN_CHECKIN_ID + ", " +
+                    LitterboxdContract.CheckinAnswerEntry.COLUMN_QUESTION_ID + ", " +
+                    LitterboxdContract.CheckinAnswerEntry.COLUMN_ANSWER_VALUE + "), " +
+                    "FOREIGN KEY(" + LitterboxdContract.CheckinAnswerEntry.COLUMN_CHECKIN_ID + ") REFERENCES " +
+                    LitterboxdContract.DailyCheckinEntry.TABLE_NAME + "(" + LitterboxdContract.DailyCheckinEntry.COLUMN_ID + ") ON DELETE CASCADE)";
+
+    private static final String SQL_CREATE_INDEX_CHECKIN_ANSWERS_CHECKIN =
+            "CREATE INDEX idx_checkin_answers_checkin_id ON " + LitterboxdContract.CheckinAnswerEntry.TABLE_NAME +
+                    "(" + LitterboxdContract.CheckinAnswerEntry.COLUMN_CHECKIN_ID + ")";
+
     private static LitterboxdDbHelper instance;
 
     /**
@@ -121,10 +149,9 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_INDEX_WEIGHT_CAT);
         db.execSQL(SQL_CREATE_INDEX_FEEDING_CAT);
         createCareTaskTables(db);
+        createCheckinTables(db);
 
         // TODO: Create future tables in subsequent updates:
-        // - daily_checkins
-        // - checkin_answers
         // - alerts
     }
 
@@ -133,10 +160,15 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         if (oldVersion < 3) {
             createCareTaskTables(db);
         }
+        if (oldVersion < 4) {
+            createCheckinTables(db);
+        }
     }
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CheckinAnswerEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.DailyCheckinEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CareTaskLogEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CareTaskEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.FeedingScheduleEntry.TABLE_NAME);
@@ -150,5 +182,11 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_CARE_TASK_LOGS);
         db.execSQL(SQL_CREATE_INDEX_CARE_TASKS_CAT);
         db.execSQL(SQL_CREATE_INDEX_CARE_TASK_LOGS_TASK);
+    }
+
+    private void createCheckinTables(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_DAILY_CHECKINS);
+        db.execSQL(SQL_CREATE_CHECKIN_ANSWERS);
+        db.execSQL(SQL_CREATE_INDEX_CHECKIN_ANSWERS_CHECKIN);
     }
 }

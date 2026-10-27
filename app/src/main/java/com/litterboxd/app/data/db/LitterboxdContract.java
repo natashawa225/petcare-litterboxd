@@ -2,7 +2,7 @@ package com.litterboxd.app.data.db;
 
 public final class LitterboxdContract {
     public static final String DATABASE_NAME = "litterboxd.db";
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 4;
 
     private LitterboxdContract() {}
 
@@ -60,5 +60,24 @@ public final class LitterboxdContract {
         public static final String COLUMN_ID = "id";
         public static final String COLUMN_TASK_ID = "task_id";
         public static final String COLUMN_COMPLETED_AT = "completed_at";
+    }
+
+    /** One daily check-in per cat per day. COLUMN_CHECKIN_DATE is an ISO day such as 2026-10-27. */
+    public static class DailyCheckinEntry {
+        public static final String TABLE_NAME = "daily_checkins";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_CAT_ID = "cat_id";
+        public static final String COLUMN_CHECKIN_DATE = "checkin_date";
+        public static final String COLUMN_CREATED_AT = "created_at";
+        public static final String COLUMN_UPDATED_AT = "updated_at";
+    }
+
+    /** One row per selected answer: a multi-select question has several rows for the same question. */
+    public static class CheckinAnswerEntry {
+        public static final String TABLE_NAME = "checkin_answers";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_CHECKIN_ID = "checkin_id";
+        public static final String COLUMN_QUESTION_ID = "question_id";
+        public static final String COLUMN_ANSWER_VALUE = "answer_value";
     }
 }
