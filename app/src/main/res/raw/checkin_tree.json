@@ -1,0 +1,57 @@
+{
+  "categories": [
+    {
+      "id": "appetite_water",
+      "titleKey": "checkin_category_appetite_water",
+      "groups": [
+        {
+          "id": "appetite",
+          "titleKey": "checkin_group_appetite",
+          "selection": "single",
+          "chips": [
+            { "value": "less", "labelKey": "chip_appetite_less", "followUps": ["vomiting", "hiding"] },
+            { "value": "normal", "labelKey": "chip_appetite_normal", "normal": true },
+            { "value": "more", "labelKey": "chip_appetite_more" }
+          ]
+        },
+        {
+          "id": "water",
+          "titleKey": "checkin_group_water",
+          "selection": "single",
+          "chips": [
+            { "value": "less", "labelKey": "chip_water_less" },
+            { "value": "normal", "labelKey": "chip_water_normal", "normal": true },
+            { "value": "more", "labelKey": "chip_water_more", "followUps": ["urination_more"] }
+          ]
+        }
+      ]
+    }
+  ],
+  "followUps": [
+    {
+      "id": "vomiting",
+      "textKey": "q_vomiting",
+      "options": [
+        { "value": "none", "labelKey": "opt_vomit_none" },
+        { "value": "once", "labelKey": "opt_vomit_once" },
+        { "value": "repeated", "labelKey": "opt_vomit_repeated" }
+      ]
+    },
+    {
+      "id": "hiding",
+      "textKey": "q_hiding",
+      "options": [
+        { "value": "no", "labelKey": "btn_no" },
+        { "value": "yes", "labelKey": "btn_yes" }
+      ]
+    },
+    {
+      "id": "urination_more",
+      "textKey": "q_urination_more",
+      "options": [
+        { "value": "no", "labelKey": "btn_no" },
+        { "value": "yes", "labelKey": "btn_yes" }
+      ]
+    }
+  ]
+}
