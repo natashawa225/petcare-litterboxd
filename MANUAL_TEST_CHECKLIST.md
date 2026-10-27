@@ -114,6 +114,23 @@ adb shell run-as com.litterboxd.app ls files
 - [ ] Switch the system to dark mode → the app keeps its sage/off-white colours (no purple buttons or status bar).
 - [ ] On a small phone, in both orientations: every screen scrolls to its last button; nothing is clipped.
 
+## 13. Daily check-in
+
+- [ ] On Home, tap the **Daily Check-in** card → the check-in opens with "How is *<cat name>* today?", an **All normal** button, and an "Appetite & water" card with six chips.
+- [ ] With nothing selected, tap the bottom button → Toast "Tap at least one chip to log today."; the screen stays open.
+- [ ] Tap **Ate less**, then **Ate more** → only **Ate more** is highlighted (one choice per group). Tap it again → it deselects.
+- [ ] Select **Ate less** and **Drank more** → the bottom button says **Continue**. Tap it → "A few more questions" lists *vomited*, *hiding* and *peeing more* (in that order).
+- [ ] On the follow-ups, tap **Once**, then tap **Once** again → it deselects. Skipping every follow-up and tapping **Save check-in** still works.
+- [ ] **Back** (button and system Back) returns to the chips with the selection kept. System Back on the chips screen leaves without saving.
+- [ ] Select only **Ate normally** and **Drank normally** → the button says **Save check-in** (no follow-ups). Save → Toast "Check-in saved for *<cat name>*" and Home.
+- [ ] Tap **All normal** → both normal chips highlight, replacing any other choice.
+- [ ] Rotate on the chips screen and on the follow-ups screen → selections and the current screen are kept.
+- [ ] Save a check-in, run `adb shell am force-stop com.litterboxd.app`, reopen and tap the card → the same chips (and follow-up answers) are pre-selected.
+- [ ] Change the answers and save again the same day → reopening shows the new answers only (one check-in per day; old follow-up answers are gone).
+- [ ] Two cats: save a check-in for cat A, switch to cat B on Home, open the check-in → B's chips are empty. Switch back → A's are still there.
+- [ ] Delete the cat → no crash; creating a new cat starts with an empty check-in.
+- [ ] Tapping the card during the first moments after launch does nothing wrong (no crash, no stray message).
+
 ---
 
 **Record:** device / API, date, tester, any failures (screen + steps + screenshot).
