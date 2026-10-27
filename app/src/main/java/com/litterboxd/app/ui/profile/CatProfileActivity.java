@@ -17,6 +17,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
+import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.FeedingScheduleDao;
 import com.litterboxd.app.data.dao.WeightLogDao;
@@ -26,6 +27,7 @@ import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.FeedingMeal;
 import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.session.AppPrefs;
+import com.litterboxd.app.reminders.CareReminderScheduler;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
 import com.litterboxd.app.ui.onboarding.FeedingScheduleActivity;
@@ -48,6 +50,7 @@ public class CatProfileActivity extends AppCompatActivity {
     private CatDao catDao;
     private WeightLogDao weightLogDao;
     private FeedingScheduleDao feedingScheduleDao;
+    private CareTaskDao careTaskDao;
     private FileStorageHelper fileStorageHelper;
     private AppPrefs appPrefs;
     private Cat currentCat;
@@ -62,6 +65,7 @@ public class CatProfileActivity extends AppCompatActivity {
         catDao = new CatDao(dbHelper);
         weightLogDao = new WeightLogDao(dbHelper);
         feedingScheduleDao = new FeedingScheduleDao(dbHelper);
+        careTaskDao = new CareTaskDao(dbHelper);
         fileStorageHelper = new FileStorageHelper(this);
         appPrefs = new AppPrefs(this);
 
@@ -242,7 +246,8 @@ public class CatProfileActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.btn_yes, (dialog, which) -> {
                     AppExecutors.getInstance().diskIO().execute(() -> {
                         Cat toDelete = catDao.getCatById(catId);
-                        catDao.deleteCat(catId); // weight logs and meals go too (ON DELETE CASCADE)
+                        CareReminderScheduler.cancelForCat(this, careTaskDao, catId);
+                        catDao.deleteCat(catId); // weight logs, meals, and care tasks go too (ON DELETE CASCADE)
                         if (toDelete != null) fileStorageHelper.deleteImage(toDelete.getPhotoPath());
                         List<Cat> remaining = catDao.getAllCats();
                         if (!remaining.isEmpty()) {

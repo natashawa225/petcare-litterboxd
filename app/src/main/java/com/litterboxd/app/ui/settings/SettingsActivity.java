@@ -12,16 +12,20 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
+import com.litterboxd.app.data.CareTaskSeeder;
+import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.FeedingScheduleDao;
 import com.litterboxd.app.data.dao.WeightLogDao;
 import com.litterboxd.app.data.db.LitterboxdContract;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.file.FileStorageHelper;
+import com.litterboxd.app.data.model.CareTask;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.FeedingMeal;
 import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.session.AppPrefs;
+import com.litterboxd.app.reminders.CareReminderScheduler;
 import com.litterboxd.app.ui.splash.SplashActivity;
 import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.Validators;
@@ -36,6 +40,7 @@ public class SettingsActivity extends AppCompatActivity {
     private CatDao catDao;
     private WeightLogDao weightLogDao;
     private FeedingScheduleDao feedingScheduleDao;
+    private CareTaskDao careTaskDao;
     private LitterboxdDbHelper dbHelper;
 
     @Override
@@ -48,6 +53,7 @@ public class SettingsActivity extends AppCompatActivity {
         catDao = new CatDao(dbHelper);
         weightLogDao = new WeightLogDao(dbHelper);
         feedingScheduleDao = new FeedingScheduleDao(dbHelper);
+        careTaskDao = new CareTaskDao(dbHelper);
 
         etSettingsOwnerName = findViewById(R.id.etSettingsOwnerName);
         tilSettingsOwnerName = findViewById(R.id.tilSettingsOwnerName);
@@ -152,6 +158,9 @@ public class SettingsActivity extends AppCompatActivity {
             bm1.setPortionGrams(70.0);
             feedingScheduleDao.insertFeedingMeal(bm1);
 
+            CareTaskSeeder.seedIfEmpty(this, careTaskDao, mochiId);
+            CareTaskSeeder.seedIfEmpty(this, careTaskDao, biscuitId);
+
             if (appPrefs.getSelectedCatId() == -1L) {
                 appPrefs.setSelectedCatId(mochiId);
             }
@@ -170,7 +179,12 @@ public class SettingsActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.btn_yes, (dialog, which) -> {
                     AppExecutors.getInstance().diskIO().execute(() -> {
                         // Children first (they reference cats), then cats, then photos and preferences.
+                        for (CareTask task : careTaskDao.getAllTasks()) {
+                            CareReminderScheduler.cancel(this, task.getId());
+                        }
                         SQLiteDatabase db = dbHelper.getWritableDatabase();
+                        db.delete(LitterboxdContract.CareTaskLogEntry.TABLE_NAME, null, null);
+                        db.delete(LitterboxdContract.CareTaskEntry.TABLE_NAME, null, null);
                         db.delete(LitterboxdContract.FeedingScheduleEntry.TABLE_NAME, null, null);
                         db.delete(LitterboxdContract.WeightLogEntry.TABLE_NAME, null, null);
                         db.delete(LitterboxdContract.CatEntry.TABLE_NAME, null, null);

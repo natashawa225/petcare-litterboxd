@@ -50,6 +50,37 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
             "CREATE INDEX idx_feeding_schedule_cat_id ON " + LitterboxdContract.FeedingScheduleEntry.TABLE_NAME +
                     "(" + LitterboxdContract.FeedingScheduleEntry.COLUMN_CAT_ID + ")";
 
+    private static final String SQL_CREATE_CARE_TASKS =
+            "CREATE TABLE " + LitterboxdContract.CareTaskEntry.TABLE_NAME + " (" +
+                    LitterboxdContract.CareTaskEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_CAT_ID + " INTEGER NOT NULL, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_FREQUENCY + " TEXT NOT NULL, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_REMINDER_HOUR + " INTEGER, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_REMINDER_MINUTE + " INTEGER, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_LAST_COMPLETED_AT + " INTEGER, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_IS_DEFAULT + " INTEGER NOT NULL DEFAULT 0, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_SORT_ORDER + " INTEGER NOT NULL DEFAULT 0, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL, " +
+                    "FOREIGN KEY(" + LitterboxdContract.CareTaskEntry.COLUMN_CAT_ID + ") REFERENCES " +
+                    LitterboxdContract.CatEntry.TABLE_NAME + "(" + LitterboxdContract.CatEntry.COLUMN_ID + ") ON DELETE CASCADE)";
+
+    private static final String SQL_CREATE_CARE_TASK_LOGS =
+            "CREATE TABLE " + LitterboxdContract.CareTaskLogEntry.TABLE_NAME + " (" +
+                    LitterboxdContract.CareTaskLogEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    LitterboxdContract.CareTaskLogEntry.COLUMN_TASK_ID + " INTEGER NOT NULL, " +
+                    LitterboxdContract.CareTaskLogEntry.COLUMN_COMPLETED_AT + " INTEGER NOT NULL, " +
+                    "FOREIGN KEY(" + LitterboxdContract.CareTaskLogEntry.COLUMN_TASK_ID + ") REFERENCES " +
+                    LitterboxdContract.CareTaskEntry.TABLE_NAME + "(" + LitterboxdContract.CareTaskEntry.COLUMN_ID + ") ON DELETE CASCADE)";
+
+    private static final String SQL_CREATE_INDEX_CARE_TASKS_CAT =
+            "CREATE INDEX idx_care_tasks_cat_id ON " + LitterboxdContract.CareTaskEntry.TABLE_NAME +
+                    "(" + LitterboxdContract.CareTaskEntry.COLUMN_CAT_ID + ")";
+
+    private static final String SQL_CREATE_INDEX_CARE_TASK_LOGS_TASK =
+            "CREATE INDEX idx_care_task_logs_task_id ON " + LitterboxdContract.CareTaskLogEntry.TABLE_NAME +
+                    "(" + LitterboxdContract.CareTaskLogEntry.COLUMN_TASK_ID + ")";
+
     private static LitterboxdDbHelper instance;
 
     /**
@@ -89,21 +120,25 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_FEEDING_SCHEDULE);
         db.execSQL(SQL_CREATE_INDEX_WEIGHT_CAT);
         db.execSQL(SQL_CREATE_INDEX_FEEDING_CAT);
+        createCareTaskTables(db);
 
         // TODO: Create future tables in subsequent updates:
         // - daily_checkins
         // - checkin_answers
-        // - care_tasks
-        // - care_task_logs
         // - alerts
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // TODO: Implement proper migration strategy for production instead of dropping tables.
-        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.FeedingScheduleEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.WeightLogEntry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CatEntry.TABLE_NAME);
-        onCreate(db);
+        if (oldVersion < 3) {
+            createCareTaskTables(db);
+        }
+    }
+
+    private void createCareTaskTables(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_CARE_TASKS);
+        db.execSQL(SQL_CREATE_CARE_TASK_LOGS);
+        db.execSQL(SQL_CREATE_INDEX_CARE_TASKS_CAT);
+        db.execSQL(SQL_CREATE_INDEX_CARE_TASK_LOGS_TASK);
     }
 }
