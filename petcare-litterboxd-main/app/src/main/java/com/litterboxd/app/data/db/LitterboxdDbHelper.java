@@ -135,6 +135,16 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         }
     }
 
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CareTaskLogEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CareTaskEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.FeedingScheduleEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.WeightLogEntry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CatEntry.TABLE_NAME);
+        onCreate(db);
+    }
+
     private void createCareTaskTables(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_CARE_TASKS);
         db.execSQL(SQL_CREATE_CARE_TASK_LOGS);
