@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Check-in chip fill: yellow when selected, white otherwise (the ink outline comes from the theme). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/pastel_yellow" android:state_checked="true" />
+    <item android:color="@color/white" />
+</selector>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- A tappable symptom chip: the app's bordered button, checkable, yellow when selected. -->
+    <style name="Widget.Litterboxd.Chip" parent="Widget.Litterboxd.Button">
+        <item name="android:checkable">true</item>
+        <item name="backgroundTint">@color/chip_background</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:maxLines">2</item>
+    </style>
+</resources>
