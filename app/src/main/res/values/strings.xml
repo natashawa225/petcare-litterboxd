@@ -85,7 +85,36 @@
     <string name="card_daily_checkin_title">Daily Check-in</string>
     <string name="card_daily_checkin_subtitle">Coming soon: track daily mood and litterbox habits.</string>
     <string name="card_care_tasks_title">Care Tasks</string>
-    <string name="card_care_tasks_subtitle">Coming soon: medication and grooming reminders.</string>
+    <string name="card_care_tasks_subtitle">Check off today\'s care, and this month\'s appointments.</string>
+    <string name="btn_add_task">Add task</string>
+    <string name="btn_delete">Delete</string>
+    <string name="section_daily_tasks">Daily</string>
+    <string name="section_monthly_tasks">Monthly</string>
+    <string name="progress_daily_tasks">%1$d/%2$d daily tasks done</string>
+    <string name="progress_monthly_tasks">%1$d/%2$d monthly tasks done</string>
+    <string name="empty_care_tasks">No care tasks yet. Add one to get started.</string>
+    <string name="prompt_task_name">Task name</string>
+    <string name="prompt_task_frequency">Frequency</string>
+    <string name="prompt_enable_reminder">Remind me</string>
+    <string name="btn_pick_reminder_time">Reminder time: %s</string>
+    <string name="reminder_none">No reminder</string>
+    <string name="reminder_at">Reminder %s</string>
+    <string name="frequency_daily">Daily</string>
+    <string name="frequency_monthly">Monthly</string>
+    <string name="dialog_add_task_title">Add care task</string>
+    <string name="dialog_edit_task_title">Edit care task</string>
+    <string name="msg_delete_task_title">Delete task</string>
+    <string name="msg_delete_task_message">Remove \"%s\" from this cat\'s checklist?</string>
+    <string name="error_task_name_required">Please enter a task name.</string>
+    <string name="default_task_meals">Meals</string>
+    <string name="default_task_brushing">Brushing (ears &amp; teeth)</string>
+    <string name="default_task_poop_scoop">Poop scoop</string>
+    <string name="default_task_play">Scheduled play sessions</string>
+    <string name="default_task_vet">Vet appointments</string>
+    <string name="default_task_grooming">Grooming (nails, hair, paws)</string>
+    <string name="notification_task_title">Litterboxd reminder</string>
+    <string name="notification_task_due_today">%s is still due today.</string>
+    <string name="notification_task_due_month">%s is still due this month.</string>
     <string name="card_alerts_title">Health Alerts</string>
     <string name="card_alerts_subtitle">Coming soon: weight anomaly and vet alerts.</string>
 
@@ -108,7 +137,7 @@
     <string name="this_cat">this cat</string>
     <string name="btn_delete_cat">Delete Cat</string>
     <string name="msg_delete_cat_title">Delete Cat Profile</string>
-    <string name="msg_delete_cat_message">Are you sure you want to delete %s? All associated weight logs and feeding schedules will be removed.</string>
+    <string name="msg_delete_cat_message">Are you sure you want to delete %s? All associated weight logs, feeding schedules, and care tasks will be removed.</string>
 
     <!-- Settings Activity -->
     <string name="title_settings">Settings</string>
