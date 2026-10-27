@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The daily check-in strings are looked up by NAME from checkin_tree.json
+     (CheckInActivity.stringByKey), so lint can't see them being used. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/checkin_category_*,@string/checkin_group_*,@string/chip_*,@string/q_*,@string/opt_*" />
