@@ -61,6 +61,10 @@
             android:name=".ui.settings.SettingsActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.checkin.CheckInActivity"
+            android:exported="false" />
+
         <receiver
             android:name=".reminders.CareTaskReminderReceiver"
             android:exported="false" />

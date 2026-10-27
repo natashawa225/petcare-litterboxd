@@ -171,4 +171,35 @@
 
     <!-- Permissions -->
     <string name="msg_notifications_denied">Notifications are off. You can turn them on later in system Settings.</string>
+
+    <!-- Daily check-in content. Looked up by NAME from res/raw/checkin_tree.json (see res/raw/keep.xml).
+         Follow-up question texts receive the cat's name as %1$s. -->
+    <string name="checkin_category_appetite_water">Appetite &amp; water</string>
+    <string name="checkin_group_appetite">Appetite</string>
+    <string name="checkin_group_water">Water</string>
+    <string name="chip_appetite_less">🍽️ Ate less</string>
+    <string name="chip_appetite_normal">😋 Ate normally</string>
+    <string name="chip_appetite_more">🍗 Ate more</string>
+    <string name="chip_water_less">🏜️ Drank less</string>
+    <string name="chip_water_normal">🚰 Drank normally</string>
+    <string name="chip_water_more">🌊 Drank more</string>
+    <string name="q_vomiting">Has %1$s vomited today?</string>
+    <string name="q_hiding">Is %1$s hiding more than usual?</string>
+    <string name="q_urination_more">Is %1$s also peeing more than usual?</string>
+    <string name="opt_vomit_none">No</string>
+    <string name="opt_vomit_once">Once</string>
+    <string name="opt_vomit_repeated">More than once</string>
+
+    <!-- Daily check-in screens -->
+    <string name="checkin_subtitle">How is %1$s today?</string>
+    <string name="checkin_all_normal">All normal</string>
+    <string name="checkin_followups_title">A few more questions</string>
+    <string name="checkin_followups_hint">Optional. Tap an answer, or skip any you\'re unsure about.</string>
+    <string name="checkin_save">Save check-in</string>
+    <string name="checkin_back">Back</string>
+    <string name="checkin_saved">Check-in saved for %1$s</string>
+    <string name="checkin_pick_something">Tap at least one chip to log today.</string>
+    <string name="checkin_error_load">Couldn\'t load the check-in. Please try again.</string>
+    <string name="checkin_error_save">Couldn\'t save the check-in. Please try again.</string>
+    <string name="checkin_error_no_cat">Please add a cat first.</string>
 </resources>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollCheckIn"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/margin_horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:fontFamily="@font/title_font"
+            android:text="@string/card_daily_checkin_title"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvCheckInSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_tiny"
+            android:textColor="@color/text_dark_gray"
+            android:textSize="@dimen/text_size_small" />
+
+        <!-- Screen 1: symptom chips, built from the decision tree. -->
+        <LinearLayout
+            android:id="@+id/panelSymptoms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAllNormal"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_card"
+                android:minHeight="@dimen/button_height"
+                android:text="@string/checkin_all_normal"
+                android:textColor="@color/black"
+                app:cornerRadius="@dimen/corner_radius"
+                app:strokeColor="@color/ink"
+                app:strokeWidth="2dp" />
+
+            <LinearLayout
+                android:id="@+id/layoutCategories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <!-- Screen 2: follow-up questions for the chips that were selected. -->
+        <LinearLayout
+            android:id="@+id/panelFollowUps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/corner_radius">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_medium">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/checkin_followups_title"
+                        android:textColor="@color/sage_primary"
+                        android:textSize="@dimen/text_size_subtitle"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_tiny"
+                        android:text="@string/checkin_followups_hint"
+                        android:textColor="@color/text_dark_gray"
+                        android:textSize="@dimen/text_size_small" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutFollowUps"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCheckInPrimary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="@string/btn_continue"
+            app:backgroundTint="@color/sage_primary"
+            app:cornerRadius="@dimen/corner_radius" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCheckInBack"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@string/checkin_back"
+            android:textColor="@color/text_dark_gray"
+            android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>
