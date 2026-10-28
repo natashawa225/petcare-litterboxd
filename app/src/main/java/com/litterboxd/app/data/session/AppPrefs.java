@@ -9,6 +9,7 @@ public class AppPrefs {
     private static final String KEY_OWNER_NAME = "owner_name";
     private static final String KEY_SELECTED_CAT_ID = "selected_cat_id";
     private static final String KEY_NOTIFICATION_PERMISSION_ASKED = "notification_permission_asked";
+    private static final String KEY_CARE_TASKS_SEEDED_PREFIX = "care_tasks_seeded_";
 
     private final SharedPreferences prefs;
 
@@ -46,6 +47,15 @@ public class AppPrefs {
 
     public void setNotificationPermissionAsked(boolean asked) {
         prefs.edit().putBoolean(KEY_NOTIFICATION_PERMISSION_ASKED, asked).apply();
+    }
+
+    /** True once the default care tasks were created for this cat, so deleted defaults are not re-added. */
+    public boolean isCareTasksSeeded(long catId) {
+        return prefs.getBoolean(KEY_CARE_TASKS_SEEDED_PREFIX + catId, false);
+    }
+
+    public void setCareTasksSeeded(long catId) {
+        prefs.edit().putBoolean(KEY_CARE_TASKS_SEEDED_PREFIX + catId, true).apply();
     }
 
     public void clear() {

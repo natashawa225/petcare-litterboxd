@@ -111,6 +111,15 @@ public class CareTaskDao {
         return db.insert(LitterboxdContract.CareTaskLogEntry.TABLE_NAME, null, values);
     }
 
+    /** Removes the log row written when the task was completed at {@code completedAt} (used when a tick is undone). */
+    public int deleteLog(long taskId, long completedAt) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(LitterboxdContract.CareTaskLogEntry.TABLE_NAME,
+                LitterboxdContract.CareTaskLogEntry.COLUMN_TASK_ID + " = ? AND " +
+                        LitterboxdContract.CareTaskLogEntry.COLUMN_COMPLETED_AT + " = ?",
+                new String[]{String.valueOf(taskId), String.valueOf(completedAt)});
+    }
+
     public List<CareTaskLog> getLogsForTask(long taskId) {
         List<CareTaskLog> logs = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
