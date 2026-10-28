@@ -4,6 +4,9 @@ import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 
+import com.litterboxd.app.reminders.CareReminderScheduler;
+import com.litterboxd.app.util.AppExecutors;
+
 public class LitterboxdApplication extends Application {
     /** Channel for Feature 2 (care reminders). Created at startup so it exists before any notification is posted. */
     public static final String CARE_REMINDERS_CHANNEL_ID = "care_reminders";
@@ -13,6 +16,9 @@ public class LitterboxdApplication extends Application {
     public void onCreate() {
         super.onCreate();
         createNotificationChannel();
+        // A force-stop removes all of the app's alarms and nothing re-adds them until the next
+        // reboot, so re-create them whenever the app process starts (scheduling is idempotent).
+        AppExecutors.getInstance().diskIO().execute(() -> CareReminderScheduler.rescheduleAll(this));
     }
 
     // minSdk is 26, so NotificationChannel (API 26+) is always available.

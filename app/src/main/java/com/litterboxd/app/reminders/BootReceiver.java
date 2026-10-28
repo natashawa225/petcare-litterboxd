@@ -6,10 +6,19 @@ import android.content.Intent;
 
 import com.litterboxd.app.util.AppExecutors;
 
+/**
+ * Re-creates every care-task alarm when the system drops or invalidates them: after a reboot,
+ * after the app is updated, and when the user changes the clock or time zone (alarm times are
+ * computed from local wall-clock time).
+ */
 public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent == null || !Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+        String action = intent == null ? null : intent.getAction();
+        if (!Intent.ACTION_BOOT_COMPLETED.equals(action)
+                && !Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)
+                && !Intent.ACTION_TIME_CHANGED.equals(action)
+                && !Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
             return;
         }
         final PendingResult pendingResult = goAsync();

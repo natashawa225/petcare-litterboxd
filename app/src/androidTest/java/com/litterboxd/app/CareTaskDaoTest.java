@@ -65,6 +65,20 @@ public class CareTaskDaoTest {
     }
 
     @Test
+    public void undoingACompletionRemovesOnlyItsLog() {
+        long catId = catDao.insertCat(newCat("Pudding"));
+        long taskId = careTaskDao.insertTask(newTask(catId, "Meals", TaskFrequency.DAILY));
+        long yesterday = System.currentTimeMillis() - 86_400_000L;
+        long today = System.currentTimeMillis();
+        careTaskDao.insertLog(taskId, yesterday);
+        careTaskDao.insertLog(taskId, today);
+
+        assertEquals(1, careTaskDao.deleteLog(taskId, today));
+        assertEquals(1, careTaskDao.getLogsForTask(taskId).size());
+        assertEquals(yesterday, careTaskDao.getLogsForTask(taskId).get(0).getCompletedAt());
+    }
+
+    @Test
     public void deletingCatCascadesCareTasks() {
         long catId = catDao.insertCat(newCat("Biscuit"));
         careTaskDao.insertTask(newTask(catId, "Poop scoop", TaskFrequency.DAILY));

@@ -270,22 +270,31 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void setTaskComplete(CareTask task, boolean complete) {
+    private void setTaskComplete(CareTask shown, boolean complete) {
+        final long taskId = shown.getId();
+        final long catId = shown.getCatId();
         AppExecutors.getInstance().diskIO().execute(() -> {
-            long now = System.currentTimeMillis();
-            if (complete) {
-                task.setLastCompletedAt(now);
-                careTaskDao.insertLog(task.getId(), now);
-            } else {
-                task.setLastCompletedAt(null);
+            // Work on a fresh copy from the database, not the object the UI list is drawing.
+            CareTask task = careTaskDao.getTaskById(taskId);
+            if (task != null) {
+                long now = System.currentTimeMillis();
+                if (complete) {
+                    if (!task.isCompleteNow(now)) { // ignore a repeated tick: one log per completion
+                        task.setLastCompletedAt(now);
+                        careTaskDao.insertLog(taskId, now);
+                    }
+                } else {
+                    // Undoing a tick also removes the log it wrote, so the history stays accurate.
+                    if (task.getLastCompletedAt() != null) {
+                        careTaskDao.deleteLog(taskId, task.getLastCompletedAt());
+                    }
+                    task.setLastCompletedAt(null);
+                }
+                careTaskDao.updateTask(task);
+                CareReminderScheduler.schedule(this, task);
             }
-            careTaskDao.updateTask(task);
-            CareReminderScheduler.schedule(this, task);
-            List<CareTask> tasks = careTaskDao.getTasksForCat(task.getCatId());
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                careTasks = tasks;
-                renderCareTasks();
-            });
+            List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
+            AppExecutors.getInstance().mainThread().execute(() -> showTasksIfCurrent(catId, tasks));
         });
     }
 
@@ -359,28 +368,37 @@ public class HomeActivity extends AppCompatActivity {
     private void saveTask(CareTask existing, String name, TaskFrequency frequency,
                           Integer reminderHour, Integer reminderMinute) {
         if (currentCat == null) return;
+        // Read UI state here; the worker thread only touches the database and alarms.
+        final long catId = existing != null ? existing.getCatId() : currentCat.getId();
+        final long existingId = existing != null ? existing.getId() : -1L;
         AppExecutors.getInstance().diskIO().execute(() -> {
-            CareTask task = existing != null ? existing : new CareTask();
-            task.setCatId(currentCat.getId());
+            CareTask task = existingId != -1L ? careTaskDao.getTaskById(existingId) : new CareTask();
+            if (task == null) return; // deleted meanwhile
+            task.setCatId(catId);
             task.setName(name);
             task.setFrequency(frequency);
             task.setReminderHour(reminderHour);
             task.setReminderMinute(reminderMinute);
-            if (existing == null) {
+            if (existingId == -1L) {
                 task.setDefault(false);
-                task.setSortOrder(careTaskDao.countForCat(currentCat.getId()));
+                task.setSortOrder(careTaskDao.countForCat(catId));
                 task.setCreatedAt(System.currentTimeMillis());
                 careTaskDao.insertTask(task);
             } else {
                 careTaskDao.updateTask(task);
             }
             CareReminderScheduler.schedule(this, task);
-            List<CareTask> tasks = careTaskDao.getTasksForCat(currentCat.getId());
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                careTasks = tasks;
-                renderCareTasks();
-            });
+            List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
+            AppExecutors.getInstance().mainThread().execute(() -> showTasksIfCurrent(catId, tasks));
         });
+    }
+
+    /** Shows reloaded tasks only if the user has not switched to another cat meanwhile. */
+    private void showTasksIfCurrent(long catId, List<CareTask> tasks) {
+        if (currentCat != null && currentCat.getId() == catId) {
+            careTasks = tasks;
+            renderCareTasks();
+        }
     }
 
     private void confirmDeleteTask(CareTask task) {
@@ -393,16 +411,13 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void deleteTask(CareTask task) {
+        final long taskId = task.getId();
+        final long catId = task.getCatId();
         AppExecutors.getInstance().diskIO().execute(() -> {
-            CareReminderScheduler.cancel(this, task.getId());
-            careTaskDao.deleteTask(task.getId());
-            List<CareTask> tasks = currentCat != null
-                    ? careTaskDao.getTasksForCat(currentCat.getId())
-                    : new ArrayList<>();
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                careTasks = tasks;
-                renderCareTasks();
-            });
+            CareReminderScheduler.cancel(this, taskId);
+            careTaskDao.deleteTask(taskId);
+            List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
+            AppExecutors.getInstance().mainThread().execute(() -> showTasksIfCurrent(catId, tasks));
         });
     }
 
