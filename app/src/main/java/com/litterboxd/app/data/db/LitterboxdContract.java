@@ -2,7 +2,7 @@ package com.litterboxd.app.data.db;
 
 public final class LitterboxdContract {
     public static final String DATABASE_NAME = "litterboxd.db";
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
 
     private LitterboxdContract() {}
 
@@ -46,7 +46,11 @@ public final class LitterboxdContract {
         public static final String COLUMN_ID = "id";
         public static final String COLUMN_CAT_ID = "cat_id";
         public static final String COLUMN_NAME = "name";
+        /** Optional short note shown under the task title (added in DB v5). */
+        public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_FREQUENCY = "frequency";
+        /** One-off tasks only: due date/time in millis, null if no due date (added in DB v5). */
+        public static final String COLUMN_DUE_AT = "due_at";
         public static final String COLUMN_REMINDER_HOUR = "reminder_hour";
         public static final String COLUMN_REMINDER_MINUTE = "reminder_minute";
         public static final String COLUMN_LAST_COMPLETED_AT = "last_completed_at";

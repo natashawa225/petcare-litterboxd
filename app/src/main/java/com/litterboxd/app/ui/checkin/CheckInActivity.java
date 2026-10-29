@@ -1,6 +1,5 @@
 package com.litterboxd.app.ui.checkin;
 
-import android.annotation.SuppressLint;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,7 +21,6 @@ import com.litterboxd.app.checkin.CheckInCategory;
 import com.litterboxd.app.checkin.CheckInSession;
 import com.litterboxd.app.checkin.DecisionTree;
 import com.litterboxd.app.checkin.Question;
-import com.litterboxd.app.checkin.TreeJsonParser;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.DailyCheckinDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
@@ -30,12 +28,6 @@ import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.DailyCheckin;
 import com.litterboxd.app.util.AppExecutors;
 
-import org.json.JSONException;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,7 +110,7 @@ public class CheckInActivity extends AppCompatActivity {
         // Reading the database and the question file happens off the UI thread.
         AppExecutors.getInstance().diskIO().execute(() -> {
             Cat cat = new CatDao(dbHelper).getCatById(catId);
-            DecisionTree loadedTree = loadTree();
+            DecisionTree loadedTree = CheckInContent.loadTree(this);
             DailyCheckin existing = cat == null ? null : new DailyCheckinDao(dbHelper).getCheckin(catId, checkinDate);
 
             AppExecutors.getInstance().mainThread().execute(() -> {
@@ -189,21 +181,6 @@ public class CheckInActivity extends AppCompatActivity {
             list.add(values[i]);
         }
         return answers;
-    }
-
-    private DecisionTree loadTree() {
-        try (InputStream in = getResources().openRawResource(R.raw.checkin_tree)) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
-            }
-            return TreeJsonParser.parse(out.toString(StandardCharsets.UTF_8.name()));
-        } catch (IOException | JSONException | IllegalArgumentException e) {
-            Log.e(TAG, "Could not load the check-in questions", e);
-            return null;
-        }
     }
 
     // ---- Drawing ----
@@ -353,18 +330,7 @@ public class CheckInActivity extends AppCompatActivity {
         return groupId + "|" + value;
     }
 
-    /**
-     * Looks up a string resource by name. The check-in JSON stores resource NAMES so that all
-     * wording stays in strings.xml; this turns a name into text, filling in %1$s if present.
-     * Falls back to the name itself so a typo is visible on screen instead of crashing.
-     */
-    @SuppressLint("DiscouragedApi")
     private String stringByKey(String key, Object... formatArgs) {
-        int id = getResources().getIdentifier(key, "string", getPackageName());
-        if (id == 0) {
-            Log.w(TAG, "Missing string resource: " + key);
-            return key;
-        }
-        return getString(id, formatArgs);
+        return CheckInContent.text(this, key, formatArgs);
     }
 }

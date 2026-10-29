@@ -17,6 +17,9 @@
         <item name="materialCardViewStyle">@style/Widget.Litterboxd.Card</item>
         <item name="materialButtonStyle">@style/Widget.Litterboxd.Button</item>
         <item name="android:fontFamily">sans</item>
+        <!-- Warm status bar with dark icons instead of the MaterialComponents default purple. -->
+        <item name="android:statusBarColor">@color/off_white_background</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Widget.Litterboxd.Card" parent="Widget.MaterialComponents.CardView">
@@ -24,6 +27,49 @@
         <item name="cardElevation">2dp</item>
         <item name="strokeColor">@color/ink</item>
         <item name="strokeWidth">2dp</item>
+    </style>
+
+    <!-- Bottom navigation labels: always visible; the selected tab's label is bold as well as darker. -->
+    <style name="TextAppearance.Litterboxd.NavLabel" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">@dimen/bottom_nav_label_size</item>
+    </style>
+
+    <style name="TextAppearance.Litterboxd.NavLabel.Active">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Large serif-ish screen title used at the top of each tab. -->
+    <style name="TextAppearance.Litterboxd.ScreenTitle" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:fontFamily">@font/title_font</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/text_size_title</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Section heading inside a tab (e.g. "Quick actions"). -->
+    <style name="TextAppearance.Litterboxd.SectionTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">@color/sage_primary</item>
+        <item name="android:textSize">@dimen/text_size_subtitle</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Secondary text under titles. -->
+    <style name="TextAppearance.Litterboxd.Supporting" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textColor">@color/text_dark_gray</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+    </style>
+
+    <!-- Circle crop for owner/cat avatars (ShapeableImageView). -->
+    <style name="ShapeAppearance.Litterboxd.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Secondary bordered button (white fill) for quick actions and forms. -->
+    <style name="Widget.Litterboxd.Button.Secondary">
+        <item name="backgroundTint">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="iconTint">@color/black</item>
     </style>
 
     <style name="Widget.Litterboxd.Button" parent="Widget.MaterialComponents.Button">

@@ -146,6 +146,12 @@ public class CareTaskDao {
         ContentValues values = new ContentValues();
         values.put(LitterboxdContract.CareTaskEntry.COLUMN_CAT_ID, task.getCatId());
         values.put(LitterboxdContract.CareTaskEntry.COLUMN_NAME, task.getName());
+        values.put(LitterboxdContract.CareTaskEntry.COLUMN_DESCRIPTION, task.getDescription());
+        if (task.getDueAt() != null) {
+            values.put(LitterboxdContract.CareTaskEntry.COLUMN_DUE_AT, task.getDueAt());
+        } else {
+            values.putNull(LitterboxdContract.CareTaskEntry.COLUMN_DUE_AT);
+        }
         values.put(LitterboxdContract.CareTaskEntry.COLUMN_FREQUENCY,
                 task.getFrequency() != null ? task.getFrequency().toStorage() : TaskFrequency.DAILY.toStorage());
         if (task.getReminderHour() != null) {
@@ -175,6 +181,11 @@ public class CareTaskDao {
         task.setId(cursor.getLong(cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_ID)));
         task.setCatId(cursor.getLong(cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_CAT_ID)));
         task.setName(cursor.getString(cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_NAME)));
+        task.setDescription(cursor.getString(cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_DESCRIPTION)));
+        int dueCol = cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_DUE_AT);
+        if (!cursor.isNull(dueCol)) {
+            task.setDueAt(cursor.getLong(dueCol));
+        }
         task.setFrequency(TaskFrequency.fromStorage(
                 cursor.getString(cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_FREQUENCY))));
         int hourCol = cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_REMINDER_HOUR);

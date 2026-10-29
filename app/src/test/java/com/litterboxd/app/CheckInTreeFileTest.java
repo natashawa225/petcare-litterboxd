@@ -38,8 +38,8 @@ public class CheckInTreeFileTest {
     private static final String TREE_PATH = "src/main/res/raw/checkin_tree.json";
     private static final String STRINGS_PATH = "src/main/res/values/strings.xml";
 
-    /** The second screen should stay short. */
-    private static final int MAX_FOLLOW_UPS = 3;
+    /** The second screen should stay short (worst case: ate less + drank more + more litter visits). */
+    private static final int MAX_FOLLOW_UPS = 4;
 
     private static DecisionTree tree;
     private static Set<String> stringNames;
@@ -66,14 +66,13 @@ public class CheckInTreeFileTest {
     }
 
     @Test
-    public void treeFileIsValidAndHasTheAppetiteAndWaterGroups() {
-        assertEquals(1, tree.getCategories().size());
-        assertEquals("appetite_water", tree.getCategories().get(0).getId());
-        List<String> groupIds = new ArrayList<>();
-        for (Question group : tree.getGroups()) {
-            groupIds.add(group.getId());
+    public void treeFileIsValidAndHasTheFiveDailyGroups() {
+        List<String> categoryIds = new ArrayList<>();
+        for (CheckInCategory category : tree.getCategories()) {
+            categoryIds.add(category.getId());
         }
-        assertEquals(Arrays.asList("appetite", "water"), groupIds);
+        assertEquals(Arrays.asList("appetite_water", "litter", "energy_mood"), categoryIds);
+        assertEquals(Arrays.asList("appetite", "water", "litter", "energy", "mood"), ids(tree.getGroups()));
     }
 
     @Test
@@ -106,7 +105,26 @@ public class CheckInTreeFileTest {
         Map<String, List<String>> expected = new LinkedHashMap<>();
         expected.put("appetite", Collections.singletonList("normal"));
         expected.put("water", Collections.singletonList("normal"));
+        expected.put("litter", Collections.singletonList("normal"));
+        expected.put("energy", Collections.singletonList("normal"));
+        expected.put("mood", Collections.singletonList("normal"));
         assertEquals(expected, s.getAnswers());
+    }
+
+    @Test
+    public void moreLitterVisitsAsksAboutDrinkingMore() {
+        CheckInSession s = new CheckInSession(tree);
+        s.toggle("litter", "more");
+        assertEquals(Collections.singletonList("drinking_more"), ids(s.getActiveFollowUps()));
+    }
+
+    @Test
+    public void lowEnergyAsksAboutHidingOnlyOnceEvenWithLowAppetite() {
+        CheckInSession s = new CheckInSession(tree);
+        s.toggle("energy", "low");
+        assertEquals(Collections.singletonList("hiding"), ids(s.getActiveFollowUps()));
+        s.toggle("appetite", "less");
+        assertEquals(Arrays.asList("vomiting", "hiding"), ids(s.getActiveFollowUps()));
     }
 
     @Test
@@ -126,8 +144,12 @@ public class CheckInTreeFileTest {
     @Test
     public void everyChipCombinationStaysWithinTheFollowUpLimit() {
         List<Question> groups = tree.getGroups();
+        int expected = 1;
+        for (Question group : groups) {
+            expected *= group.getOptions().size() + 1; // each chip, or nothing chosen
+        }
         int combinations = explore(groups, 0, new ArrayList<String[]>());
-        assertTrue("expected every combination to be checked, got " + combinations, combinations == 16);
+        assertEquals("every combination should be checked", expected, combinations);
     }
 
     /** Tries every chip (or none) in every group. Returns how many combinations were checked. */

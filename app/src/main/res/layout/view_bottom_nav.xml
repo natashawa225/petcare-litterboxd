@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared bottom navigation for the Daily, Tasks and Profile tabs. Included at the bottom of each
+     tab's ConstraintLayout; BottomNavHelper wires up the clicks. -->
+<com.google.android.material.bottomnavigation.BottomNavigationView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomNav"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bottom_nav_background"
+    android:minHeight="@dimen/bottom_nav_height"
+    app:elevation="0dp"
+    app:itemBackground="@drawable/bottom_nav_item_background"
+    app:itemIconSize="@dimen/bottom_nav_icon_size"
+    app:itemIconTint="@color/bottom_nav_item_color"
+    app:itemRippleColor="@color/pastel_sage"
+    app:itemTextAppearanceActive="@style/TextAppearance.Litterboxd.NavLabel.Active"
+    app:itemTextAppearanceInactive="@style/TextAppearance.Litterboxd.NavLabel"
+    app:itemTextColor="@color/bottom_nav_item_color"
+    app:labelVisibilityMode="labeled"
+    app:menu="@menu/bottom_nav" />

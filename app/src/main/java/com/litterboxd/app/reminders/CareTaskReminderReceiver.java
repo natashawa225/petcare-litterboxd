@@ -57,9 +57,14 @@ public class CareTaskReminderReceiver extends BroadcastReceiver {
                 openHome,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        String body = task.getFrequency() == TaskFrequency.MONTHLY
-                ? context.getString(R.string.notification_task_due_month, task.getName())
-                : context.getString(R.string.notification_task_due_today, task.getName());
+        String body;
+        if (task.getFrequency() == TaskFrequency.MONTHLY) {
+            body = context.getString(R.string.notification_task_due_month, task.getName());
+        } else if (task.getFrequency() == TaskFrequency.ONCE) {
+            body = context.getString(R.string.notification_task_due_now, task.getName());
+        } else {
+            body = context.getString(R.string.notification_task_due_today, task.getName());
+        }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LitterboxdApplication.CARE_REMINDERS_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_cat_face)

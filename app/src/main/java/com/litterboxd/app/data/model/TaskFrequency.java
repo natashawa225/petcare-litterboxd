@@ -8,7 +8,9 @@ import java.util.Calendar;
  */
 public enum TaskFrequency {
     DAILY,
-    MONTHLY;
+    MONTHLY,
+    /** A one-off task (e.g. "Book the vet"): stays done once completed; may have a due date/time. */
+    ONCE;
 
     public static TaskFrequency fromStorage(String value) {
         if (value == null) {
@@ -44,6 +46,8 @@ public enum TaskFrequency {
             case MONTHLY:
                 return completed.get(Calendar.YEAR) == now.get(Calendar.YEAR)
                         && completed.get(Calendar.MONTH) == now.get(Calendar.MONTH);
+            case ONCE:
+                return true; // completed at any time means done for good
             default:
                 return false;
         }

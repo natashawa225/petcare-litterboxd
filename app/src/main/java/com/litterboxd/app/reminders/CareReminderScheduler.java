@@ -22,14 +22,12 @@ public final class CareReminderScheduler {
             return;
         }
         PendingIntent pendingIntent = pendingIntent(context, task.getId());
-        if (task.getId() <= 0 || !task.hasReminder()) {
+        Long next = task.getId() > 0 ? task.nextReminderMillis(System.currentTimeMillis()) : null;
+        if (next == null) {
             alarmManager.cancel(pendingIntent);
             return;
         }
-        long now = System.currentTimeMillis();
-        boolean complete = task.isCompleteNow(now);
-        long triggerAt = task.getFrequency().nextReminderMillis(
-                task.getReminderHour(), task.getReminderMinute(), now, complete);
+        long triggerAt = next;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent);
         } else {

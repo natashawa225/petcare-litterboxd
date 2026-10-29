@@ -55,7 +55,9 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
                     LitterboxdContract.CareTaskEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LitterboxdContract.CareTaskEntry.COLUMN_CAT_ID + " INTEGER NOT NULL, " +
                     LitterboxdContract.CareTaskEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_DESCRIPTION + " TEXT, " +
                     LitterboxdContract.CareTaskEntry.COLUMN_FREQUENCY + " TEXT NOT NULL, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_DUE_AT + " INTEGER, " +
                     LitterboxdContract.CareTaskEntry.COLUMN_REMINDER_HOUR + " INTEGER, " +
                     LitterboxdContract.CareTaskEntry.COLUMN_REMINDER_MINUTE + " INTEGER, " +
                     LitterboxdContract.CareTaskEntry.COLUMN_LAST_COMPLETED_AT + " INTEGER, " +
@@ -158,7 +160,14 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 3) {
+            // Created with the current columns, so the v5 step below must not add them again.
             createCareTaskTables(db);
+        } else if (oldVersion < 5) {
+            // v5: one-off tasks. ALTER keeps every existing task, log and reminder.
+            db.execSQL("ALTER TABLE " + LitterboxdContract.CareTaskEntry.TABLE_NAME +
+                    " ADD COLUMN " + LitterboxdContract.CareTaskEntry.COLUMN_DESCRIPTION + " TEXT");
+            db.execSQL("ALTER TABLE " + LitterboxdContract.CareTaskEntry.TABLE_NAME +
+                    " ADD COLUMN " + LitterboxdContract.CareTaskEntry.COLUMN_DUE_AT + " INTEGER");
         }
         if (oldVersion < 4) {
             createCheckinTables(db);

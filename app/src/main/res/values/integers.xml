@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Owner display name limit (EditProfileActivity counter + Validators). -->
+    <integer name="max_owner_name_length">30</integer>
+    <!-- Columns in the bundled-avatar grid on the Edit profile screen. -->
+    <integer name="avatar_grid_columns">4</integer>
+</resources>
