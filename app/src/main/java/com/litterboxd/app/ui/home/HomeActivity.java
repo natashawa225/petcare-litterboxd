@@ -4,10 +4,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -25,6 +28,7 @@ import com.litterboxd.app.R;
 import com.litterboxd.app.checkin.AnswerOption;
 import com.litterboxd.app.checkin.DecisionTree;
 import com.litterboxd.app.checkin.Question;
+import com.litterboxd.app.data.CareTaskCompletion;
 import com.litterboxd.app.data.CareTaskSeeder;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
@@ -60,7 +64,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvDailyLogStatus, tvTaskSummary;
     private ImageView imgHomeCatPhoto;
     private MaterialButton btnSwitchCat, btnViewCatProfile, btnLogToday;
-    private LinearLayout layoutDailyLogAnswers;
+    private LinearLayout layoutDailyLogAnswers, layoutTodayTasks;
     private ProgressBar progressTasks;
 
     private AppPrefs appPrefs;
@@ -99,6 +103,7 @@ public class HomeActivity extends AppCompatActivity {
         btnLogToday = findViewById(R.id.btnLogToday);
         tvTaskSummary = findViewById(R.id.tvTaskSummary);
         progressTasks = findViewById(R.id.progressTasks);
+        layoutTodayTasks = findViewById(R.id.layoutTodayTasks);
 
         BottomNavHelper.setup(this, (BottomNavigationView) findViewById(R.id.bottomNav), R.id.nav_daily);
 
@@ -189,7 +194,7 @@ public class HomeActivity extends AppCompatActivity {
                         DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM"), new Date()));
                 updateCatCard();
                 renderDailyLog(finalCheckin);
-                renderTaskSummary(finalTasks);
+                renderTodayTasks(finalTasks);
             });
         });
     }
@@ -253,23 +258,66 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void renderTaskSummary(List<CareTask> tasks) {
+    /**
+     * Today's care tasks for the selected cat: "2 of 4 tasks done", a progress bar and a tickable
+     * row per task. Only tasks due today count (see CareTask.isDueToday): daily tasks and one-off
+     * tasks due today; monthly tasks and other days' one-offs are left out.
+     */
+    private void renderTodayTasks(List<CareTask> tasks) {
+        layoutTodayTasks.removeAllViews();
         long now = System.currentTimeMillis();
-        int done = 0;
+        LayoutInflater inflater = LayoutInflater.from(this);
+        int done = 0, total = 0;
         for (CareTask task : tasks) {
-            if (task.isCompleteNow(now)) done++;
+            if (!task.isDueToday(now)) continue;
+            boolean complete = task.isCompleteNow(now);
+            total++;
+            if (complete) done++;
+            layoutTodayTasks.addView(createTodayTaskRow(inflater, task, complete));
         }
-        int total = tasks.size();
         if (total == 0) {
+            // No "0 of 0": a friendly empty state and no bar.
             tvTaskSummary.setText(R.string.tasks_empty);
             progressTasks.setVisibility(View.GONE);
             return;
         }
         progressTasks.setVisibility(View.VISIBLE);
         progressTasks.setProgress((int) Math.round(100.0 * done / total));
-        tvTaskSummary.setText(done == total
-                ? getString(R.string.daily_tasks_all_done)
-                : getString(R.string.daily_tasks_summary, done, total));
+        tvTaskSummary.setText(getString(done == total ? R.string.daily_tasks_all_done : R.string.daily_tasks_summary,
+                done, total));
+    }
+
+    private View createTodayTaskRow(LayoutInflater inflater, CareTask task, boolean complete) {
+        View row = inflater.inflate(R.layout.item_care_task, layoutTodayTasks, false);
+        CheckBox checkbox = row.findViewById(R.id.cbTaskDone);
+        TextView name = row.findViewById(R.id.tvTaskName);
+        name.setText(task.getName());
+        if (complete) { // struck through as well as ticked, not colour alone
+            name.setPaintFlags(name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            name.setTextColor(ContextCompat.getColor(this, R.color.text_dark_gray));
+        }
+        // Compact rows here; schedule details and editing are on the Tasks tab.
+        row.findViewById(R.id.tvTaskReminder).setVisibility(View.GONE);
+        row.findViewById(R.id.btnEditTask).setVisibility(View.GONE);
+        checkbox.setChecked(complete);
+        checkbox.setContentDescription(getString(R.string.cd_task_done, task.getName()));
+        checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> setTaskComplete(task, isChecked));
+        name.setOnClickListener(v -> checkbox.toggle());
+        return row;
+    }
+
+    /** Same completion logic as the Tasks tab; re-reads the cat's tasks so the count updates at once. */
+    private void setTaskComplete(CareTask shown, boolean complete) {
+        final long taskId = shown.getId();
+        final long catId = shown.getCatId();
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            CareTaskCompletion.setComplete(this, careTaskDao, taskId, complete);
+            List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                if (isFinishing() || isDestroyed()) return;
+                if (currentCat != null && currentCat.getId() == catId) renderTodayTasks(tasks);
+            });
+        });
     }
 
     private void checkNotificationPermission() {

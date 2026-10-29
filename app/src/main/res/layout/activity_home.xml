@@ -206,7 +206,7 @@
                     app:icon="@drawable/ic_add" />
             </LinearLayout>
 
-            <!-- Care-task summary (the full list lives on the Tasks tab) -->
+            <!-- Today's care tasks: progress plus a tickable list (all tasks live on the Tasks tab) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardTaskSummary"
                 android:layout_width="match_parent"
@@ -243,6 +243,13 @@
                         android:layout_marginTop="@dimen/spacing_tiny"
                         android:max="100"
                         android:progressTint="@color/sage_primary" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutTodayTasks"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:orientation="vertical" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSeeTasks"
