@@ -1,73 +1,77 @@
 package com.litterboxd.app.ui.home;
 
 import android.Manifest;
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.view.LayoutInflater;
+import android.util.TypedValue;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
+import com.litterboxd.app.checkin.AnswerOption;
+import com.litterboxd.app.checkin.DecisionTree;
+import com.litterboxd.app.checkin.Question;
 import com.litterboxd.app.data.CareTaskSeeder;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
+import com.litterboxd.app.data.dao.DailyCheckinDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.CareTask;
 import com.litterboxd.app.data.model.Cat;
-import com.litterboxd.app.data.model.TaskFrequency;
+import com.litterboxd.app.data.model.DailyCheckin;
 import com.litterboxd.app.data.session.AppPrefs;
-import com.litterboxd.app.reminders.CareReminderScheduler;
 import com.litterboxd.app.ui.checkin.CheckInActivity;
-import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
+import com.litterboxd.app.ui.checkin.CheckInContent;
+import com.litterboxd.app.ui.nav.BottomNavHelper;
 import com.litterboxd.app.ui.profile.CatProfileActivity;
-import com.litterboxd.app.ui.settings.SettingsActivity;
+import com.litterboxd.app.ui.tasks.CareTasksActivity;
 import com.litterboxd.app.util.AgeUtils;
 import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+/**
+ * Daily tab, the app's landing screen after onboarding: greeting, the selected cat, today's
+ * check-in (filled in on CheckInActivity), quick actions and a care-task summary.
+ */
 public class HomeActivity extends AppCompatActivity {
 
-    private TextView tvWelcomeUser, tvHomeCatName, tvHomeCatDetails;
+    private TextView tvWelcomeUser, tvToday, tvHomeCatName, tvHomeCatDetails;
+    private TextView tvDailyLogStatus, tvTaskSummary;
     private ImageView imgHomeCatPhoto;
-    private MaterialButton btnSwitchCat, btnViewCatProfile, btnSettings, btnAddCareTask;
-    private TextView tvDailyProgress, tvMonthlyProgress, tvEmptyCareTasks, tvDailySection, tvMonthlySection;
-    private ProgressBar progressDailyTasks, progressMonthlyTasks;
-    private LinearLayout layoutDailyTasks, layoutMonthlyTasks;
-    private View cardCareTasks;
+    private MaterialButton btnSwitchCat, btnViewCatProfile, btnLogToday;
+    private LinearLayout layoutDailyLogAnswers;
+    private ProgressBar progressTasks;
 
     private AppPrefs appPrefs;
     private CatDao catDao;
     private CareTaskDao careTaskDao;
+    private DailyCheckinDao dailyCheckinDao;
     private FileStorageHelper fileStorageHelper;
     private Cat currentCat;
-    private List<Cat> allCats;
-    private List<CareTask> careTasks = new ArrayList<>();
+    private List<Cat> allCats = new ArrayList<>();
+    /** Question tree, loaded once (it only changes with an app update). */
+    private DecisionTree checkInTree;
 
     private static final int PERMISSION_REQUEST_CODE_NOTIFICATION = 1001;
 
@@ -80,28 +84,25 @@ public class HomeActivity extends AppCompatActivity {
         LitterboxdDbHelper dbHelper = LitterboxdDbHelper.getInstance(this);
         catDao = new CatDao(dbHelper);
         careTaskDao = new CareTaskDao(dbHelper);
+        dailyCheckinDao = new DailyCheckinDao(dbHelper);
         fileStorageHelper = new FileStorageHelper(this);
 
         tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
+        tvToday = findViewById(R.id.tvToday);
         tvHomeCatName = findViewById(R.id.tvHomeCatName);
         tvHomeCatDetails = findViewById(R.id.tvHomeCatDetails);
         imgHomeCatPhoto = findViewById(R.id.imgHomeCatPhoto);
         btnSwitchCat = findViewById(R.id.btnSwitchCat);
         btnViewCatProfile = findViewById(R.id.btnViewCatProfile);
-        btnSettings = findViewById(R.id.btnSettings);
-        btnAddCareTask = findViewById(R.id.btnAddCareTask);
-        cardCareTasks = findViewById(R.id.cardCareTasks);
-        tvDailyProgress = findViewById(R.id.tvDailyProgress);
-        tvMonthlyProgress = findViewById(R.id.tvMonthlyProgress);
-        tvEmptyCareTasks = findViewById(R.id.tvEmptyCareTasks);
-        tvDailySection = findViewById(R.id.tvDailySection);
-        tvMonthlySection = findViewById(R.id.tvMonthlySection);
-        progressDailyTasks = findViewById(R.id.progressDailyTasks);
-        progressMonthlyTasks = findViewById(R.id.progressMonthlyTasks);
-        layoutDailyTasks = findViewById(R.id.layoutDailyTasks);
-        layoutMonthlyTasks = findViewById(R.id.layoutMonthlyTasks);
+        tvDailyLogStatus = findViewById(R.id.tvDailyLogStatus);
+        layoutDailyLogAnswers = findViewById(R.id.layoutDailyLogAnswers);
+        btnLogToday = findViewById(R.id.btnLogToday);
+        tvTaskSummary = findViewById(R.id.tvTaskSummary);
+        progressTasks = findViewById(R.id.progressTasks);
 
-        btnSwitchCat.setOnClickListener(v -> showCatSwitcherDialog());
+        BottomNavHelper.setup(this, (BottomNavigationView) findViewById(R.id.bottomNav), R.id.nav_daily);
+
+        btnSwitchCat.setOnClickListener(v -> CatSwitcher.show(this, allCats, cat -> loadData()));
         btnViewCatProfile.setOnClickListener(v -> {
             if (currentCat != null) {
                 Intent intent = new Intent(this, CatProfileActivity.class);
@@ -109,22 +110,14 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        btnSettings.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
+        btnLogToday.setOnClickListener(v -> openCheckIn());
+        findViewById(R.id.btnQuickLog).setOnClickListener(v -> openCheckIn());
+        findViewById(R.id.btnQuickAddTask).setOnClickListener(v -> {
+            Intent intent = BottomNavHelper.intentFor(this, R.id.nav_tasks);
+            intent.putExtra(CareTasksActivity.EXTRA_OPEN_ADD_TASK, true);
+            BottomNavHelper.openTab(this, intent);
         });
-        findViewById(R.id.cardDailyCheckin).setOnClickListener(v -> {
-            if (currentCat != null) {
-                Intent intent = new Intent(this, CheckInActivity.class);
-                intent.putExtra(CheckInActivity.EXTRA_CAT_ID, currentCat.getId());
-                startActivity(intent);
-            }
-        });
-        btnAddCareTask.setOnClickListener(v -> {
-            if (currentCat != null) {
-                showTaskEditor(null);
-            }
-        });
+        findViewById(R.id.btnSeeTasks).setOnClickListener(v -> BottomNavHelper.openTab(this, R.id.nav_tasks));
 
         checkNotificationPermission();
     }
@@ -132,15 +125,34 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Reload whenever the tab is shown: another tab or screen may have changed the selected
+        // cat, today's log or the tasks.
         loadData();
     }
 
+    /**
+     * Daily is the root tab: Back leaves the app (closing the other tabs too) instead of
+     * stepping back through tabs or returning to onboarding.
+     */
+    @Override
+    public void onBackPressed() {
+        finishAffinity();
+    }
+
+    private void openCheckIn() {
+        if (currentCat == null) return;
+        Intent intent = new Intent(this, CheckInActivity.class);
+        intent.putExtra(CheckInActivity.EXTRA_CAT_ID, currentCat.getId());
+        startActivity(intent);
+    }
+
     private void loadData() {
+        final String today = LocalDate.now().toString(); // same day key as CheckInActivity
+        final DecisionTree cachedTree = checkInTree;
         AppExecutors.getInstance().diskIO().execute(() -> {
             String ownerName = appPrefs.getOwnerName();
-            final String greeting = (ownerName == null || ownerName.isEmpty())
-                    ? getString(R.string.home_greeting_guest)
-                    : getString(R.string.home_greeting, ownerName);
+            final String hello = getString(R.string.daily_hello,
+                    (ownerName == null || ownerName.isEmpty()) ? getString(R.string.default_owner_name) : ownerName);
 
             List<Cat> cats = catDao.getAllCats();
             long selectedId = appPrefs.getSelectedCatId();
@@ -155,21 +167,29 @@ public class HomeActivity extends AppCompatActivity {
                 selected = cats.get(0);
                 appPrefs.setSelectedCatId(selected.getId());
             }
-            final Cat finalSelected = selected;
+            DecisionTree tree = cachedTree != null ? cachedTree : CheckInContent.loadTree(this);
             List<CareTask> tasks = new ArrayList<>();
-            if (finalSelected != null) {
-                CareTaskSeeder.seedIfEmpty(this, careTaskDao, finalSelected.getId());
-                tasks = careTaskDao.getTasksForCat(finalSelected.getId());
+            DailyCheckin checkin = null;
+            if (selected != null) {
+                CareTaskSeeder.seedIfEmpty(this, careTaskDao, selected.getId());
+                tasks = careTaskDao.getTasksForCat(selected.getId());
+                checkin = dailyCheckinDao.getCheckin(selected.getId(), today);
             }
-            final List<CareTask> loadedTasks = tasks;
+            final Cat finalSelected = selected;
+            final List<CareTask> finalTasks = tasks;
+            final DailyCheckin finalCheckin = checkin;
 
             AppExecutors.getInstance().mainThread().execute(() -> {
+                if (isFinishing() || isDestroyed()) return;
                 allCats = cats;
                 currentCat = finalSelected;
-                careTasks = loadedTasks;
-                tvWelcomeUser.setText(greeting);
+                checkInTree = tree;
+                tvWelcomeUser.setText(hello);
+                tvToday.setText(DateFormat.format(
+                        DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM"), new Date()));
                 updateCatCard();
-                renderCareTasks();
+                renderDailyLog(finalCheckin);
+                renderTaskSummary(finalTasks);
             });
         });
     }
@@ -178,320 +198,78 @@ public class HomeActivity extends AppCompatActivity {
         if (currentCat != null) {
             tvHomeCatName.setText(currentCat.getName());
             String ageStr = AgeUtils.getAgeDisplay(currentCat.getBirthday(), currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
-            String details = getString(R.string.home_cat_summary, currentCat.getBreed(), ageStr, String.valueOf(currentCat.getWeight()));
-            tvHomeCatDetails.setText(details);
-
+            tvHomeCatDetails.setText(getString(R.string.home_cat_summary, currentCat.getBreed(), ageStr, String.valueOf(currentCat.getWeight())));
+            imgHomeCatPhoto.setContentDescription(getString(R.string.cd_cat_photo, currentCat.getName()));
             fileStorageHelper.showCatPhoto(imgHomeCatPhoto, currentCat.getPhotoPath());
             btnSwitchCat.setVisibility(View.VISIBLE);
-            cardCareTasks.setVisibility(View.VISIBLE);
+            btnViewCatProfile.setEnabled(true);
         } else {
             tvHomeCatName.setText(R.string.no_cat_selected);
-            tvHomeCatDetails.setText(null);
+            tvHomeCatDetails.setText(R.string.daily_no_cat);
             imgHomeCatPhoto.setImageResource(R.drawable.ic_cat_face);
             btnSwitchCat.setVisibility(View.GONE);
-            cardCareTasks.setVisibility(View.GONE);
+            btnViewCatProfile.setEnabled(false);
         }
     }
 
-    private void renderCareTasks() {
-        layoutDailyTasks.removeAllViews();
-        layoutMonthlyTasks.removeAllViews();
+    /** Today's saved answers as "Appetite: Ate normally" rows, or the friendly empty state. */
+    private void renderDailyLog(DailyCheckin checkin) {
+        layoutDailyLogAnswers.removeAllViews();
+        btnLogToday.setEnabled(currentCat != null);
         if (currentCat == null) {
+            tvDailyLogStatus.setText(R.string.daily_no_cat);
             return;
         }
+        if (checkInTree == null) {
+            tvDailyLogStatus.setText(R.string.daily_log_error);
+            return;
+        }
+        if (checkin == null || checkin.getAnswers().isEmpty()) {
+            tvDailyLogStatus.setText(R.string.daily_log_empty);
+            btnLogToday.setText(R.string.btn_log_today);
+            return;
+        }
+        tvDailyLogStatus.setText(getString(R.string.daily_log_saved_at,
+                DateFormatUtils.formatTime(checkin.getUpdatedAt())));
+        btnLogToday.setText(R.string.btn_update_log);
 
+        int pad = getResources().getDimensionPixelSize(R.dimen.spacing_tiny);
+        for (Question group : checkInTree.getGroups()) {
+            List<String> values = checkin.getAnswers().get(group.getId());
+            if (values == null || values.isEmpty()) continue;
+            List<String> labels = new ArrayList<>();
+            for (String value : values) {
+                AnswerOption option = group.getOption(value);
+                if (option != null) labels.add(CheckInContent.text(this, option.getLabelKey()));
+            }
+            if (labels.isEmpty()) continue;
+            TextView row = new TextView(this);
+            row.setText(getString(R.string.daily_log_answer_row,
+                    CheckInContent.text(this, group.getTextKey()), String.join(", ", labels)));
+            row.setTextColor(ContextCompat.getColor(this, R.color.black));
+            row.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_small));
+            row.setPadding(0, pad, 0, pad);
+            layoutDailyLogAnswers.addView(row);
+        }
+    }
+
+    private void renderTaskSummary(List<CareTask> tasks) {
         long now = System.currentTimeMillis();
-        int dailyDone = 0, dailyTotal = 0, monthlyDone = 0, monthlyTotal = 0;
-        LayoutInflater inflater = LayoutInflater.from(this);
-
-        for (CareTask task : careTasks) {
-            boolean complete = task.isCompleteNow(now);
-            if (task.getFrequency() == TaskFrequency.MONTHLY) {
-                monthlyTotal++;
-                if (complete) monthlyDone++;
-                layoutMonthlyTasks.addView(createTaskRow(inflater, layoutMonthlyTasks, task, complete));
-            } else {
-                dailyTotal++;
-                if (complete) dailyDone++;
-                layoutDailyTasks.addView(createTaskRow(inflater, layoutDailyTasks, task, complete));
-            }
+        int done = 0;
+        for (CareTask task : tasks) {
+            if (task.isCompleteNow(now)) done++;
         }
-
-        boolean empty = careTasks.isEmpty();
-        tvEmptyCareTasks.setVisibility(empty ? View.VISIBLE : View.GONE);
-        tvDailyProgress.setVisibility(empty ? View.GONE : View.VISIBLE);
-        progressDailyTasks.setVisibility(empty ? View.GONE : View.VISIBLE);
-        tvMonthlyProgress.setVisibility(empty ? View.GONE : View.VISIBLE);
-        progressMonthlyTasks.setVisibility(empty ? View.GONE : View.VISIBLE);
-        tvDailySection.setVisibility(dailyTotal == 0 ? View.GONE : View.VISIBLE);
-        layoutDailyTasks.setVisibility(dailyTotal == 0 ? View.GONE : View.VISIBLE);
-        tvMonthlySection.setVisibility(monthlyTotal == 0 ? View.GONE : View.VISIBLE);
-        layoutMonthlyTasks.setVisibility(monthlyTotal == 0 ? View.GONE : View.VISIBLE);
-
-        tvDailyProgress.setText(getString(R.string.progress_daily_tasks, dailyDone, dailyTotal));
-        tvMonthlyProgress.setText(getString(R.string.progress_monthly_tasks, monthlyDone, monthlyTotal));
-        progressDailyTasks.setProgress(dailyTotal == 0 ? 0 : (int) Math.round(100.0 * dailyDone / dailyTotal));
-        progressMonthlyTasks.setProgress(monthlyTotal == 0 ? 0 : (int) Math.round(100.0 * monthlyDone / monthlyTotal));
-    }
-
-    private View createTaskRow(LayoutInflater inflater, LinearLayout parent, CareTask task, boolean complete) {
-        View row = inflater.inflate(R.layout.item_care_task, parent, false);
-        CheckBox checkbox = row.findViewById(R.id.cbTaskDone);
-        TextView name = row.findViewById(R.id.tvTaskName);
-        TextView reminder = row.findViewById(R.id.tvTaskReminder);
-        MaterialButton edit = row.findViewById(R.id.btnEditTask);
-
-        name.setText(task.getName());
-        applyCompletedStyle(name, complete);
-        if (task.hasReminder()) {
-            reminder.setVisibility(View.VISIBLE);
-            reminder.setText(getString(R.string.reminder_at, formatClock(task.getReminderHour(), task.getReminderMinute())));
-        } else {
-            reminder.setText(R.string.reminder_none);
-        }
-
-        checkbox.setOnCheckedChangeListener(null);
-        checkbox.setChecked(complete);
-        checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> setTaskComplete(task, isChecked));
-        View.OnClickListener toggle = v -> checkbox.toggle();
-        name.setOnClickListener(toggle);
-        reminder.setOnClickListener(toggle);
-        edit.setOnClickListener(v -> showTaskEditor(task));
-        return row;
-    }
-
-    private void applyCompletedStyle(TextView name, boolean complete) {
-        if (complete) {
-            name.setPaintFlags(name.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            name.setTextColor(ContextCompat.getColor(this, R.color.text_dark_gray));
-        } else {
-            name.setPaintFlags(name.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-            name.setTextColor(ContextCompat.getColor(this, R.color.black));
-        }
-    }
-
-    private void setTaskComplete(CareTask shown, boolean complete) {
-        final long taskId = shown.getId();
-        final long catId = shown.getCatId();
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            // Work on a fresh copy from the database, not the object the UI list is drawing.
-            CareTask task = careTaskDao.getTaskById(taskId);
-            if (task != null) {
-                long now = System.currentTimeMillis();
-                if (complete) {
-                    if (!task.isCompleteNow(now)) { // ignore a repeated tick: one log per completion
-                        task.setLastCompletedAt(now);
-                        careTaskDao.insertLog(taskId, now);
-                    }
-                } else {
-                    // Undoing a tick also removes the log it wrote, so the history stays accurate.
-                    if (task.getLastCompletedAt() != null) {
-                        careTaskDao.deleteLog(taskId, task.getLastCompletedAt());
-                    }
-                    task.setLastCompletedAt(null);
-                }
-                careTaskDao.updateTask(task);
-                CareReminderScheduler.schedule(this, task);
-            }
-            List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
-            AppExecutors.getInstance().mainThread().execute(() -> showTasksIfCurrent(catId, tasks));
-        });
-    }
-
-    private void showTaskEditor(CareTask existing) {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_care_task, null, false);
-        TextInputLayout tilName = dialogView.findViewById(R.id.tilTaskName);
-        TextInputEditText etName = dialogView.findViewById(R.id.etTaskName);
-        Spinner spinnerFrequency = dialogView.findViewById(R.id.spinnerTaskFrequency);
-        CheckBox cbReminder = dialogView.findViewById(R.id.cbEnableReminder);
-        MaterialButton btnTime = dialogView.findViewById(R.id.btnPickReminderTime);
-
-        TaskFrequency[] frequencies = TaskFrequency.values();
-        String[] labels = new String[frequencies.length];
-        for (int i = 0; i < frequencies.length; i++) {
-            labels[i] = getString(frequencyLabel(frequencies[i]));
-        }
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, labels);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFrequency.setAdapter(adapter);
-
-        final int[] hour = {9};
-        final int[] minute = {0};
-        if (existing != null) {
-            etName.setText(existing.getName());
-            spinnerFrequency.setSelection(indexOfFrequency(existing.getFrequency()));
-            if (existing.hasReminder()) {
-                hour[0] = existing.getReminderHour();
-                minute[0] = existing.getReminderMinute();
-                cbReminder.setChecked(true);
-            } else {
-                cbReminder.setChecked(false);
-            }
-        } else {
-            cbReminder.setChecked(true);
-        }
-        updateReminderTimeButton(btnTime, cbReminder.isChecked(), hour[0], minute[0]);
-        cbReminder.setOnCheckedChangeListener((buttonView, isChecked) ->
-                updateReminderTimeButton(btnTime, isChecked, hour[0], minute[0]));
-        btnTime.setOnClickListener(v -> new TimePickerDialog(this, (view, h, m) -> {
-            hour[0] = h;
-            minute[0] = m;
-            cbReminder.setChecked(true);
-            updateReminderTimeButton(btnTime, true, h, m);
-        }, hour[0], minute[0], DateFormat.is24HourFormat(this)).show());
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle(existing == null ? R.string.dialog_add_task_title : R.string.dialog_edit_task_title)
-                .setView(dialogView)
-                .setPositiveButton(R.string.btn_save, null)
-                .setNegativeButton(R.string.btn_cancel, null);
-        if (existing != null) {
-            builder.setNeutralButton(R.string.btn_delete, (dialog, which) -> confirmDeleteTask(existing));
-        }
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String name = etName.getText() != null ? etName.getText().toString().trim() : "";
-            if (name.isEmpty()) {
-                tilName.setError(getString(R.string.error_task_name_required));
-                return;
-            }
-            tilName.setError(null);
-            TaskFrequency frequency = frequencies[spinnerFrequency.getSelectedItemPosition()];
-            Integer reminderHour = cbReminder.isChecked() ? hour[0] : null;
-            Integer reminderMinute = cbReminder.isChecked() ? minute[0] : null;
-            saveTask(existing, name, frequency, reminderHour, reminderMinute);
-            dialog.dismiss();
-        });
-    }
-
-    private void saveTask(CareTask existing, String name, TaskFrequency frequency,
-                          Integer reminderHour, Integer reminderMinute) {
-        if (currentCat == null) return;
-        // Read UI state here; the worker thread only touches the database and alarms.
-        final long catId = existing != null ? existing.getCatId() : currentCat.getId();
-        final long existingId = existing != null ? existing.getId() : -1L;
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            CareTask task = existingId != -1L ? careTaskDao.getTaskById(existingId) : new CareTask();
-            if (task == null) return; // deleted meanwhile
-            task.setCatId(catId);
-            task.setName(name);
-            task.setFrequency(frequency);
-            task.setReminderHour(reminderHour);
-            task.setReminderMinute(reminderMinute);
-            if (existingId == -1L) {
-                task.setDefault(false);
-                task.setSortOrder(careTaskDao.countForCat(catId));
-                task.setCreatedAt(System.currentTimeMillis());
-                careTaskDao.insertTask(task);
-            } else {
-                careTaskDao.updateTask(task);
-            }
-            CareReminderScheduler.schedule(this, task);
-            List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
-            AppExecutors.getInstance().mainThread().execute(() -> showTasksIfCurrent(catId, tasks));
-        });
-    }
-
-    /** Shows reloaded tasks only if the user has not switched to another cat meanwhile. */
-    private void showTasksIfCurrent(long catId, List<CareTask> tasks) {
-        if (currentCat != null && currentCat.getId() == catId) {
-            careTasks = tasks;
-            renderCareTasks();
-        }
-    }
-
-    private void confirmDeleteTask(CareTask task) {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.msg_delete_task_title)
-                .setMessage(getString(R.string.msg_delete_task_message, task.getName()))
-                .setPositiveButton(R.string.btn_delete, (dialog, which) -> deleteTask(task))
-                .setNegativeButton(R.string.btn_cancel, null)
-                .show();
-    }
-
-    private void deleteTask(CareTask task) {
-        final long taskId = task.getId();
-        final long catId = task.getCatId();
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            CareReminderScheduler.cancel(this, taskId);
-            careTaskDao.deleteTask(taskId);
-            List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
-            AppExecutors.getInstance().mainThread().execute(() -> showTasksIfCurrent(catId, tasks));
-        });
-    }
-
-    private void updateReminderTimeButton(MaterialButton button, boolean enabled, int hour, int minute) {
-        button.setEnabled(enabled);
-        button.setText(getString(R.string.btn_pick_reminder_time, formatClock(hour, minute)));
-    }
-
-    private String formatClock(int hour, int minute) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-        return DateFormatUtils.formatTime(calendar.getTimeInMillis());
-    }
-
-    private static int frequencyLabel(TaskFrequency frequency) {
-        if (frequency == TaskFrequency.MONTHLY) {
-            return R.string.frequency_monthly;
-        }
-        return R.string.frequency_daily;
-    }
-
-    private static int indexOfFrequency(TaskFrequency frequency) {
-        TaskFrequency[] values = TaskFrequency.values();
-        for (int i = 0; i < values.length; i++) {
-            if (values[i] == frequency) return i;
-        }
-        return 0;
-    }
-
-    private void showCatSwitcherDialog() {
-        if (allCats == null || allCats.isEmpty()) return;
-        String[] items = new String[allCats.size() + 1];
-        for (int i = 0; i < allCats.size(); i++) {
-            items[i] = allCats.get(i).getName();
-        }
-        items[allCats.size()] = getString(R.string.add_another_cat);
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.title_cat_switcher)
-                .setItems(items, (dialog, which) -> {
-                    if (which == allCats.size()) {
-                        Intent intent = new Intent(this, AddEditCatActivity.class);
-                        intent.putExtra(AddEditCatActivity.EXTRA_ADD_ANOTHER, true);
-                        startActivity(intent);
-                        return;
-                    }
-                    Cat chosen = allCats.get(which);
-                    appPrefs.setSelectedCatId(chosen.getId());
-                    currentCat = chosen;
-                    updateCatCard();
-                    loadCareTasksForCurrentCat();
-                })
-                .show();
-    }
-
-    private void loadCareTasksForCurrentCat() {
-        if (currentCat == null) {
-            careTasks = new ArrayList<>();
-            renderCareTasks();
+        int total = tasks.size();
+        if (total == 0) {
+            tvTaskSummary.setText(R.string.tasks_empty);
+            progressTasks.setVisibility(View.GONE);
             return;
         }
-        final long catId = currentCat.getId();
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            CareTaskSeeder.seedIfEmpty(this, careTaskDao, catId);
-            List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                if (currentCat != null && currentCat.getId() == catId) {
-                    careTasks = tasks;
-                    renderCareTasks();
-                }
-            });
-        });
+        progressTasks.setVisibility(View.VISIBLE);
+        progressTasks.setProgress((int) Math.round(100.0 * done / total));
+        tvTaskSummary.setText(done == total
+                ? getString(R.string.daily_tasks_all_done)
+                : getString(R.string.daily_tasks_summary, done, total));
     }
 
     private void checkNotificationPermission() {

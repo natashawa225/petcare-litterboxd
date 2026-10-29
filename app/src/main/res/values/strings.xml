@@ -73,8 +73,6 @@
     </string-array>
 
     <!-- Home Activity -->
-    <string name="home_greeting">Hello, %s!</string>
-    <string name="home_greeting_guest">Hello, Cat Parent!</string>
     <string name="default_owner_name">Cat Parent</string>
     <string name="no_cat_selected">No cat selected</string>
     <string name="home_cat_summary">%1$s • %2$s • %3$s kg</string>
@@ -83,24 +81,15 @@
     <string name="title_cat_switcher">Select Cat</string>
     <string name="add_another_cat">+ Add another cat</string>
     <string name="card_daily_checkin_title">Daily Check-in</string>
-    <string name="card_daily_checkin_subtitle">Coming soon: track daily mood and litterbox habits.</string>
-    <string name="card_care_tasks_title">Care Tasks</string>
-    <string name="card_care_tasks_subtitle">Check off today\'s care, and this month\'s appointments.</string>
     <string name="btn_add_task">Add task</string>
     <string name="btn_delete">Delete</string>
-    <string name="section_daily_tasks">Daily</string>
-    <string name="section_monthly_tasks">Monthly</string>
-    <string name="progress_daily_tasks">%1$d/%2$d daily tasks done</string>
-    <string name="progress_monthly_tasks">%1$d/%2$d monthly tasks done</string>
-    <string name="empty_care_tasks">No care tasks yet. Add one to get started.</string>
     <string name="prompt_task_name">Task name</string>
     <string name="prompt_task_frequency">Frequency</string>
     <string name="prompt_enable_reminder">Remind me</string>
     <string name="btn_pick_reminder_time">Reminder time: %s</string>
-    <string name="reminder_none">No reminder</string>
-    <string name="reminder_at">Reminder %s</string>
     <string name="frequency_daily">Daily</string>
     <string name="frequency_monthly">Monthly</string>
+    <string name="frequency_once">One-off</string>
     <string name="dialog_add_task_title">Add care task</string>
     <string name="dialog_edit_task_title">Edit care task</string>
     <string name="msg_delete_task_title">Delete task</string>
@@ -115,8 +104,7 @@
     <string name="notification_task_title">Litterboxd reminder</string>
     <string name="notification_task_due_today">%s is still due today.</string>
     <string name="notification_task_due_month">%s is still due this month.</string>
-    <string name="card_alerts_title">Health Alerts</string>
-    <string name="card_alerts_subtitle">Coming soon: weight anomaly and vet alerts.</string>
+    <string name="notification_task_due_now">%s is due now.</string>
 
     <!-- Cat Profile Activity -->
     <string name="title_cat_profile">Cat Profile</string>
@@ -139,16 +127,10 @@
     <string name="msg_delete_cat_title">Delete Cat Profile</string>
     <string name="msg_delete_cat_message">Are you sure you want to delete %s? All associated weight logs, feeding schedules, and care tasks will be removed.</string>
 
-    <!-- Settings Activity -->
-    <string name="title_settings">Settings</string>
-    <string name="section_owner_settings">Owner Settings</string>
-    <string name="btn_update_name">Update Name</string>
-    <string name="msg_owner_name_updated">Owner name updated</string>
-    <string name="section_demo_tools">Demo Tools</string>
+    <!-- Profile tab: sample data, reset and about (formerly Settings) -->
     <string name="btn_load_sample_data">Load Sample Data</string>
     <string name="msg_sample_data_already_loaded">Sample cats are already loaded.</string>
     <string name="msg_sample_data_loaded">Sample cats (Mochi &amp; Biscuit) loaded successfully!</string>
-    <string name="section_app_data">App Data</string>
     <string name="btn_reset_app">Reset App</string>
     <string name="msg_reset_app_title">Reset App</string>
     <string name="msg_reset_app_message">Are you sure you want to reset all app data and start over?</string>
@@ -186,6 +168,21 @@
     <string name="q_vomiting">Has %1$s vomited today?</string>
     <string name="q_hiding">Is %1$s hiding more than usual?</string>
     <string name="q_urination_more">Is %1$s also peeing more than usual?</string>
+    <string name="q_drinking_more">Is %1$s also drinking more than usual?</string>
+    <string name="checkin_category_litter">Litter box</string>
+    <string name="checkin_group_litter">Litter visits</string>
+    <string name="chip_litter_less">📉 Fewer visits</string>
+    <string name="chip_litter_normal">🧻 Usual visits</string>
+    <string name="chip_litter_more">📈 More visits</string>
+    <string name="checkin_category_energy_mood">Energy &amp; mood</string>
+    <string name="checkin_group_energy">Energy</string>
+    <string name="chip_energy_low">😴 Low energy</string>
+    <string name="chip_energy_normal">🐾 Usual energy</string>
+    <string name="chip_energy_high">⚡ Extra playful</string>
+    <string name="checkin_group_mood">Mood</string>
+    <string name="chip_mood_grumpy">😾 Grumpy</string>
+    <string name="chip_mood_normal">😺 Usual self</string>
+    <string name="chip_mood_clingy">🥰 Extra cuddly</string>
     <string name="opt_vomit_none">No</string>
     <string name="opt_vomit_once">Once</string>
     <string name="opt_vomit_repeated">More than once</string>
@@ -202,4 +199,88 @@
     <string name="checkin_error_load">Couldn\'t load the check-in. Please try again.</string>
     <string name="checkin_error_save">Couldn\'t save the check-in. Please try again.</string>
     <string name="checkin_error_no_cat">Please add a cat first.</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_daily">Daily</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Daily tab -->
+    <string name="daily_greeting">A little check-in, a lot of love 🐾</string>
+    <string name="daily_hello">Hi, %s</string>
+    <string name="daily_no_cat">Add a cat to start logging.</string>
+    <string name="cd_cat_photo">Photo of %s</string>
+    <string name="daily_log_title">Today\'s little check-in</string>
+    <string name="daily_log_empty">Nothing logged yet today. It only takes about 20 seconds.</string>
+    <string name="daily_log_loading">Loading today\'s log…</string>
+    <string name="daily_log_error">Couldn\'t load today\'s log. Pull it up again in a moment.</string>
+    <string name="daily_log_saved_at">Logged at %s</string>
+    <string name="daily_log_answer_row">%1$s: %2$s</string>
+    <string name="btn_log_today">Log today</string>
+    <string name="btn_update_log">Update today\'s log</string>
+    <string name="quick_actions_title">Quick actions</string>
+    <string name="btn_quick_add_task">Add a task</string>
+    <string name="daily_tasks_title">Care tasks at a glance</string>
+    <string name="daily_tasks_summary">%1$d of %2$d care tasks done</string>
+    <string name="daily_tasks_all_done">Every care task is done. Purr-fect! 🐱</string>
+    <string name="btn_see_tasks">See tasks</string>
+
+    <!-- Care Tasks tab -->
+    <string name="tasks_title">Care tasks</string>
+    <string name="tasks_subtitle">Little things that keep your kitty happy.</string>
+    <string name="tasks_for_cat">For %s</string>
+    <string name="tasks_section_todo">To do</string>
+    <string name="tasks_section_done">Done</string>
+    <string name="tasks_empty">No little tasks today. Enjoy the extra cuddle time!</string>
+    <string name="prompt_task_description">Description (optional)</string>
+    <string name="prompt_task_cat">For which cat</string>
+    <string name="btn_due_date_none">Add a due date (optional)</string>
+    <string name="btn_due_date">Due date: %s</string>
+    <string name="btn_due_time_none">Add a due time (optional)</string>
+    <string name="btn_due_time">Due time: %s</string>
+    <string name="btn_clear_due">Clear due date</string>
+    <string name="error_due_in_past">That time has already passed. Pick a later one.</string>
+    <string name="error_due_time_needs_date">Pick a due date first.</string>
+    <string name="task_daily_reminder">Every day · reminder %s</string>
+    <string name="task_daily_no_reminder">Every day</string>
+    <string name="task_monthly_reminder">Every month · reminder %s</string>
+    <string name="task_monthly_no_reminder">Every month</string>
+    <string name="task_once_due">Due %s</string>
+    <string name="task_once_no_due">One-off</string>
+    <string name="date_time">%1$s, %2$s</string>
+    <string name="task_overdue">Overdue · was due %s</string>
+    <string name="cd_task_done">%s done</string>
+    <string name="cd_task_edit">Edit %s</string>
+    <string name="msg_task_saved_for_cat">Saved to %s\'s tasks</string>
+
+    <!-- Profile tab (the owner, not the cat) -->
+    <string name="profile_subtitle">Your little corner of cat care.</string>
+    <string name="btn_edit_profile">Edit profile</string>
+    <string name="cd_owner_avatar">Your profile picture</string>
+    <string name="profile_section_cats">My cats</string>
+    <string name="profile_manage_cats">Manage cats</string>
+    <string name="profile_manage_cats_summary">%s\'s profile, weight and meals</string>
+    <string name="profile_add_cat">Add another cat</string>
+    <string name="profile_section_preferences">Preferences</string>
+    <string name="profile_notifications">Notifications</string>
+    <string name="profile_notifications_on">On</string>
+    <string name="profile_notifications_off">Off · tap to turn on</string>
+    <string name="profile_about">About Litterboxd</string>
+    <string name="about_version">Version %s</string>
+    <string name="profile_section_data">Data</string>
+
+    <!-- Edit profile -->
+    <string name="edit_profile_title">Edit profile</string>
+    <string name="edit_profile_name_hint">Display name (optional)</string>
+    <string name="edit_profile_choose_avatar">Pick an avatar</string>
+    <string name="btn_upload_photo">Upload a photo</string>
+    <string name="btn_use_default_avatar">Use default avatar</string>
+    <string name="msg_profile_saved">Profile saved</string>
+    <string name="error_photo_save">Couldn\'t use that photo. Please try another one.</string>
+    <string name="cd_avatar_option">%s avatar</string>
+    <string name="cd_avatar_selected">%s avatar, selected</string>
+    <string name="avatar_cream_cat">Cream cat</string>
+    <string name="avatar_ginger_cat">Ginger cat</string>
+    <string name="avatar_calico_cat">Calico cat</string>
+    <string name="avatar_tuxedo_cat">Tuxedo cat</string>
 </resources>

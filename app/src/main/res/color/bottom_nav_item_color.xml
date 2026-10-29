@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Selected tab: dark olive (strong contrast); other tabs: muted gray. The pill background
+     (bottom_nav_item_background) and the always-visible label also mark the selection. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/dark_olive_green" android:state_checked="true" />
+    <item android:color="@color/text_dark_gray" />
+</selector>

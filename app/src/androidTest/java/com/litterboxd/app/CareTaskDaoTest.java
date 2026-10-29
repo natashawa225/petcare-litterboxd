@@ -65,6 +65,28 @@ public class CareTaskDaoTest {
     }
 
     @Test
+    public void oneOffTaskKeepsDescriptionAndDueDate() {
+        long catId = catDao.insertCat(newCat("Mochi"));
+        CareTask task = newTask(catId, "Book the vet", TaskFrequency.ONCE);
+        long due = System.currentTimeMillis() + 86_400_000L;
+        task.setDescription("Annual check-up");
+        task.setDueAt(due);
+        long taskId = careTaskDao.insertTask(task);
+
+        CareTask fetched = careTaskDao.getTaskById(taskId);
+        assertEquals(TaskFrequency.ONCE, fetched.getFrequency());
+        assertEquals("Annual check-up", fetched.getDescription());
+        assertEquals(Long.valueOf(due), fetched.getDueAt());
+
+        fetched.setDescription(null);
+        fetched.setDueAt(null);
+        careTaskDao.updateTask(fetched);
+        CareTask cleared = careTaskDao.getTaskById(taskId);
+        assertNull(cleared.getDescription());
+        assertNull(cleared.getDueAt());
+    }
+
+    @Test
     public void undoingACompletionRemovesOnlyItsLog() {
         long catId = catDao.insertCat(newCat("Pudding"));
         long taskId = careTaskDao.insertTask(newTask(catId, "Meals", TaskFrequency.DAILY));

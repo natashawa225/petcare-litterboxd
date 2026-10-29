@@ -1,5 +1,6 @@
 package com.litterboxd.app;
 
+import com.litterboxd.app.data.model.CareTask;
 import com.litterboxd.app.data.model.TaskFrequency;
 
 import org.junit.Test;
@@ -48,6 +49,56 @@ public class TaskFrequencyTest {
                 TaskFrequency.MONTHLY.nextReminderMillis(10, 0, afternoon, false));
         assertEquals(millis(2026, Calendar.NOVEMBER, 1, 10, 0),
                 TaskFrequency.MONTHLY.nextReminderMillis(10, 0, afternoon, true));
+    }
+
+    @Test
+    public void oneOffStaysDoneOnceCompleted() {
+        long completed = millis(2026, Calendar.OCTOBER, 3, 10, 0);
+        long monthsLater = millis(2027, Calendar.MARCH, 1, 9, 0);
+        assertTrue(TaskFrequency.ONCE.isCompleteForCurrentPeriod(completed, monthsLater));
+        assertFalse(TaskFrequency.ONCE.isCompleteForCurrentPeriod(null, monthsLater));
+        assertEquals(TaskFrequency.ONCE, TaskFrequency.fromStorage("ONCE"));
+    }
+
+    @Test
+    public void oneOffRemindsAtDueTimeOnlyWhileFutureAndNotDone() {
+        long now = millis(2026, Calendar.OCTOBER, 24, 15, 0);
+        long due = millis(2026, Calendar.OCTOBER, 25, 9, 30);
+        CareTask task = new CareTask();
+        task.setFrequency(TaskFrequency.ONCE);
+        task.setDueAt(due);
+        task.setReminderHour(9);
+        task.setReminderMinute(30);
+        assertEquals(Long.valueOf(due), task.nextReminderMillis(now));
+        assertFalse(task.isOverdue(now));
+
+        long afterDue = millis(2026, Calendar.OCTOBER, 25, 10, 0);
+        assertNull(task.nextReminderMillis(afterDue));
+        assertTrue(task.isOverdue(afterDue));
+
+        task.setLastCompletedAt(now);
+        assertNull(task.nextReminderMillis(now));
+        assertFalse(task.isOverdue(afterDue));
+    }
+
+    @Test
+    public void oneOffWithoutTimeHasNoReminder() {
+        CareTask task = new CareTask();
+        task.setFrequency(TaskFrequency.ONCE);
+        task.setDueAt(millis(2026, Calendar.OCTOBER, 25, 23, 59));
+        assertNull(task.nextReminderMillis(millis(2026, Calendar.OCTOBER, 24, 15, 0)));
+    }
+
+    @Test
+    public void dailyTaskReminderGoesThroughFrequency() {
+        CareTask task = new CareTask();
+        task.setFrequency(TaskFrequency.DAILY);
+        task.setReminderHour(9);
+        task.setReminderMinute(0);
+        long afternoon = millis(2026, Calendar.OCTOBER, 24, 15, 0);
+        assertEquals(Long.valueOf(millis(2026, Calendar.OCTOBER, 25, 9, 0)), task.nextReminderMillis(afternoon));
+        task.setReminderHour(null);
+        assertNull(task.nextReminderMillis(afternoon));
     }
 
     @Test

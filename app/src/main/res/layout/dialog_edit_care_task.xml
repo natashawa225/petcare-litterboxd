@@ -1,53 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Add/edit care task form (shown in an AlertDialog). Scrolls on short screens and in landscape. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="@dimen/spacing_medium">
+    android:layout_height="wrap_content">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilTaskName"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:errorEnabled="true">
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_medium">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etTaskName"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilTaskName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_task_name"
-            android:inputType="textCapSentences"
-            android:maxLines="2" />
-    </com.google.android.material.textfield.TextInputLayout>
+            app:errorEnabled="true">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/prompt_task_frequency"
-        android:textColor="@color/text_dark_gray"
-        android:textSize="@dimen/text_size_small" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTaskName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/prompt_task_name"
+                android:inputType="textCapSentences"
+                android:maxLength="60"
+                android:maxLines="2" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <Spinner
-        android:id="@+id/spinnerTaskFrequency"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilTaskDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-    <CheckBox
-        android:id="@+id/cbEnableReminder"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/prompt_enable_reminder"
-        app:buttonTint="@color/sage_primary" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTaskDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/prompt_task_description"
+                android:inputType="textCapSentences|textMultiLine"
+                android:maxLength="140"
+                android:maxLines="3" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnPickReminderTime"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/btn_pick_reminder_time"
-        app:strokeColor="@color/sage_primary" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvTaskCatLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@string/prompt_task_cat"
+            android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+        <Spinner
+            android:id="@+id/spinnerTaskCat"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_tiny" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@string/prompt_task_frequency"
+            android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+        <Spinner
+            android:id="@+id/spinnerTaskFrequency"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_tiny" />
+
+        <!-- Daily / monthly tasks: optional reminder clock time -->
+        <LinearLayout
+            android:id="@+id/layoutRecurring"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/cbEnableReminder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_card"
+                android:minHeight="@dimen/button_height"
+                android:text="@string/prompt_enable_reminder"
+                app:buttonTint="@color/sage_primary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPickReminderTime"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:text="@string/btn_pick_reminder_time"
+                app:strokeColor="@color/sage_primary" />
+        </LinearLayout>
+
+        <!-- One-off tasks: optional due date, optional due time (reminds at that time) -->
+        <LinearLayout
+            android:id="@+id/layoutOnce"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPickDueDate"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/spacing_card"
+                android:text="@string/btn_due_date_none"
+                app:strokeColor="@color/sage_primary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPickDueTime"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:text="@string/btn_due_time_none"
+                app:strokeColor="@color/sage_primary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClearDue"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/button_height"
+                android:text="@string/btn_clear_due"
+                android:textColor="@color/dark_olive_green" />
+
+            <TextView
+                android:id="@+id/tvDueError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/error_red"
+                android:textSize="@dimen/text_size_caption"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

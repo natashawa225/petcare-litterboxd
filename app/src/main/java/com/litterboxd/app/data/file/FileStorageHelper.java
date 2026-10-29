@@ -28,6 +28,8 @@ import java.io.IOException;
 
 public class FileStorageHelper {
     public static final String CAT_PHOTO_PREFIX = "cat_photo_";
+    /** Owner's own profile photo (not a cat photo); kept separate so cat clean-up never touches it. */
+    public static final String OWNER_AVATAR_PREFIX = "owner_avatar_";
     public static final int PREVIEW_MIN_SIDE_PX = 256;
     private static final int SAVED_PHOTO_MIN_SIDE_PX = 1024;
 
@@ -97,14 +99,23 @@ public class FileStorageHelper {
      * decoded on a worker thread and posted back with View.post(). Call from the UI thread.
      */
     public void showCatPhoto(ImageView imageView, String fileName) {
-        imageView.setImageResource(R.drawable.ic_cat_face);
+        showImageFile(imageView, fileName, R.drawable.ic_cat_face);
+    }
+
+    /**
+     * Shows a private image file in an ImageView: {@code placeholderRes} first (and kept if the
+     * file is missing), then the downscaled image decoded on a worker thread and posted back with
+     * View.post(). Call from the UI thread.
+     */
+    public void showImageFile(ImageView imageView, String fileName, int placeholderRes) {
+        imageView.setImageResource(placeholderRes);
         imageView.setTag(fileName);
         if (fileName == null || fileName.isEmpty()) return;
         AppExecutors.getInstance().diskIO().execute(() -> {
             File file = getInternalImageFile(fileName);
             Bitmap bitmap = file.exists() ? loadScaledBitmap(Uri.fromFile(file), PREVIEW_MIN_SIDE_PX) : null;
             imageView.post(() -> {
-                // Skip if the view was asked to show a different cat in the meantime.
+                // Skip if the view was asked to show a different image in the meantime.
                 if (bitmap != null && fileName.equals(imageView.getTag())) {
                     imageView.setImageBitmap(bitmap);
                 }
@@ -126,12 +137,13 @@ public class FileStorageHelper {
         if (file.exists()) file.delete();
     }
 
-    /** Deletes every cat photo (files named cat_photo_*) from internal storage. Used by Reset app. */
+    /** Deletes every cat photo and owner avatar photo from internal storage. Used by Reset app. */
     public void deleteAllCatPhotos() {
         File[] files = context.getFilesDir().listFiles();
         if (files == null) return;
         for (File file : files) {
-            if (file.getName().startsWith(CAT_PHOTO_PREFIX)) file.delete();
+            String name = file.getName();
+            if (name.startsWith(CAT_PHOTO_PREFIX) || name.startsWith(OWNER_AVATAR_PREFIX)) file.delete();
         }
     }
 

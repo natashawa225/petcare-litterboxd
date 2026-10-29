@@ -25,6 +25,48 @@
           ]
         }
       ]
+    },
+    {
+      "id": "litter",
+      "titleKey": "checkin_category_litter",
+      "groups": [
+        {
+          "id": "litter",
+          "titleKey": "checkin_group_litter",
+          "selection": "single",
+          "chips": [
+            { "value": "less", "labelKey": "chip_litter_less" },
+            { "value": "normal", "labelKey": "chip_litter_normal", "normal": true },
+            { "value": "more", "labelKey": "chip_litter_more", "followUps": ["drinking_more"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "energy_mood",
+      "titleKey": "checkin_category_energy_mood",
+      "groups": [
+        {
+          "id": "energy",
+          "titleKey": "checkin_group_energy",
+          "selection": "single",
+          "chips": [
+            { "value": "low", "labelKey": "chip_energy_low", "followUps": ["hiding"] },
+            { "value": "normal", "labelKey": "chip_energy_normal", "normal": true },
+            { "value": "high", "labelKey": "chip_energy_high" }
+          ]
+        },
+        {
+          "id": "mood",
+          "titleKey": "checkin_group_mood",
+          "selection": "single",
+          "chips": [
+            { "value": "grumpy", "labelKey": "chip_mood_grumpy" },
+            { "value": "normal", "labelKey": "chip_mood_normal", "normal": true },
+            { "value": "clingy", "labelKey": "chip_mood_clingy" }
+          ]
+        }
+      ]
     }
   ],
   "followUps": [
@@ -48,6 +90,14 @@
     {
       "id": "urination_more",
       "textKey": "q_urination_more",
+      "options": [
+        { "value": "no", "labelKey": "btn_no" },
+        { "value": "yes", "labelKey": "btn_yes" }
+      ]
+    },
+    {
+      "id": "drinking_more",
+      "textKey": "q_drinking_more",
       "options": [
         { "value": "no", "labelKey": "btn_no" },
         { "value": "yes", "labelKey": "btn_yes" }
