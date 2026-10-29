@@ -25,6 +25,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
+import com.litterboxd.app.data.CareTaskCompletion;
 import com.litterboxd.app.data.CareTaskSeeder;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
@@ -233,24 +234,7 @@ public class CareTasksActivity extends AppCompatActivity {
         final long taskId = shown.getId();
         final long catId = shown.getCatId();
         AppExecutors.getInstance().diskIO().execute(() -> {
-            CareTask task = careTaskDao.getTaskById(taskId);
-            if (task != null) {
-                long now = System.currentTimeMillis();
-                if (complete) {
-                    if (!task.isCompleteNow(now)) { // one log per completion, even on a double tap
-                        task.setLastCompletedAt(now);
-                        careTaskDao.insertLog(taskId, now);
-                    }
-                } else {
-                    // Undoing a tick also removes the log it wrote, so the history stays accurate.
-                    if (task.getLastCompletedAt() != null) {
-                        careTaskDao.deleteLog(taskId, task.getLastCompletedAt());
-                    }
-                    task.setLastCompletedAt(null);
-                }
-                careTaskDao.updateTask(task);
-                CareReminderScheduler.schedule(this, task);
-            }
+            CareTaskCompletion.setComplete(this, careTaskDao, taskId, complete);
             List<CareTask> tasks = careTaskDao.getTasksForCat(catId);
             AppExecutors.getInstance().mainThread().execute(() -> showTasksIfCurrent(catId, tasks));
         });

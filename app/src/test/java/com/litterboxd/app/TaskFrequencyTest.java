@@ -102,6 +102,32 @@ public class TaskFrequencyTest {
     }
 
     @Test
+    public void todaysTasksAreDailyPlusOneOffsDueToday() {
+        long now = millis(2026, Calendar.OCTOBER, 30, 10, 0);
+        CareTask daily = new CareTask();
+        daily.setFrequency(TaskFrequency.DAILY);
+        assertTrue(daily.isDueToday(now));
+
+        CareTask monthly = new CareTask();
+        monthly.setFrequency(TaskFrequency.MONTHLY);
+        assertFalse(monthly.isDueToday(now));
+
+        CareTask dueToday = new CareTask();
+        dueToday.setFrequency(TaskFrequency.ONCE);
+        dueToday.setDueAt(millis(2026, Calendar.OCTOBER, 30, 23, 59));
+        assertTrue(dueToday.isDueToday(now));
+
+        CareTask dueTomorrow = new CareTask();
+        dueTomorrow.setFrequency(TaskFrequency.ONCE);
+        dueTomorrow.setDueAt(millis(2026, Calendar.OCTOBER, 31, 9, 0));
+        assertFalse(dueTomorrow.isDueToday(now));
+
+        CareTask noDueDate = new CareTask();
+        noDueDate.setFrequency(TaskFrequency.ONCE);
+        assertFalse(noDueDate.isDueToday(now));
+    }
+
+    @Test
     public void fromStorageFallsBackToDaily() {
         assertEquals(TaskFrequency.MONTHLY, TaskFrequency.fromStorage("MONTHLY"));
         assertEquals(TaskFrequency.DAILY, TaskFrequency.fromStorage("WEEKLY"));

@@ -1,5 +1,7 @@
 package com.litterboxd.app.data.model;
 
+import java.util.Calendar;
+
 public class CareTask {
     private long id;
     private long catId;
@@ -59,6 +61,22 @@ public class CareTask {
 
     public boolean isCompleteNow(long nowMillis) {
         return frequency != null && frequency.isCompleteForCurrentPeriod(lastCompletedAt, nowMillis);
+    }
+
+    /**
+     * True if this task belongs to today's checklist on the Daily tab: every daily task, plus
+     * one-off tasks due on today's date. Monthly tasks and one-offs due on other days (or with no
+     * due date) are not "today's" tasks.
+     */
+    public boolean isDueToday(long nowMillis) {
+        if (frequency == TaskFrequency.DAILY) return true;
+        if (frequency != TaskFrequency.ONCE || dueAt == null) return false;
+        Calendar due = Calendar.getInstance();
+        due.setTimeInMillis(dueAt);
+        Calendar now = Calendar.getInstance();
+        now.setTimeInMillis(nowMillis);
+        return due.get(Calendar.YEAR) == now.get(Calendar.YEAR)
+                && due.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR);
     }
 
     /** A one-off task whose due date/time has passed without being completed. */

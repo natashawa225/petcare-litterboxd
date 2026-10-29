@@ -220,9 +220,9 @@
     <string name="btn_update_log">Update today\'s log</string>
     <string name="quick_actions_title">Quick actions</string>
     <string name="btn_quick_add_task">Add a task</string>
-    <string name="daily_tasks_title">Care tasks at a glance</string>
-    <string name="daily_tasks_summary">%1$d of %2$d care tasks done</string>
-    <string name="daily_tasks_all_done">Every care task is done. Purr-fect! 🐱</string>
+    <string name="daily_tasks_title">Today\'s care tasks</string>
+    <string name="daily_tasks_summary">%1$d of %2$d tasks done</string>
+    <string name="daily_tasks_all_done">%1$d of %2$d tasks done · Purr-fect! 🐱</string>
     <string name="btn_see_tasks">See tasks</string>
 
     <!-- Care Tasks tab -->
