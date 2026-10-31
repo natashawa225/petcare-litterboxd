@@ -111,6 +111,27 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
             "CREATE INDEX idx_checkin_answers_checkin_id ON " + LitterboxdContract.CheckinAnswerEntry.TABLE_NAME +
                     "(" + LitterboxdContract.CheckinAnswerEntry.COLUMN_CHECKIN_ID + ")";
 
+    private static final String SQL_CREATE_DIARY_ENTRIES =
+            "CREATE TABLE " + LitterboxdContract.DiaryEntryEntry.TABLE_NAME + " (" +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_CAT_ID + " INTEGER NOT NULL, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_DESCRIPTION + " TEXT, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_ENTRY_AT + " INTEGER NOT NULL, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_PHOTO_PATH + " TEXT, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_TAGS + " TEXT, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL, " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_UPDATED_AT + " INTEGER NOT NULL, " +
+                    "FOREIGN KEY(" + LitterboxdContract.DiaryEntryEntry.COLUMN_CAT_ID + ") REFERENCES " +
+                    LitterboxdContract.CatEntry.TABLE_NAME + "(" + LitterboxdContract.CatEntry.COLUMN_ID + ") ON DELETE CASCADE)";
+
+    /** The diary is always read per cat, newest first. */
+    private static final String SQL_CREATE_INDEX_DIARY_CAT_DATE =
+            "CREATE INDEX idx_diary_entries_cat_date ON " + LitterboxdContract.DiaryEntryEntry.TABLE_NAME +
+                    "(" + LitterboxdContract.DiaryEntryEntry.COLUMN_CAT_ID + ", " +
+                    LitterboxdContract.DiaryEntryEntry.COLUMN_ENTRY_AT + ")";
+
     private static LitterboxdDbHelper instance;
 
     /**
@@ -127,6 +148,11 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
     /** In-memory database (nothing written to disk), for instrumented tests only. */
     public static LitterboxdDbHelper createInMemoryForTests(Context context) {
         return new LitterboxdDbHelper(context.getApplicationContext(), null);
+    }
+
+    /** A helper on a separately named database file, for upgrade (migration) tests only. */
+    public static LitterboxdDbHelper openNamedForTests(Context context, String databaseName) {
+        return new LitterboxdDbHelper(context.getApplicationContext(), databaseName);
     }
 
     private LitterboxdDbHelper(Context context) {
@@ -152,6 +178,7 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_INDEX_FEEDING_CAT);
         createCareTaskTables(db);
         createCheckinTables(db);
+        createDiaryTables(db);
 
         // TODO: Create future tables in subsequent updates:
         // - alerts
@@ -172,10 +199,15 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         if (oldVersion < 4) {
             createCheckinTables(db);
         }
+        if (oldVersion < 6) {
+            // v6: Cat Diary. A new table only, so all existing data is untouched.
+            createDiaryTables(db);
+        }
     }
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.DiaryEntryEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CheckinAnswerEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.DailyCheckinEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + LitterboxdContract.CareTaskLogEntry.TABLE_NAME);
@@ -191,6 +223,11 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_CARE_TASK_LOGS);
         db.execSQL(SQL_CREATE_INDEX_CARE_TASKS_CAT);
         db.execSQL(SQL_CREATE_INDEX_CARE_TASK_LOGS_TASK);
+    }
+
+    private void createDiaryTables(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_DIARY_ENTRIES);
+        db.execSQL(SQL_CREATE_INDEX_DIARY_CAT_DATE);
     }
 
     private void createCheckinTables(SQLiteDatabase db) {

@@ -11,8 +11,10 @@ import androidx.core.app.NotificationManagerCompat;
 import com.litterboxd.app.LitterboxdApplication;
 import com.litterboxd.app.R;
 import com.litterboxd.app.data.dao.CareTaskDao;
+import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.model.CareTask;
+import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.TaskFrequency;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.util.AppExecutors;
@@ -39,7 +41,8 @@ public class CareTaskReminderReceiver extends BroadcastReceiver {
                 }
                 long now = System.currentTimeMillis();
                 if (!task.isCompleteNow(now) && task.hasReminder()) {
-                    showNotification(appContext, task);
+                    Cat cat = new CatDao(LitterboxdDbHelper.getInstance(appContext)).getCatById(task.getCatId());
+                    showNotification(appContext, task, cat != null ? cat.getName() : null);
                 }
                 CareReminderScheduler.schedule(appContext, task);
             } finally {
@@ -48,7 +51,7 @@ public class CareTaskReminderReceiver extends BroadcastReceiver {
         });
     }
 
-    private void showNotification(Context context, CareTask task) {
+    private void showNotification(Context context, CareTask task, String catName) {
         Intent openHome = new Intent(context, HomeActivity.class);
         openHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(
@@ -68,7 +71,10 @@ public class CareTaskReminderReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, LitterboxdApplication.CARE_REMINDERS_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_cat_face)
-                .setContentTitle(context.getString(R.string.notification_task_title))
+                // Name the cat, so multi-cat households know whose task it is.
+                .setContentTitle(catName != null
+                        ? context.getString(R.string.notification_task_title_cat, catName)
+                        : context.getString(R.string.notification_task_title))
                 .setContentText(body)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
                 .setAutoCancel(true)

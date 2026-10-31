@@ -65,6 +65,12 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <!-- Rounded-square photo thumbnails in the diary. -->
+    <style name="ShapeAppearance.Litterboxd.DiaryPhoto" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/diary_photo_corner</item>
+    </style>
+
     <!-- Secondary bordered button (white fill) for quick actions and forms. -->
     <style name="Widget.Litterboxd.Button.Secondary">
         <item name="backgroundTint">@color/white</item>

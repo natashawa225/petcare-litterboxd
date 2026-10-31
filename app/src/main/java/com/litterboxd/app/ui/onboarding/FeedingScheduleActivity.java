@@ -3,8 +3,7 @@ package com.litterboxd.app.ui.onboarding;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
-import android.text.method.DigitsKeyListener;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -201,30 +199,16 @@ public class FeedingScheduleActivity extends AppCompatActivity {
         mealRowViews.clear();
 
         String[] defaultLabels = getResources().getStringArray(R.array.default_meal_labels);
-        int paddingSmall = getResources().getDimensionPixelSize(R.dimen.spacing_small);
-        int paddingMedium = getResources().getDimensionPixelSize(R.dimen.spacing_medium);
+        LayoutInflater inflater = LayoutInflater.from(this);
 
         for (int i = 0; i < count; i++) {
-            LinearLayout rowLayout = new LinearLayout(this);
-            rowLayout.setOrientation(LinearLayout.VERTICAL);
-            rowLayout.setPadding(0, paddingSmall, 0, paddingMedium);
+            View rowLayout = inflater.inflate(R.layout.item_meal_row, containerMealRows, false);
+            ((TextView) rowLayout.findViewById(R.id.tvMealHeader)).setText(getString(R.string.meal_header, i + 1));
 
-            TextView tvHeader = new TextView(this);
-            tvHeader.setText(getString(R.string.meal_header, i + 1));
-            tvHeader.setTextColor(ContextCompat.getColor(this, R.color.sage_primary));
-            tvHeader.setTextSize(16f);
-            rowLayout.addView(tvHeader);
-
-            TextInputLayout tilLabel = new TextInputLayout(this);
-            tilLabel.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            TextInputEditText etLabel = new TextInputEditText(this);
-            etLabel.setHint(R.string.hint_meal_label);
+            TextInputEditText etLabel = rowLayout.findViewById(R.id.etMealLabel);
             etLabel.setText(i < defaultLabels.length ? defaultLabels[i] : getString(R.string.meal_header, i + 1));
-            tilLabel.addView(etLabel);
-            rowLayout.addView(tilLabel);
 
-            MaterialButton btnTime = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
-            btnTime.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            MaterialButton btnTime = rowLayout.findViewById(R.id.btnMealTime);
             int defaultHour = 8 + i * 4;
             if (defaultHour > 22) defaultHour = 20;
             final MealRowView mealRow = new MealRowView();
@@ -240,20 +224,11 @@ public class FeedingScheduleActivity extends AppCompatActivity {
                     btnTime.setText(String.format(Locale.US, "%02d:%02d", hourOfDay, minute));
                 }, mealRow.hour, mealRow.minute, true).show(); // 24-hour, matching the HH:mm shown and stored
             });
-            rowLayout.addView(btnTime);
 
-            TextInputLayout tilPortion = new TextInputLayout(this);
-            tilPortion.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            TextInputEditText etPortion = new TextInputEditText(this);
-            etPortion.setHint(R.string.meal_portion_prefix);
-            // Accept "45.5" and "45,5" on any keyboard; keep the numeric keyboard.
-            etPortion.setKeyListener(DigitsKeyListener.getInstance(getString(R.string.decimal_digits)));
-            etPortion.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            TextInputEditText etPortion = rowLayout.findViewById(R.id.etMealPortion);
             etPortion.setText(String.valueOf(DEFAULT_PORTION_GRAMS));
             mealRow.etPortion = etPortion;
-            mealRow.tilPortion = tilPortion;
-            tilPortion.addView(etPortion);
-            rowLayout.addView(tilPortion);
+            mealRow.tilPortion = rowLayout.findViewById(R.id.tilMealPortion);
 
             if (pendingLabels != null && i < pendingLabels.length) {
                 etLabel.setText(pendingLabels[i]);

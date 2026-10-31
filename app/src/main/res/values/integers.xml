@@ -4,4 +4,7 @@
     <integer name="max_owner_name_length">30</integer>
     <!-- Columns in the bundled-avatar grid on the Edit profile screen. -->
     <integer name="avatar_grid_columns">4</integer>
+    <!-- Diary entry limits (title counter + maxLength, caption maxLength). -->
+    <integer name="diary_title_max_length">60</integer>
+    <integer name="diary_caption_max_length">500</integer>
 </resources>

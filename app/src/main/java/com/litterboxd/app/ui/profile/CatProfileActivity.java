@@ -2,8 +2,8 @@ package com.litterboxd.app.ui.profile;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
-import android.text.method.DigitsKeyListener;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,10 +15,10 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
+import com.litterboxd.app.data.dao.DiaryDao;
 import com.litterboxd.app.data.dao.FeedingScheduleDao;
 import com.litterboxd.app.data.dao.WeightLogDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
@@ -51,6 +51,7 @@ public class CatProfileActivity extends AppCompatActivity {
     private WeightLogDao weightLogDao;
     private FeedingScheduleDao feedingScheduleDao;
     private CareTaskDao careTaskDao;
+    private DiaryDao diaryDao;
     private FileStorageHelper fileStorageHelper;
     private AppPrefs appPrefs;
     private Cat currentCat;
@@ -66,6 +67,7 @@ public class CatProfileActivity extends AppCompatActivity {
         weightLogDao = new WeightLogDao(dbHelper);
         feedingScheduleDao = new FeedingScheduleDao(dbHelper);
         careTaskDao = new CareTaskDao(dbHelper);
+        diaryDao = new DiaryDao(dbHelper);
         fileStorageHelper = new FileStorageHelper(this);
         appPrefs = new AppPrefs(this);
 
@@ -80,11 +82,14 @@ public class CatProfileActivity extends AppCompatActivity {
         btnDeleteCat = findViewById(R.id.btnDeleteCat);
 
         btnAddWeight.setOnClickListener(v -> showAddWeightDialog());
-        btnEditCat.setOnClickListener(v -> {
+        View.OnClickListener editCat = v -> {
             Intent intent = new Intent(this, AddEditCatActivity.class);
             intent.putExtra("cat_id", catId);
             startActivity(intent);
-        });
+        };
+        btnEditCat.setOnClickListener(editCat);
+        // Tapping the cat's picture is a shortcut to change it (same edit screen and photo picker).
+        imgProfilePhoto.setOnClickListener(editCat);
         btnDeleteCat.setOnClickListener(v -> showDeleteConfirmationDialog());
         findViewById(R.id.btnEditSchedule).setOnClickListener(v -> {
             Intent intent = new Intent(this, FeedingScheduleActivity.class);
@@ -126,6 +131,7 @@ public class CatProfileActivity extends AppCompatActivity {
                     tvProfileDetails.setText(details);
 
                     fileStorageHelper.showCatPhoto(imgProfilePhoto, currentCat.getPhotoPath());
+                    imgProfilePhoto.setContentDescription(getString(R.string.cd_change_cat_photo, currentCat.getName()));
 
                     populateWeightLogs(weightLogs);
                     populateFeedingMeals(feedingMeals);
@@ -182,28 +188,9 @@ public class CatProfileActivity extends AppCompatActivity {
     }
 
     private void showAddWeightDialog() {
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int padH = getResources().getDimensionPixelSize(R.dimen.spacing_large);
-        int padV = getResources().getDimensionPixelSize(R.dimen.spacing_small);
-        layout.setPadding(padH, padV, padH, padV);
-
-        TextInputLayout tilWeight = new TextInputLayout(this);
-        tilWeight.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        TextInputEditText etWeight = new TextInputEditText(this);
-        etWeight.setHint(R.string.prompt_weight_grams);
-        // Accept "4.2" and "4,2" on any keyboard; keep the numeric keyboard.
-        etWeight.setKeyListener(DigitsKeyListener.getInstance(getString(R.string.decimal_digits)));
-        etWeight.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        tilWeight.addView(etWeight);
-        layout.addView(tilWeight);
-
-        TextInputLayout tilNotes = new TextInputLayout(this);
-        tilNotes.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        TextInputEditText etNotes = new TextInputEditText(this);
-        etNotes.setHint(R.string.prompt_weight_notes);
-        tilNotes.addView(etNotes);
-        layout.addView(tilNotes);
+        View layout = LayoutInflater.from(this).inflate(R.layout.dialog_add_weight, null, false);
+        TextInputEditText etWeight = layout.findViewById(R.id.etDialogWeight);
+        TextInputEditText etNotes = layout.findViewById(R.id.etDialogWeightNotes);
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_add_weight_title)
@@ -247,8 +234,16 @@ public class CatProfileActivity extends AppCompatActivity {
                     AppExecutors.getInstance().diskIO().execute(() -> {
                         Cat toDelete = catDao.getCatById(catId);
                         CareReminderScheduler.cancelForCat(this, careTaskDao, catId);
-                        catDao.deleteCat(catId); // weight logs, meals, and care tasks go too (ON DELETE CASCADE)
-                        if (toDelete != null) fileStorageHelper.deleteImage(toDelete.getPhotoPath());
+                        List<String> diaryPhotos = diaryDao.getPhotoPathsForCat(catId);
+                        catDao.deleteCat(catId); // weight logs, meals, care tasks and diary entries go too (ON DELETE CASCADE)
+                        // The cascade removes the diary rows, not their photo files.
+                        for (String photo : diaryPhotos) {
+                            if (diaryDao.countPhotoReferences(photo) == 0) fileStorageHelper.deleteImage(photo);
+                        }
+                        if (toDelete != null && toDelete.getPhotoPath() != null
+                                && toDelete.getPhotoPath().startsWith(FileStorageHelper.CAT_PHOTO_PREFIX)) {
+                            fileStorageHelper.deleteImage(toDelete.getPhotoPath());
+                        }
                         List<Cat> remaining = catDao.getAllCats();
                         if (!remaining.isEmpty()) {
                             if (appPrefs.getSelectedCatId() == catId) {

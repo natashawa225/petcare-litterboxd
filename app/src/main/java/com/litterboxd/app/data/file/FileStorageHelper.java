@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.widget.ImageView;
 
 import com.litterboxd.app.R;
+import com.litterboxd.app.ui.profile.CatAvatars;
 import com.litterboxd.app.util.AppExecutors;
 
 import java.io.File;
@@ -30,6 +31,8 @@ public class FileStorageHelper {
     public static final String CAT_PHOTO_PREFIX = "cat_photo_";
     /** Owner's own profile photo (not a cat photo); kept separate so cat clean-up never touches it. */
     public static final String OWNER_AVATAR_PREFIX = "owner_avatar_";
+    /** Photos attached to Cat Diary entries (never a cat's profile photo or the owner's avatar). */
+    public static final String DIARY_PHOTO_PREFIX = "diary_photo_";
     public static final int PREVIEW_MIN_SIDE_PX = 256;
     private static final int SAVED_PHOTO_MIN_SIDE_PX = 1024;
 
@@ -99,6 +102,11 @@ public class FileStorageHelper {
      * decoded on a worker thread and posted back with View.post(). Call from the UI thread.
      */
     public void showCatPhoto(ImageView imageView, String fileName) {
+        int index = CatAvatars.bundledIndex(context, fileName);
+        if (index >= 0) {
+            imageView.setImageResource(CatAvatars.BUNDLED[index]);
+            return;
+        }
         showImageFile(imageView, fileName, R.drawable.ic_cat_face);
     }
 
@@ -137,13 +145,14 @@ public class FileStorageHelper {
         if (file.exists()) file.delete();
     }
 
-    /** Deletes every cat photo and owner avatar photo from internal storage. Used by Reset app. */
+    /** Deletes every cat photo, owner avatar and diary photo from internal storage. Used by Reset app. */
     public void deleteAllCatPhotos() {
         File[] files = context.getFilesDir().listFiles();
         if (files == null) return;
         for (File file : files) {
             String name = file.getName();
-            if (name.startsWith(CAT_PHOTO_PREFIX) || name.startsWith(OWNER_AVATAR_PREFIX)) file.delete();
+            if (name.startsWith(CAT_PHOTO_PREFIX) || name.startsWith(OWNER_AVATAR_PREFIX)
+                    || name.startsWith(DIARY_PHOTO_PREFIX)) file.delete();
         }
     }
 

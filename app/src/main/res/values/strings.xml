@@ -102,6 +102,7 @@
     <string name="default_task_vet">Vet appointments</string>
     <string name="default_task_grooming">Grooming (nails, hair, paws)</string>
     <string name="notification_task_title">Litterboxd reminder</string>
+    <string name="notification_task_title_cat">Care reminder for %1$s</string>
     <string name="notification_task_due_today">%s is still due today.</string>
     <string name="notification_task_due_month">%s is still due this month.</string>
     <string name="notification_task_due_now">%s is due now.</string>
@@ -206,10 +207,11 @@
     <string name="nav_profile">Profile</string>
 
     <!-- Daily tab -->
-    <string name="daily_greeting">A little check-in, a lot of love 🐾</string>
+    <string name="daily_greeting">For every chapter of their nine lives🐈</string>
     <string name="daily_hello">Hi, %s</string>
     <string name="daily_no_cat">Add a cat to start logging.</string>
     <string name="cd_cat_photo">Photo of %s</string>
+    <string name="cd_change_cat_photo">Photo of %1$s. Tap to change it.</string>
     <string name="daily_log_title">Today\'s little check-in</string>
     <string name="daily_log_empty">Nothing logged yet today. It only takes about 20 seconds.</string>
     <string name="daily_log_loading">Loading today\'s log…</string>
@@ -253,6 +255,85 @@
     <string name="cd_task_edit">Edit %s</string>
     <string name="msg_task_saved_for_cat">Saved to %s\'s tasks</string>
 
+    <!-- Cat Diary tab -->
+    <string name="nav_diary">Diary</string>
+    <string name="diary_title">Diary</string>
+    <string name="diary_subtitle">Little moments, a lifetime together.</string>
+    <plurals name="diary_memory_count">
+        <item quantity="one">%d memory</item>
+        <item quantity="other">%d memories</item>
+    </plurals>
+    <plurals name="diary_milestone_count">
+        <item quantity="one">%d milestone</item>
+        <item quantity="other">%d milestones</item>
+    </plurals>
+    <plurals name="diary_photo_count">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <string name="diary_counts">%1$s · %2$s</string>
+    <string name="btn_add_memory">Add a memory</string>
+    <string name="diary_recent_photos">Recent snaps</string>
+    <string name="diary_no_photos_title">No photos yet</string>
+    <string name="diary_no_photos_body">Catch %1$s being wonderfully themselves and keep it here.</string>
+    <string name="btn_add_first_memory">Add the first memory</string>
+    <string name="diary_filter_all">All</string>
+    <string name="diary_filter_memories">Memories</string>
+    <string name="diary_filter_milestones">Milestones</string>
+    <string name="diary_filter_history">Care history</string>
+    <string name="diary_empty_all">Nothing here yet. Every little moment counts, so add the first memory of %1$s.</string>
+    <string name="diary_empty_memories">No memories yet. A sleepy sunbeam nap counts!</string>
+    <string name="diary_empty_milestones">No milestones yet. First day home, a birthday, a brave vet visit…</string>
+    <string name="diary_empty_history">No weights or daily check-ins logged yet.</string>
+    <string name="diary_today">Today</string>
+    <string name="diary_yesterday">Yesterday</string>
+    <string name="diary_type_memory">Memory</string>
+    <string name="diary_type_milestone">Milestone</string>
+    <string name="diary_history_weight">⚖️ Weight logged: %1$s kg</string>
+    <string name="diary_history_weight_note">⚖️ Weight logged: %1$s kg · %2$s</string>
+    <string name="diary_history_checkin">📋 Daily check-in: %1$s</string>
+    <string name="diary_history_all_normal">all as usual</string>
+    <string name="diary_history_observation">Logged observation, not a diagnosis</string>
+    <string name="diary_meta_tags">%1$s · %2$s</string>
+    <string name="cd_diary_photo">Photo for %1$s</string>
+    <string name="cd_no_photos">Sleeping cat mascot</string>
+
+    <!-- Cat Diary: add / edit entry -->
+    <string name="diary_new_title">New memory</string>
+    <string name="diary_edit_title">Edit entry</string>
+    <string name="diary_for_cat">For %1$s</string>
+    <string name="diary_title_hint">Title</string>
+    <string name="diary_caption_hint">Caption (optional)</string>
+    <string name="diary_date">Date: %1$s</string>
+    <string name="diary_tags_label">Tags (optional)</string>
+    <string name="btn_add_photo">Add a photo</string>
+    <string name="btn_change_photo">Change photo</string>
+    <string name="btn_remove_photo">Remove photo</string>
+    <string name="btn_delete_entry">Delete entry</string>
+    <string name="error_diary_title_required">Give this moment a short title.</string>
+    <string name="msg_diary_saved">Saved to %1$s\'s diary 🐾</string>
+    <string name="msg_diary_deleted">Entry deleted</string>
+    <string name="msg_delete_diary_title">Delete this entry?</string>
+    <string name="msg_delete_diary_message">\"%1$s\" and its photo will be removed from the diary.</string>
+    <string name="error_diary_save">Couldn\'t save this entry. Please try again.</string>
+    <!-- Stable keys stored in the database; labels below are shown in the same order. -->
+    <string-array name="diary_tag_keys" translatable="false">
+        <item>play</item>
+        <item>funny</item>
+        <item>first_time</item>
+        <item>everyday</item>
+        <item>cuddles</item>
+        <item>snack</item>
+    </string-array>
+    <string-array name="diary_tag_labels">
+        <item>Play</item>
+        <item>Funny moment</item>
+        <item>First time</item>
+        <item>Everyday</item>
+        <item>Cuddles</item>
+        <item>Snack time</item>
+    </string-array>
+
     <!-- Profile tab (the owner, not the cat) -->
     <string name="profile_subtitle">Your little corner of cat care.</string>
     <string name="btn_edit_profile">Edit profile</string>
@@ -283,4 +364,7 @@
     <string name="avatar_ginger_cat">Ginger cat</string>
     <string name="avatar_calico_cat">Calico cat</string>
     <string name="avatar_tuxedo_cat">Tuxedo cat</string>
+    <string name="title_manage_cats">Manage cats</string>
+    <string name="empty_manage_cats">No cat profiles yet</string>
+    <string name="profile_details_summary">%1$s · %2$s</string>
 </resources>
