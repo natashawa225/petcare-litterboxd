@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import com.litterboxd.app.data.CareTaskSeeder;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
+import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.CareTask;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.TaskFrequency;
@@ -54,6 +56,7 @@ public class CareTasksActivity extends AppCompatActivity {
     /** Set by the Daily tab's "Add a task" quick action: open the add form once tasks are loaded. */
     public static final String EXTRA_OPEN_ADD_TASK = "open_add_task";
 
+    private ImageView imgTasksCat;
     private TextView tvTasksForCat, tvEmptyCareTasks, tvTodoSection, tvDoneSection;
     private LinearLayout layoutTodoTasks, layoutDoneTasks;
     private MaterialButton btnAddCareTask, btnSwitchCat;
@@ -77,6 +80,7 @@ public class CareTasksActivity extends AppCompatActivity {
         careTaskDao = new CareTaskDao(dbHelper);
 
         tvTasksForCat = findViewById(R.id.tvTasksForCat);
+        imgTasksCat = findViewById(R.id.imgTasksCat);
         tvEmptyCareTasks = findViewById(R.id.tvEmptyCareTasks);
         tvTodoSection = findViewById(R.id.tvTodoSection);
         tvDoneSection = findViewById(R.id.tvDoneSection);
@@ -145,6 +149,12 @@ public class CareTasksActivity extends AppCompatActivity {
                 tvTasksForCat.setText(currentCat != null
                         ? getString(R.string.tasks_for_cat, currentCat.getName())
                         : getString(R.string.daily_no_cat));
+                if (currentCat != null) {
+                    imgTasksCat.setContentDescription(getString(R.string.cd_cat_photo, currentCat.getName()));
+                    new FileStorageHelper(this).showCatPhoto(imgTasksCat, currentCat.getPhotoPath());
+                } else {
+                    imgTasksCat.setImageResource(R.drawable.ic_cat_face);
+                }
                 btnAddCareTask.setEnabled(currentCat != null);
                 btnSwitchCat.setVisibility(currentCat != null ? View.VISIBLE : View.GONE);
                 renderCareTasks();

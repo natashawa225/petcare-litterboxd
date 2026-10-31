@@ -28,6 +28,8 @@
     <dimen name="card_padding">16dp</dimen>
     <dimen name="section_gap">20dp</dimen>
     <dimen name="cat_avatar_size">60dp</dimen>
+    <dimen name="cat_avatar_small_size">40dp</dimen>
+    <dimen name="cat_switcher_avatar_size">44dp</dimen>
     <dimen name="owner_avatar_size">104dp</dimen>
     <dimen name="owner_avatar_preview_size">120dp</dimen>
     <dimen name="avatar_choice_size">68dp</dimen>
@@ -35,4 +37,12 @@
     <dimen name="avatar_stroke_selected">5dp</dimen>
     <dimen name="settings_row_min_height">56dp</dimen>
     <dimen name="settings_icon_size">20dp</dimen>
+
+    <!-- Cat Diary -->
+    <dimen name="diary_strip_photo_size">84dp</dimen>
+    <dimen name="diary_thumb_size">72dp</dimen>
+    <dimen name="diary_photo_preview_height">200dp</dimen>
+    <dimen name="diary_photo_corner">12dp</dimen>
+    <dimen name="diary_type_icon_size">14dp</dimen>
+    <dimen name="diary_empty_icon_size">72dp</dimen>
 </resources>

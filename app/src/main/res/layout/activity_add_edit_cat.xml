@@ -30,31 +30,67 @@
             android:textSize="@dimen/text_size_title"
             android:textStyle="bold" />
 
-        <!-- Photo Section -->
+        <!-- Photo & Avatar Selection Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/imgCatPhoto"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:background="@color/surface_card"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/btn_select_photo"
+                android:padding="@dimen/avatar_stroke"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/ic_cat_face" />
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Litterboxd.Circle"
+                app:srcCompat="@drawable/ic_cat_face"
+                app:strokeColor="@color/ink"
+                app:strokeWidth="@dimen/avatar_stroke" />
+
+            <ProgressBar
+                android:id="@+id/progressAvatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/edit_profile_choose_avatar"
+                android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+            <GridLayout
+                android:id="@+id/gridAvatars"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:columnCount="@integer/avatar_grid_columns" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSelectPhoto"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.Litterboxd.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="16dp"
+                android:text="@string/btn_upload_photo"
+                app:icon="@drawable/ic_add" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUseDefaultAvatar"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/btn_select_photo"
-                app:strokeColor="@color/sage_primary" />
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:minHeight="@dimen/button_height"
+                android:text="@string/btn_use_default_avatar"
+                android:textColor="@color/dark_olive_green" />
         </LinearLayout>
 
         <!-- Cat Name -->

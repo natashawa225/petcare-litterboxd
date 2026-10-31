@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_small"
+    app:cardBackgroundColor="@color/surface_card"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/sage_primary"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/margin_horizontal">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imgCatAvatar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:contentDescription="@string/cd_owner_avatar"
+            android:padding="@dimen/avatar_stroke"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Litterboxd.Circle"
+            app:srcCompat="@drawable/ic_cat_face"
+            app:strokeColor="@color/ink"
+            app:strokeWidth="@dimen/avatar_stroke" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvCatName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_cat_name"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCatDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_dark_gray"
+                android:textSize="@dimen/text_size_small" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/btn_edit"
+            app:srcCompat="@android:drawable/ic_menu_edit"
+            app:tint="@color/sage_primary" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

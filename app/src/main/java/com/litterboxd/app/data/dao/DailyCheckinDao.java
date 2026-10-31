@@ -92,6 +92,32 @@ public class DailyCheckinDao {
         return checkin;
     }
 
+    /** All of one cat's check-ins with their answers, newest day first (for the diary's care history). */
+    public List<DailyCheckin> getCheckinsForCat(long catId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        List<DailyCheckin> checkins = new ArrayList<>();
+        try (Cursor cursor = db.query(LitterboxdContract.DailyCheckinEntry.TABLE_NAME,
+                null,
+                LitterboxdContract.DailyCheckinEntry.COLUMN_CAT_ID + " = ?",
+                new String[]{String.valueOf(catId)},
+                null, null,
+                LitterboxdContract.DailyCheckinEntry.COLUMN_CHECKIN_DATE + " DESC")) {
+            while (cursor != null && cursor.moveToNext()) {
+                DailyCheckin checkin = new DailyCheckin();
+                checkin.setId(cursor.getLong(cursor.getColumnIndexOrThrow(LitterboxdContract.DailyCheckinEntry.COLUMN_ID)));
+                checkin.setCatId(cursor.getLong(cursor.getColumnIndexOrThrow(LitterboxdContract.DailyCheckinEntry.COLUMN_CAT_ID)));
+                checkin.setCheckinDate(cursor.getString(cursor.getColumnIndexOrThrow(LitterboxdContract.DailyCheckinEntry.COLUMN_CHECKIN_DATE)));
+                checkin.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(LitterboxdContract.DailyCheckinEntry.COLUMN_CREATED_AT)));
+                checkin.setUpdatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(LitterboxdContract.DailyCheckinEntry.COLUMN_UPDATED_AT)));
+                checkins.add(checkin);
+            }
+        }
+        for (DailyCheckin checkin : checkins) {
+            checkin.setAnswers(readAnswers(db, checkin.getId()));
+        }
+        return checkins;
+    }
+
     private long findCheckinId(SQLiteDatabase db, long catId, String checkinDate) {
         try (Cursor cursor = db.query(LitterboxdContract.DailyCheckinEntry.TABLE_NAME,
                 new String[]{LitterboxdContract.DailyCheckinEntry.COLUMN_ID},

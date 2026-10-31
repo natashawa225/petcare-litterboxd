@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A compact care-history line (weight or daily check-in), read from its own table. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:minHeight="@dimen/button_height"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/spacing_small"
+    android:paddingTop="@dimen/spacing_small"
+    android:paddingEnd="@dimen/spacing_small"
+    android:paddingBottom="@dimen/spacing_small">
+
+    <TextView
+        android:id="@+id/tvHistoryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/dark_olive_green"
+        android:textSize="@dimen/text_size_small" />
+
+    <TextView
+        android:id="@+id/tvHistoryNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="@string/diary_history_observation"
+        android:textColor="@color/text_dark_gray"
+        android:textSize="@dimen/text_size_caption"
+        android:textStyle="italic" />
+</LinearLayout>

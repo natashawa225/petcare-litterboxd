@@ -5,16 +5,18 @@ import android.content.Intent;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.litterboxd.app.R;
+import com.litterboxd.app.ui.diary.DiaryActivity;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.ui.profile.OwnerProfileActivity;
 import com.litterboxd.app.ui.tasks.CareTasksActivity;
 
 /**
- * Shared behaviour of the bottom navigation bar on the three tab Activities (Daily, Tasks, Profile).
+ * Shared behaviour of the bottom navigation bar on the four tab Activities (Daily, Tasks, Diary,
+ * Profile).
  *
  * Each tab is its own Activity. Switching uses FLAG_ACTIVITY_REORDER_TO_FRONT, so every tab exists
  * at most once in the back stack: an already-open tab is brought forward with its scroll position
- * and loaded data intact instead of a duplicate being created. Back on Tasks/Profile returns to
+ * and loaded data intact instead of a duplicate being created. Back on Tasks/Diary/Profile returns to
  * Daily; Back on Daily closes all tabs (see HomeActivity), so it never returns to onboarding.
  */
 public final class BottomNavHelper {
@@ -54,6 +56,8 @@ public final class BottomNavHelper {
         Class<?> target;
         if (itemId == R.id.nav_tasks) {
             target = CareTasksActivity.class;
+        } else if (itemId == R.id.nav_diary) {
+            target = DiaryActivity.class;
         } else if (itemId == R.id.nav_profile) {
             target = OwnerProfileActivity.class;
         } else {

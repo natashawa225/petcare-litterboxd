@@ -77,11 +77,7 @@ public class OwnerProfileActivity extends AppCompatActivity {
         imgOwnerAvatar.setOnClickListener(v -> startActivity(new Intent(this, EditProfileActivity.class)));
 
         rowManageCats = bindRow(R.id.rowManageCats, R.string.profile_manage_cats, v -> {
-            if (selectedCat != null) {
-                Intent intent = new Intent(this, CatProfileActivity.class);
-                intent.putExtra("cat_id", selectedCat.getId());
-                startActivity(intent);
-            }
+            startActivity(new Intent(this, ManageCatsActivity.class));
         });
         bindRow(R.id.rowAddCat, R.string.profile_add_cat, v -> {
             Intent intent = new Intent(this, AddEditCatActivity.class);

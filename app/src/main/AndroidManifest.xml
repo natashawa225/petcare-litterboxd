@@ -57,10 +57,19 @@
             android:name=".ui.profile.CatProfileActivity"
             android:exported="false" />
 
-        <!-- Bottom-navigation tabs: Daily = HomeActivity, Tasks, Profile (see BottomNavHelper). -->
+        <!-- Bottom-navigation tabs: Daily = HomeActivity, Tasks, Diary, Profile (see BottomNavHelper). -->
         <activity
             android:name=".ui.tasks.CareTasksActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ui.diary.DiaryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.diary.DiaryEntryEditActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.profile.OwnerProfileActivity"
@@ -70,6 +79,10 @@
             android:name=".ui.profile.EditProfileActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.profile.ManageCatsActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.checkin.CheckInActivity"

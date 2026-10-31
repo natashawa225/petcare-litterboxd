@@ -67,6 +67,20 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imgTasksCat"
+                    android:layout_width="@dimen/cat_avatar_small_size"
+                    android:layout_height="@dimen/cat_avatar_small_size"
+                    android:layout_marginEnd="@dimen/spacing_small"
+                    android:background="@color/white"
+                    android:contentDescription="@string/title_cat_profile"
+                    android:padding="@dimen/avatar_stroke"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Litterboxd.Circle"
+                    app:srcCompat="@drawable/ic_cat_face"
+                    app:strokeColor="@color/ink"
+                    app:strokeWidth="@dimen/avatar_stroke" />
+
                 <TextView
                     android:id="@+id/tvTasksForCat"
                     android:layout_width="0dp"

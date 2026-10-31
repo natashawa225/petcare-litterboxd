@@ -2,7 +2,7 @@ package com.litterboxd.app.data.db;
 
 public final class LitterboxdContract {
     public static final String DATABASE_NAME = "litterboxd.db";
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 6;
 
     private LitterboxdContract() {}
 
@@ -72,6 +72,28 @@ public final class LitterboxdContract {
         public static final String COLUMN_ID = "id";
         public static final String COLUMN_CAT_ID = "cat_id";
         public static final String COLUMN_CHECKIN_DATE = "checkin_date";
+        public static final String COLUMN_CREATED_AT = "created_at";
+        public static final String COLUMN_UPDATED_AT = "updated_at";
+    }
+
+    /**
+     * Cat Diary (added in DB v6): memories and milestones the owner writes. Care history shown in
+     * the diary (weights, check-ins) is read from its own tables, never copied here.
+     */
+    public static class DiaryEntryEntry {
+        public static final String TABLE_NAME = "diary_entries";
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_CAT_ID = "cat_id";
+        /** "MEMORY" or "MILESTONE" (DiaryEntry.Type). */
+        public static final String COLUMN_TYPE = "type";
+        public static final String COLUMN_TITLE = "title";
+        public static final String COLUMN_DESCRIPTION = "description";
+        /** When the moment happened (millis); a milestone may be long before the app was installed. */
+        public static final String COLUMN_ENTRY_AT = "entry_at";
+        /** Private file name in internal storage (diary_photo_*), or null. */
+        public static final String COLUMN_PHOTO_PATH = "photo_path";
+        /** Comma-separated stable tag keys, e.g. "play,first_time", or null. */
+        public static final String COLUMN_TAGS = "tags";
         public static final String COLUMN_CREATED_AT = "created_at";
         public static final String COLUMN_UPDATED_AT = "updated_at";
     }

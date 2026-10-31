@@ -5,9 +5,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
+import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
@@ -16,11 +17,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
@@ -31,29 +35,28 @@ import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.session.AppPrefs;
+import com.litterboxd.app.ui.profile.CatAvatars;
 import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
 import com.litterboxd.app.util.Validators;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.UUID;
 
-/**
- * Add mode (default): onboarding step 2, inserts a cat and continues to the feeding schedule.
- * Add-another mode (EXTRA_ADD_ANOTHER, from Home): inserts and selects the cat, then opens its
- * feeding schedule in edit mode, which returns to Home. Never touches onboarding_complete.
- * Edit mode (EXTRA_CAT_ID set): pre-fills the cat, updates it and returns to the caller.
- */
 public class AddEditCatActivity extends AppCompatActivity {
 
     public static final String EXTRA_CAT_ID = "cat_id";
     public static final String EXTRA_ADD_ANOTHER = "add_another";
     private static final String STATE_PHOTO_URI = "photo_uri";
     private static final String STATE_BIRTHDAY = "birthday";
+    private static final String STATE_AVATAR_VALUE = "cat_avatar_value";
 
     private TextInputEditText etCatName, etWeight;
     private TextInputLayout tilCatName, tilWeight;
-    private ImageView imgCatPhoto;
+    private ShapeableImageView imgCatPhoto;
+    private ProgressBar progressAvatar;
+    private GridLayout gridAvatars;
     private RadioGroup rgAgeType, rgSex, rgNeutered, rgCoatColor, rgLifestyle;
     private LinearLayout layoutBirthday, layoutApproxAge;
     private MaterialButton btnSelectBirthday, btnSaveCat;
@@ -62,6 +65,7 @@ public class AddEditCatActivity extends AppCompatActivity {
 
     private Long selectedBirthdayMs = null;
     private Uri pickedImageUri = null;
+    private String pendingAvatarValue = null;
     private FileStorageHelper fileStorageHelper;
     private AppPrefs appPrefs;
     private CatDao catDao;
@@ -75,7 +79,8 @@ public class AddEditCatActivity extends AppCompatActivity {
             uri -> {
                 if (uri != null) {
                     pickedImageUri = uri;
-                    showPreview(uri);
+                    pendingAvatarValue = null;
+                    renderSelection();
                 }
             }
     );
@@ -96,7 +101,10 @@ public class AddEditCatActivity extends AppCompatActivity {
         tilCatName = findViewById(R.id.tilCatName);
         tilWeight = findViewById(R.id.tilWeight);
         imgCatPhoto = findViewById(R.id.imgCatPhoto);
+        progressAvatar = findViewById(R.id.progressAvatar);
+        gridAvatars = findViewById(R.id.gridAvatars);
         MaterialButton btnSelectPhoto = findViewById(R.id.btnSelectPhoto);
+        MaterialButton btnUseDefaultAvatar = findViewById(R.id.btnUseDefaultAvatar);
         rgAgeType = findViewById(R.id.rgAgeType);
         layoutBirthday = findViewById(R.id.layoutBirthday);
         layoutApproxAge = findViewById(R.id.layoutApproxAge);
@@ -112,6 +120,7 @@ public class AddEditCatActivity extends AppCompatActivity {
         btnSaveCat = findViewById(R.id.btnSaveCat);
 
         setupSpinners();
+        buildAvatarGrid();
 
         rgAgeType.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.rbBirthday) {
@@ -124,6 +133,11 @@ public class AddEditCatActivity extends AppCompatActivity {
         });
 
         btnSelectPhoto.setOnClickListener(v -> photoPickerLauncher.launch("image/*"));
+        btnUseDefaultAvatar.setOnClickListener(v -> {
+            pickedImageUri = null;
+            pendingAvatarValue = null;
+            renderSelection();
+        });
 
         btnSelectBirthday.setOnClickListener(v -> {
             Calendar cal = Calendar.getInstance();
@@ -139,13 +153,14 @@ public class AddEditCatActivity extends AppCompatActivity {
 
         btnSaveCat.setOnClickListener(v -> saveCatData());
 
-        // Fields that are not views lose their value on rotation; restore them from the Bundle.
         if (savedInstanceState != null) {
             pickedImageUri = savedInstanceState.getParcelable(STATE_PHOTO_URI);
-            if (pickedImageUri != null) showPreview(pickedImageUri);
+            pendingAvatarValue = savedInstanceState.getString(STATE_AVATAR_VALUE);
             long birthday = savedInstanceState.getLong(STATE_BIRTHDAY, -1L);
             if (birthday != -1L) setBirthday(birthday);
         }
+
+        renderSelection();
 
         if (addAnother) {
             findViewById(R.id.tvStepIndicator).setVisibility(View.GONE);
@@ -163,7 +178,80 @@ public class AddEditCatActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(STATE_PHOTO_URI, pickedImageUri);
+        outState.putString(STATE_AVATAR_VALUE, pendingAvatarValue);
         outState.putLong(STATE_BIRTHDAY, selectedBirthdayMs != null ? selectedBirthdayMs : -1L);
+    }
+
+    private void buildAvatarGrid() {
+        int size = getResources().getDimensionPixelSize(R.dimen.avatar_choice_size);
+        int margin = getResources().getDimensionPixelSize(R.dimen.spacing_tiny);
+        ShapeAppearanceModel circle = ShapeAppearanceModel.builder().setAllCornerSizes(size / 2f).build();
+        int columns = getResources().getInteger(R.integer.avatar_grid_columns);
+        for (int i = 0; i < CatAvatars.BUNDLED.length; i++) {
+            final int index = i;
+            ShapeableImageView option = new ShapeableImageView(this);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams(
+                    GridLayout.spec(i / columns), GridLayout.spec(i % columns, 1f));
+            params.width = size;
+            params.height = size;
+            params.setGravity(Gravity.CENTER);
+            params.setMargins(margin, margin, margin, margin);
+            option.setLayoutParams(params);
+            option.setScaleType(ShapeableImageView.ScaleType.CENTER_CROP);
+            option.setShapeAppearanceModel(circle);
+            option.setImageResource(CatAvatars.BUNDLED[i]);
+            option.setStrokeColorResource(R.color.ink);
+            option.setOnClickListener(v -> {
+                pickedImageUri = null;
+                pendingAvatarValue = CatAvatars.bundledValue(this, CatAvatars.BUNDLED[index]);
+                renderSelection();
+            });
+            gridAvatars.addView(option);
+        }
+    }
+
+    private void renderSelection() {
+        int selected = pickedImageUri == null ? CatAvatars.bundledIndex(this, pendingAvatarValue) : -1;
+        int thin = getResources().getDimensionPixelSize(R.dimen.avatar_stroke);
+        int thick = getResources().getDimensionPixelSize(R.dimen.avatar_stroke_selected);
+        for (int i = 0; i < gridAvatars.getChildCount(); i++) {
+            ShapeableImageView option = (ShapeableImageView) gridAvatars.getChildAt(i);
+            boolean isSelected = i == selected;
+            option.setStrokeWidth(isSelected ? thick : thin);
+            option.setStrokeColor(ContextCompat.getColorStateList(this,
+                    isSelected ? R.color.sage_primary : R.color.ink));
+            option.setPadding(isSelected ? thick : thin, isSelected ? thick : thin,
+                    isSelected ? thick : thin, isSelected ? thick : thin);
+        }
+
+        if (pickedImageUri != null) {
+            final Uri uri = pickedImageUri;
+            progressAvatar.setVisibility(View.VISIBLE);
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                Bitmap preview = fileStorageHelper.loadScaledBitmap(uri, FileStorageHelper.PREVIEW_MIN_SIDE_PX);
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    if (isFinishing() || isDestroyed() || uri != pickedImageUri) return;
+                    progressAvatar.setVisibility(View.GONE);
+                    if (preview != null) {
+                        imgCatPhoto.setImageBitmap(preview);
+                    } else {
+                        pickedImageUri = null;
+                        Toast.makeText(this, R.string.error_photo_save, Toast.LENGTH_SHORT).show();
+                        renderSelection();
+                    }
+                });
+            });
+            return;
+        }
+
+        int bundledIdx = CatAvatars.bundledIndex(this, pendingAvatarValue);
+        if (bundledIdx >= 0) {
+            imgCatPhoto.setImageResource(CatAvatars.BUNDLED[bundledIdx]);
+        } else if (pendingAvatarValue != null && !pendingAvatarValue.isEmpty()) {
+            fileStorageHelper.showCatPhoto(imgCatPhoto, pendingAvatarValue);
+        } else {
+            imgCatPhoto.setImageResource(R.drawable.ic_cat_face);
+        }
     }
 
     private void setBirthday(long birthdayMs) {
@@ -175,7 +263,6 @@ public class AddEditCatActivity extends AppCompatActivity {
         return editCatId != -1L;
     }
 
-    /** Loads the cat being edited; fills the form only on first creation (views restore themselves after rotation). */
     private void loadCatForEdit(boolean fillForm) {
         AppExecutors.getInstance().diskIO().execute(() -> {
             Cat cat = catDao.getCatById(editCatId);
@@ -186,23 +273,11 @@ public class AddEditCatActivity extends AppCompatActivity {
                 }
                 editingCat = cat;
                 if (fillForm) fillForm(cat);
-                if (pickedImageUri == null) showSavedPhoto(cat);
+                if (pickedImageUri == null && pendingAvatarValue == null) {
+                    pendingAvatarValue = cat.getPhotoPath();
+                    renderSelection();
+                }
             });
-        });
-    }
-
-    private void showSavedPhoto(Cat cat) {
-        if (cat.getPhotoPath() == null) return;
-        showPreview(Uri.fromFile(fileStorageHelper.getInternalImageFile(cat.getPhotoPath())));
-    }
-
-    /** Decodes a small preview off the UI thread (a full-size camera photo could run out of memory). */
-    private void showPreview(Uri uri) {
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            Bitmap preview = fileStorageHelper.loadScaledBitmap(uri, FileStorageHelper.PREVIEW_MIN_SIDE_PX);
-            if (preview != null) {
-                AppExecutors.getInstance().mainThread().execute(() -> imgCatPhoto.setImageBitmap(preview));
-            }
         });
     }
 
@@ -219,7 +294,6 @@ public class AddEditCatActivity extends AppCompatActivity {
             spinnerMonths.setSelection(Math.min(cat.getApproxAgeMonths(), spinnerMonths.getCount() - 1));
         }
 
-        // Breeds come from @array/cat_breeds (android:entries); unknown values fall back to the last item, "Other".
         String[] breeds = getResources().getStringArray(R.array.cat_breeds);
         int breedPos = breeds.length - 1;
         for (int i = 0; i < breeds.length; i++) {
@@ -248,7 +322,7 @@ public class AddEditCatActivity extends AppCompatActivity {
     }
 
     private void saveCatData() {
-        if (isEditMode() && editingCat == null) return; // still loading
+        if (isEditMode() && editingCat == null) return;
 
         String name = etCatName.getText() != null ? etCatName.getText().toString().trim() : "";
         if (!Validators.isValidCatName(name)) {
@@ -273,7 +347,6 @@ public class AddEditCatActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         btnSaveCat.setEnabled(false);
 
-        // Read every view here on the UI thread; the worker thread only touches files and the database.
         Cat cat = isEditMode() ? editingCat : new Cat();
         cat.setName(name);
         if (rgAgeType.getCheckedRadioButtonId() == R.id.rbBirthday) {
@@ -289,14 +362,15 @@ public class AddEditCatActivity extends AppCompatActivity {
         cat.setWeight(weight);
         cat.setCoatColor(idToCoat(rgCoatColor.getCheckedRadioButtonId()));
         cat.setLifestyle(idToLifestyle(rgLifestyle.getCheckedRadioButtonId()));
+
         final String oldPhoto = cat.getPhotoPath();
         final Uri photoUri = pickedImageUri;
+        final String chosenValue = pendingAvatarValue;
 
         AppExecutors.getInstance().diskIO().execute(() -> {
-            String photoFileName = oldPhoto;
+            String photoFileName = chosenValue;
             if (photoUri != null) {
                 String newFileName = FileStorageHelper.CAT_PHOTO_PREFIX + UUID.randomUUID().toString() + ".jpg";
-                // Only point the cat at the new file if it was actually written.
                 if (fileStorageHelper.saveDownscaledImage(photoUri, newFileName)) {
                     photoFileName = newFileName;
                 }
@@ -305,8 +379,8 @@ public class AddEditCatActivity extends AppCompatActivity {
 
             if (isEditMode()) {
                 catDao.updateCat(cat);
-                // Replaced photo: remove the old file so it does not linger in internal storage.
-                if (oldPhoto != null && !oldPhoto.equals(photoFileName)) {
+                if (oldPhoto != null && !oldPhoto.equals(photoFileName)
+                        && oldPhoto.startsWith(FileStorageHelper.CAT_PHOTO_PREFIX)) {
                     fileStorageHelper.deleteImage(oldPhoto);
                 }
                 AppExecutors.getInstance().mainThread().execute(this::finish);
@@ -326,7 +400,6 @@ public class AddEditCatActivity extends AppCompatActivity {
                 btnSaveCat.setEnabled(true);
                 Intent intent = new Intent(AddEditCatActivity.this, FeedingScheduleActivity.class);
                 intent.putExtra(FeedingScheduleActivity.EXTRA_CAT_ID, catId);
-                // From Home: edit mode, so Save/Back return to Home without onboarding logic.
                 intent.putExtra(FeedingScheduleActivity.EXTRA_EDIT_MODE, addAnother);
                 startActivity(intent);
                 finish();
@@ -334,7 +407,6 @@ public class AddEditCatActivity extends AppCompatActivity {
         });
     }
 
-    // Coat colour and lifestyle are stored as plain English values in the database.
     private static String idToCoat(int id) {
         if (id == R.id.rbColorWhite) return "White";
         if (id == R.id.rbColorOrange) return "Ginger";
