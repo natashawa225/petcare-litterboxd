@@ -20,6 +20,7 @@ import com.litterboxd.app.checkin.AnswerOption;
 import com.litterboxd.app.checkin.CheckInCategory;
 import com.litterboxd.app.checkin.CheckInSession;
 import com.litterboxd.app.checkin.DecisionTree;
+import com.litterboxd.app.checkin.HistoryTriggerEvaluator;
 import com.litterboxd.app.checkin.Question;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.DailyCheckinDao;
@@ -30,6 +31,7 @@ import com.litterboxd.app.util.AppExecutors;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,14 +48,17 @@ import java.util.Map;
 public class CheckInActivity extends AppCompatActivity {
 
     public static final String EXTRA_CAT_ID = "cat_id";
+    /** Optional ISO date (yyyy-MM-dd). Defaults to today. Future dates are rejected. */
+    public static final String EXTRA_CHECKIN_DATE = "checkin_date";
 
     private static final String STATE_ANSWER_IDS = "state_answer_ids";
     private static final String STATE_ANSWER_VALUES = "state_answer_values";
     private static final String STATE_SHOWING_FOLLOW_UPS = "state_showing_follow_ups";
+    private static final String STATE_CHECKIN_DATE = "state_checkin_date";
     private static final String TAG = "CheckInActivity";
 
     private ScrollView scrollView;
-    private TextView tvSubtitle;
+    private TextView tvSubtitle, tvFollowUpsHint;
     private View panelSymptoms, panelFollowUps;
     private LinearLayout layoutCategories, layoutFollowUps;
     private MaterialButton btnAllNormal, btnPrimary, btnBack;
@@ -74,6 +79,7 @@ public class CheckInActivity extends AppCompatActivity {
 
         scrollView = findViewById(R.id.scrollCheckIn);
         tvSubtitle = findViewById(R.id.tvCheckInSubtitle);
+        tvFollowUpsHint = findViewById(R.id.tvCheckInFollowUpsHint);
         panelSymptoms = findViewById(R.id.panelSymptoms);
         panelFollowUps = findViewById(R.id.panelFollowUps);
         layoutCategories = findViewById(R.id.layoutCategories);
@@ -105,14 +111,35 @@ public class CheckInActivity extends AppCompatActivity {
                 && savedInstanceState.getBoolean(STATE_SHOWING_FOLLOW_UPS, false);
 
         dbHelper = LitterboxdDbHelper.getInstance(this);
-        checkinDate = LocalDate.now().toString();
+        if (savedInstanceState != null && savedInstanceState.getString(STATE_CHECKIN_DATE) != null) {
+            checkinDate = savedInstanceState.getString(STATE_CHECKIN_DATE);
+        } else {
+            checkinDate = resolveCheckinDate(getIntent().getStringExtra(EXTRA_CHECKIN_DATE));
+        }
+        if (checkinDate == null) {
+            Toast.makeText(this, R.string.checkin_error_future_date, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         // Reading the database and the question file happens off the UI thread.
         AppExecutors.getInstance().diskIO().execute(() -> {
             Cat cat = new CatDao(dbHelper).getCatById(catId);
             DecisionTree loadedTree = CheckInContent.loadTree(this);
-            DailyCheckin existing = cat == null ? null : new DailyCheckinDao(dbHelper).getCheckin(catId, checkinDate);
+            DailyCheckinDao dao = new DailyCheckinDao(dbHelper);
+            DailyCheckin existing = cat == null ? null : dao.getCheckin(catId, checkinDate);
+            Map<String, Map<String, List<String>>> answersByDate = cat == null
+                    ? new LinkedHashMap<String, Map<String, List<String>>>()
+                    : dao.getAnswersByDateForCat(cat.getId());
+            List<String> historyFollowUps = Collections.emptyList();
+            if (loadedTree != null) {
+                historyFollowUps = HistoryTriggerEvaluator.evaluate(
+                        loadedTree.getHistoryTriggers(),
+                        LocalDate.parse(checkinDate),
+                        answersByDate);
+            }
 
+            final List<String> finalHistoryFollowUps = historyFollowUps;
             AppExecutors.getInstance().mainThread().execute(() -> {
                 if (isFinishing() || isDestroyed()) return;
                 if (cat == null || loadedTree == null) {
@@ -123,6 +150,7 @@ public class CheckInActivity extends AppCompatActivity {
                 catName = cat.getName();
                 tree = loadedTree;
                 session = new CheckInSession(tree);
+                session.setHistoryFollowUps(finalHistoryFollowUps);
                 if (savedState != null) {
                     session.restore(savedState);
                 } else if (existing != null) {
@@ -136,6 +164,23 @@ public class CheckInActivity extends AppCompatActivity {
                 render();
             });
         });
+    }
+
+    /** Returns an ISO date string, or null when the value is missing/invalid/in the future. */
+    private static String resolveCheckinDate(String requested) {
+        LocalDate today = LocalDate.now();
+        if (requested == null || requested.trim().isEmpty()) {
+            return today.toString();
+        }
+        try {
+            LocalDate date = LocalDate.parse(requested.trim());
+            if (date.isAfter(today)) {
+                return null;
+            }
+            return date.toString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -153,6 +198,7 @@ public class CheckInActivity extends AppCompatActivity {
         outState.putStringArray(STATE_ANSWER_IDS, ids.toArray(new String[0]));
         outState.putStringArray(STATE_ANSWER_VALUES, values.toArray(new String[0]));
         outState.putBoolean(STATE_SHOWING_FOLLOW_UPS, showingFollowUps);
+        outState.putString(STATE_CHECKIN_DATE, checkinDate);
     }
 
     @Override
@@ -224,6 +270,14 @@ public class CheckInActivity extends AppCompatActivity {
             View section = inflater.inflate(R.layout.item_check_in_section, layoutFollowUps, false);
             ((TextView) section.findViewById(R.id.tvSectionTitle))
                     .setText(stringByKey(question.getTextKey(), catName));
+            TextView reason = section.findViewById(R.id.tvSectionReason);
+            String reasonText = followUpReasonText(question.getId());
+            if (reasonText == null) {
+                reason.setVisibility(View.GONE);
+            } else {
+                reason.setVisibility(View.VISIBLE);
+                reason.setText(reasonText);
+            }
             GridLayout grid = section.findViewById(R.id.gridChips);
 
             for (AnswerOption option : question.getOptions()) {
@@ -239,6 +293,25 @@ public class CheckInActivity extends AppCompatActivity {
         }
     }
 
+    /** Explains why this follow-up appeared (chip tap and/or history). */
+    private String followUpReasonText(String followUpId) {
+        List<String> labelKeys = session.getFollowUpReasonLabelKeys(followUpId);
+        boolean history = session.isHistorySourcedFollowUp(followUpId);
+        if (labelKeys.isEmpty() && !history) return null;
+        if (labelKeys.isEmpty()) {
+            return getString(R.string.checkin_because_history);
+        }
+        List<String> labels = new ArrayList<>();
+        for (String key : labelKeys) {
+            labels.add(stringByKey(key));
+        }
+        String joined = String.join(", ", labels);
+        if (history) {
+            return getString(R.string.checkin_because_marked_and_history, joined);
+        }
+        return getString(R.string.checkin_because_marked, joined);
+    }
+
     private MaterialButton createChip(LayoutInflater inflater, GridLayout parent, AnswerOption option) {
         MaterialButton chip = (MaterialButton) inflater.inflate(R.layout.item_check_in_chip, parent, false);
         chip.setText(stringByKey(option.getLabelKey()));
@@ -247,7 +320,11 @@ public class CheckInActivity extends AppCompatActivity {
 
     /** Redraws everything from the session. Called after every tap. */
     private void render() {
-        tvSubtitle.setText(getString(R.string.checkin_subtitle, catName));
+        if (LocalDate.now().toString().equals(checkinDate)) {
+            tvSubtitle.setText(getString(R.string.checkin_subtitle, catName));
+        } else {
+            tvSubtitle.setText(getString(R.string.checkin_subtitle_dated, catName, checkinDate));
+        }
         panelSymptoms.setVisibility(showingFollowUps ? View.GONE : View.VISIBLE);
         panelFollowUps.setVisibility(showingFollowUps ? View.VISIBLE : View.GONE);
         btnBack.setVisibility(showingFollowUps ? View.VISIBLE : View.GONE);
@@ -262,6 +339,9 @@ public class CheckInActivity extends AppCompatActivity {
         }
         if (showingFollowUps) {
             renderFollowUps();
+            tvFollowUpsHint.setText(session.hasHistoryFollowUpsActive()
+                    ? R.string.checkin_followups_hint_history
+                    : R.string.checkin_followups_hint);
         }
 
         // On the chips screen the button says Continue only when follow-up questions are coming.
@@ -304,7 +384,8 @@ public class CheckInActivity extends AppCompatActivity {
         AppExecutors.getInstance().diskIO().execute(() -> {
             boolean saved;
             try {
-                new DailyCheckinDao(dbHelper).saveCheckin(catId, checkinDate, answers);
+                String cutoff = LocalDate.now().minusDays(DailyCheckinDao.RETENTION_DAYS).toString();
+                new DailyCheckinDao(dbHelper).saveCheckinAndTrim(catId, checkinDate, answers, cutoff);
                 saved = true;
             } catch (SQLiteException e) {
                 Log.e(TAG, "Could not save the check-in", e);

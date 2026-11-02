@@ -2,7 +2,10 @@
 <com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Widget.Litterboxd.Chip"
     android:layout_width="0dp"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/checkin_chip_height"
     android:layout_gravity="fill_horizontal"
     android:layout_columnWeight="1"
-    android:layout_margin="@dimen/spacing_tiny" />
+    android:layout_margin="@dimen/spacing_tiny"
+    android:gravity="center"
+    android:maxLines="1"
+    android:ellipsize="end" />

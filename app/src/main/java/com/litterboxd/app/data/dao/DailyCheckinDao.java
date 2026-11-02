@@ -9,11 +9,16 @@ import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.model.DailyCheckin;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DailyCheckinDao {
+    /** Feature A plan: keep about three months of daily check-ins per cat. */
+    public static final int RETENTION_DAYS = 90;
+
     private final LitterboxdDbHelper dbHelper;
 
     public DailyCheckinDao(LitterboxdDbHelper dbHelper) {
@@ -67,6 +72,42 @@ public class DailyCheckinDao {
         }
     }
 
+    /**
+     * Saves today's answers, then drops this cat's check-ins older than {@link #RETENTION_DAYS}.
+     * @return the id of the saved check-in row
+     */
+    public long saveCheckinAndTrim(long catId, String checkinDate, Map<String, List<String>> answers,
+                                   String cutoffDateExclusive) {
+        long id = saveCheckin(catId, checkinDate, answers);
+        deleteOlderThan(catId, cutoffDateExclusive);
+        return id;
+    }
+
+    /**
+     * Deletes check-ins for this cat with {@code checkin_date} strictly before
+     * {@code cutoffDateExclusive} (ISO yyyy-MM-dd). Answers cascade via FK.
+     * @return number of check-in rows removed
+     */
+    public int deleteOlderThan(long catId, String cutoffDateExclusive) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(LitterboxdContract.DailyCheckinEntry.TABLE_NAME,
+                LitterboxdContract.DailyCheckinEntry.COLUMN_CAT_ID + " = ? AND " +
+                        LitterboxdContract.DailyCheckinEntry.COLUMN_CHECKIN_DATE + " < ?",
+                new String[]{String.valueOf(catId), cutoffDateExclusive});
+    }
+
+    /**
+     * All saved answer maps for this cat, keyed by ISO check-in date. Used by history follow-up
+     * rules without needing a separate query per day.
+     */
+    public Map<String, Map<String, List<String>>> getAnswersByDateForCat(long catId) {
+        Map<String, Map<String, List<String>>> byDate = new LinkedHashMap<>();
+        for (DailyCheckin checkin : getCheckinsForCat(catId)) {
+            byDate.put(checkin.getCheckinDate(), checkin.getAnswers());
+        }
+        return byDate;
+    }
+
     /** Returns the check-in for this cat and day with its answers, or null if none was saved. */
     public DailyCheckin getCheckin(long catId, String checkinDate) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -90,6 +131,25 @@ public class DailyCheckinDao {
             checkin.setAnswers(readAnswers(db, checkin.getId()));
         }
         return checkin;
+    }
+
+    /**
+     * Dates that already have a check-in for this cat (ISO yyyy-MM-dd). Used by the health-log
+     * calendar to paint markers without loading every answer row.
+     */
+    public Set<String> getCheckinDatesForCat(long catId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Set<String> dates = new HashSet<>();
+        try (Cursor cursor = db.query(LitterboxdContract.DailyCheckinEntry.TABLE_NAME,
+                new String[]{LitterboxdContract.DailyCheckinEntry.COLUMN_CHECKIN_DATE},
+                LitterboxdContract.DailyCheckinEntry.COLUMN_CAT_ID + " = ?",
+                new String[]{String.valueOf(catId)},
+                null, null, null)) {
+            while (cursor != null && cursor.moveToNext()) {
+                dates.add(cursor.getString(0));
+            }
+        }
+        return dates;
     }
 
     /** All of one cat's check-ins with their answers, newest day first (for the diary's care history). */

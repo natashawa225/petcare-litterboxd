@@ -33,14 +33,21 @@ import com.litterboxd.app.data.CareTaskSeeder;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.DailyCheckinDao;
+import com.litterboxd.app.data.dao.WeightLogDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.CareTask;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.DailyCheckin;
 import com.litterboxd.app.data.session.AppPrefs;
+import com.litterboxd.app.health.HealthAlert;
+import com.litterboxd.app.health.HealthContent;
+import com.litterboxd.app.health.HealthRuleEvaluator;
+import com.litterboxd.app.health.WeightPoints;
 import com.litterboxd.app.ui.checkin.CheckInActivity;
 import com.litterboxd.app.ui.checkin.CheckInContent;
+import com.litterboxd.app.ui.checkin.HealthLogActivity;
+import com.litterboxd.app.ui.health.HealthAlertsActivity;
 import com.litterboxd.app.ui.nav.BottomNavHelper;
 import com.litterboxd.app.ui.profile.CatProfileActivity;
 import com.litterboxd.app.ui.tasks.CareTasksActivity;
@@ -53,6 +60,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Daily tab, the app's landing screen after onboarding: greeting, the selected cat, today's
@@ -61,9 +70,9 @@ import java.util.Locale;
 public class HomeActivity extends AppCompatActivity {
 
     private TextView tvWelcomeUser, tvToday, tvHomeCatName, tvHomeCatDetails;
-    private TextView tvDailyLogStatus, tvTaskSummary;
+    private TextView tvDailyLogStatus, tvTaskSummary, tvHealthAlertsStatus;
     private ImageView imgHomeCatPhoto;
-    private MaterialButton btnSwitchCat, btnViewCatProfile, btnLogToday;
+    private MaterialButton btnSwitchCat, btnViewCatProfile, btnLogToday, btnOpenHealthLog, btnOpenHealthAlerts;
     private LinearLayout layoutDailyLogAnswers, layoutTodayTasks;
     private ProgressBar progressTasks;
 
@@ -101,6 +110,9 @@ public class HomeActivity extends AppCompatActivity {
         tvDailyLogStatus = findViewById(R.id.tvDailyLogStatus);
         layoutDailyLogAnswers = findViewById(R.id.layoutDailyLogAnswers);
         btnLogToday = findViewById(R.id.btnLogToday);
+        btnOpenHealthLog = findViewById(R.id.btnOpenHealthLog);
+        tvHealthAlertsStatus = findViewById(R.id.tvHealthAlertsStatus);
+        btnOpenHealthAlerts = findViewById(R.id.btnOpenHealthAlerts);
         tvTaskSummary = findViewById(R.id.tvTaskSummary);
         progressTasks = findViewById(R.id.progressTasks);
         layoutTodayTasks = findViewById(R.id.layoutTodayTasks);
@@ -116,7 +128,9 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
         btnLogToday.setOnClickListener(v -> openCheckIn());
-        findViewById(R.id.btnQuickLog).setOnClickListener(v -> openCheckIn());
+        btnOpenHealthLog.setOnClickListener(v -> openHealthLog());
+        btnOpenHealthAlerts.setOnClickListener(v -> openHealthAlerts());
+        findViewById(R.id.btnQuickLog).setOnClickListener(v -> openHealthLog());
         findViewById(R.id.btnQuickAddTask).setOnClickListener(v -> {
             Intent intent = BottomNavHelper.intentFor(this, R.id.nav_tasks);
             intent.putExtra(CareTasksActivity.EXTRA_OPEN_ADD_TASK, true);
@@ -151,6 +165,20 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void openHealthLog() {
+        if (currentCat == null) return;
+        Intent intent = new Intent(this, HealthLogActivity.class);
+        intent.putExtra(HealthLogActivity.EXTRA_CAT_ID, currentCat.getId());
+        startActivity(intent);
+    }
+
+    private void openHealthAlerts() {
+        if (currentCat == null) return;
+        Intent intent = new Intent(this, HealthAlertsActivity.class);
+        intent.putExtra(HealthAlertsActivity.EXTRA_CAT_ID, currentCat.getId());
+        startActivity(intent);
+    }
+
     private void loadData() {
         final String today = LocalDate.now().toString(); // same day key as CheckInActivity
         final DecisionTree cachedTree = checkInTree;
@@ -175,14 +203,32 @@ public class HomeActivity extends AppCompatActivity {
             DecisionTree tree = cachedTree != null ? cachedTree : CheckInContent.loadTree(this);
             List<CareTask> tasks = new ArrayList<>();
             DailyCheckin checkin = null;
+            int alertCount = 0;
             if (selected != null) {
                 CareTaskSeeder.seedIfEmpty(this, careTaskDao, selected.getId());
                 tasks = careTaskDao.getTasksForCat(selected.getId());
                 checkin = dailyCheckinDao.getCheckin(selected.getId(), today);
+                HealthContent healthContent = HealthContent.load(this);
+                if (healthContent != null) {
+                    Map<String, Map<String, List<String>>> answersByDate =
+                            dailyCheckinDao.getAnswersByDateForCat(selected.getId());
+                    Set<String> dismissed = appPrefs.getDismissedHealthAlertIds(selected.getId());
+                    List<HealthAlert> alerts = HealthRuleEvaluator.evaluate(
+                            healthContent.getRules(),
+                            healthContent.getArticlesById(),
+                            answersByDate,
+                            LocalDate.now(),
+                            dismissed,
+                            WeightPoints.fromLogs(
+                                    new WeightLogDao(LitterboxdDbHelper.getInstance(this))
+                                            .getWeightLogsForCat(selected.getId())));
+                    alertCount = alerts.size();
+                }
             }
             final Cat finalSelected = selected;
             final List<CareTask> finalTasks = tasks;
             final DailyCheckin finalCheckin = checkin;
+            final int finalAlertCount = alertCount;
 
             AppExecutors.getInstance().mainThread().execute(() -> {
                 if (isFinishing() || isDestroyed()) return;
@@ -194,6 +240,7 @@ public class HomeActivity extends AppCompatActivity {
                         DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM"), new Date()));
                 updateCatCard();
                 renderDailyLog(finalCheckin);
+                renderHealthAlertsSummary(finalAlertCount);
                 renderTodayTasks(finalTasks);
             });
         });
@@ -220,9 +267,13 @@ public class HomeActivity extends AppCompatActivity {
     /** Today's saved answers as "Appetite: Ate normally" rows, or the friendly empty state. */
     private void renderDailyLog(DailyCheckin checkin) {
         layoutDailyLogAnswers.removeAllViews();
-        btnLogToday.setEnabled(currentCat != null);
-        if (currentCat == null) {
+        boolean hasCat = currentCat != null;
+        btnLogToday.setEnabled(hasCat);
+        btnOpenHealthLog.setEnabled(hasCat);
+        btnOpenHealthAlerts.setEnabled(hasCat);
+        if (!hasCat) {
             tvDailyLogStatus.setText(R.string.daily_no_cat);
+            tvHealthAlertsStatus.setText(R.string.daily_no_cat);
             return;
         }
         if (checkInTree == null) {
@@ -255,6 +306,19 @@ public class HomeActivity extends AppCompatActivity {
             row.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.text_size_small));
             row.setPadding(0, pad, 0, pad);
             layoutDailyLogAnswers.addView(row);
+        }
+    }
+
+    private void renderHealthAlertsSummary(int alertCount) {
+        btnOpenHealthAlerts.setEnabled(currentCat != null);
+        if (currentCat == null) {
+            tvHealthAlertsStatus.setText(R.string.daily_no_cat);
+            return;
+        }
+        if (alertCount <= 0) {
+            tvHealthAlertsStatus.setText(R.string.daily_alerts_none);
+        } else {
+            tvHealthAlertsStatus.setText(getString(R.string.daily_alerts_count, alertCount));
         }
     }
 

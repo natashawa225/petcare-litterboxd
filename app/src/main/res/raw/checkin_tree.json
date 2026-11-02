@@ -37,7 +37,8 @@
           "chips": [
             { "value": "less", "labelKey": "chip_litter_less" },
             { "value": "normal", "labelKey": "chip_litter_normal", "normal": true },
-            { "value": "more", "labelKey": "chip_litter_more", "followUps": ["drinking_more"] }
+            { "value": "more", "labelKey": "chip_litter_more", "followUps": ["drinking_more"] },
+            { "value": "straining", "labelKey": "chip_litter_straining", "followUps": ["urine_output"] }
           ]
         }
       ]
@@ -84,7 +85,16 @@
       "textKey": "q_hiding",
       "options": [
         { "value": "no", "labelKey": "btn_no" },
-        { "value": "yes", "labelKey": "btn_yes" }
+        { "value": "yes", "labelKey": "btn_yes", "followUps": ["hiding_since"] }
+      ]
+    },
+    {
+      "id": "hiding_since",
+      "textKey": "q_hiding_since",
+      "options": [
+        { "value": "today", "labelKey": "opt_hiding_today" },
+        { "value": "few_days", "labelKey": "opt_hiding_few_days" },
+        { "value": "week_plus", "labelKey": "opt_hiding_week_plus" }
       ]
     },
     {
@@ -102,6 +112,24 @@
         { "value": "no", "labelKey": "btn_no" },
         { "value": "yes", "labelKey": "btn_yes" }
       ]
+    },
+    {
+      "id": "urine_output",
+      "textKey": "q_urine_output",
+      "options": [
+        { "value": "little_or_none", "labelKey": "opt_urine_little_or_none" },
+        { "value": "some", "labelKey": "opt_urine_some" },
+        { "value": "not_sure", "labelKey": "opt_urine_not_sure" }
+      ]
+    }
+  ],
+  "historyTriggers": [
+    {
+      "id": "water_rising_urination",
+      "questionId": "water",
+      "value": "more",
+      "consecutiveDays": 5,
+      "addFollowUps": ["urination_more"]
     }
   ]
 }

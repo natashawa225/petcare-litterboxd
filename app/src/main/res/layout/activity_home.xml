@@ -167,6 +167,54 @@
                         android:enabled="false"
                         android:text="@string/btn_log_today"
                         app:backgroundTint="@color/sage_primary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnOpenHealthLog"
+                        style="@style/Widget.Litterboxd.Button.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:enabled="false"
+                        android:text="@string/btn_open_health_log" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Health alerts (pattern rules + preset articles) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardHealthAlerts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/section_gap"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/health_alerts_title"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+                    <TextView
+                        android:id="@+id/tvHealthAlertsStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_tiny"
+                        android:text="@string/daily_alerts_none"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnOpenHealthAlerts"
+                        style="@style/Widget.Litterboxd.Button.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/spacing_card"
+                        android:enabled="false"
+                        android:text="@string/btn_open_health_alerts" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

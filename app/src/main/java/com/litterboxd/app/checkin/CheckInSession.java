@@ -23,9 +23,81 @@ public class CheckInSession {
     private final DecisionTree tree;
     private final Map<String, Set<String>> selections = new LinkedHashMap<>();
     private final Map<String, String> followUpAnswers = new LinkedHashMap<>();
+    /** Follow-ups injected from past logs (see HistoryTriggerEvaluator). Order is kept. */
+    private List<String> historyFollowUpIds = Collections.emptyList();
 
     public CheckInSession(DecisionTree tree) {
         this.tree = tree;
+    }
+
+    /**
+     * Extra follow-up ids from history rules. Unknown ids are ignored so an outdated save
+     * cannot break the screen. Call before answering follow-ups.
+     */
+    public void setHistoryFollowUps(List<String> followUpIds) {
+        if (followUpIds == null || followUpIds.isEmpty()) {
+            historyFollowUpIds = Collections.emptyList();
+            return;
+        }
+        List<String> valid = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        for (String id : followUpIds) {
+            if (id == null || !seen.add(id)) continue;
+            if (tree.getQuestion(id) != null && !tree.isGroup(id)) {
+                valid.add(id);
+            }
+        }
+        historyFollowUpIds = Collections.unmodifiableList(valid);
+    }
+
+    public List<String> getHistoryFollowUpIds() {
+        return historyFollowUpIds;
+    }
+
+    /** True when at least one active follow-up came from history rather than today's chips. */
+    public boolean hasHistoryFollowUpsActive() {
+        if (historyFollowUpIds.isEmpty()) return false;
+        Set<String> active = new LinkedHashSet<>();
+        for (Question q : getActiveFollowUps()) {
+            active.add(q.getId());
+        }
+        for (String id : historyFollowUpIds) {
+            if (active.contains(id)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Label keys of chips (or prior follow-up options) that led to this follow-up, for
+     * "Because you marked…" copy. Empty if only history injected it.
+     */
+    public List<String> getFollowUpReasonLabelKeys(String followUpId) {
+        List<String> keys = new ArrayList<>();
+        Set<String> seen = new LinkedHashSet<>();
+        for (Question group : tree.getGroups()) {
+            for (AnswerOption option : group.getOptions()) {
+                if (isSelected(group.getId(), option.getValue())
+                        && option.getFollowUpIds().contains(followUpId)
+                        && seen.add(option.getLabelKey())) {
+                    keys.add(option.getLabelKey());
+                }
+            }
+        }
+        for (Question followUp : getActiveFollowUps()) {
+            String answered = followUpAnswers.get(followUp.getId());
+            if (answered == null) continue;
+            AnswerOption option = followUp.getOption(answered);
+            if (option != null && option.getFollowUpIds().contains(followUpId)
+                    && seen.add(option.getLabelKey())) {
+                keys.add(option.getLabelKey());
+            }
+        }
+        return keys;
+    }
+
+    /** True if this follow-up was injected from history (may also have chip reasons). */
+    public boolean isHistorySourcedFollowUp(String followUpId) {
+        return historyFollowUpIds.contains(followUpId);
     }
 
     // ---- Screen 1: chips ----
@@ -103,6 +175,9 @@ public class CheckInSession {
                     }
                 }
             }
+        }
+        for (String historyId : historyFollowUpIds) {
+            collect(historyId, ids);
         }
         List<Question> result = new ArrayList<>();
         for (String id : ids) {

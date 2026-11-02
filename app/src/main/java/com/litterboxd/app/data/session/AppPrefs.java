@@ -11,6 +11,7 @@ public class AppPrefs {
     private static final String KEY_NOTIFICATION_PERMISSION_ASKED = "notification_permission_asked";
     private static final String KEY_CARE_TASKS_SEEDED_PREFIX = "care_tasks_seeded_";
     private static final String KEY_OWNER_AVATAR = "owner_avatar";
+    private static final String KEY_DISMISSED_ALERTS_PREFIX = "dismissed_health_alerts_";
 
     /** Owner avatar values: "bundled:<drawable name>", "file:<private file name>", or none. */
     public static final String AVATAR_BUNDLED_PREFIX = "bundled:";
@@ -74,6 +75,41 @@ public class AppPrefs {
         } else {
             prefs.edit().putString(KEY_OWNER_AVATAR, value).apply();
         }
+    }
+
+    /** Rule ids the owner dismissed for this cat (comma-separated). Cleared when the pattern stops matching. */
+    public java.util.Set<String> getDismissedHealthAlertIds(long catId) {
+        String raw = prefs.getString(KEY_DISMISSED_ALERTS_PREFIX + catId, "");
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        if (raw == null || raw.trim().isEmpty()) return ids;
+        for (String part : raw.split(",")) {
+            String id = part.trim();
+            if (!id.isEmpty()) ids.add(id);
+        }
+        return ids;
+    }
+
+    public void dismissHealthAlert(long catId, String ruleId) {
+        java.util.Set<String> ids = getDismissedHealthAlertIds(catId);
+        ids.add(ruleId);
+        prefs.edit().putString(KEY_DISMISSED_ALERTS_PREFIX + catId, joinIds(ids)).apply();
+    }
+
+    public void setDismissedHealthAlertIds(long catId, java.util.Set<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            prefs.edit().remove(KEY_DISMISSED_ALERTS_PREFIX + catId).apply();
+        } else {
+            prefs.edit().putString(KEY_DISMISSED_ALERTS_PREFIX + catId, joinIds(ids)).apply();
+        }
+    }
+
+    private static String joinIds(java.util.Set<String> ids) {
+        StringBuilder sb = new StringBuilder();
+        for (String id : ids) {
+            if (sb.length() > 0) sb.append(',');
+            sb.append(id);
+        }
+        return sb.toString();
     }
 
     public void clear() {

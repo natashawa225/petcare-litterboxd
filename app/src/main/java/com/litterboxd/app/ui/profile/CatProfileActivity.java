@@ -41,10 +41,14 @@ import java.util.List;
 
 public class CatProfileActivity extends AppCompatActivity {
 
-    private TextView tvProfileName, tvProfileLifeStage, tvProfileDetails;
+    private static final int WEIGHT_PREVIEW_LIMIT = 3;
+
+    private TextView tvProfileName, tvProfileLifeStage, tvProfileDetails, tvWeightChartHint;
     private ImageView imgProfilePhoto;
     private LinearLayout containerWeightLogs, containerFeedingMeals;
-    private MaterialButton btnAddWeight, btnEditCat, btnDeleteCat;
+    private MaterialButton btnAddWeight, btnWeightHistory, btnEditCat, btnDeleteCat;
+    private WeightChartView weightChart;
+    private AlertDialog weightHistoryDialog;
 
     private long catId = -1L;
     private CatDao catDao;
@@ -77,11 +81,15 @@ public class CatProfileActivity extends AppCompatActivity {
         imgProfilePhoto = findViewById(R.id.imgProfilePhoto);
         containerWeightLogs = findViewById(R.id.containerWeightLogs);
         containerFeedingMeals = findViewById(R.id.containerFeedingMeals);
+        weightChart = findViewById(R.id.weightChart);
+        tvWeightChartHint = findViewById(R.id.tvWeightChartHint);
         btnAddWeight = findViewById(R.id.btnAddWeight);
+        btnWeightHistory = findViewById(R.id.btnWeightHistory);
         btnEditCat = findViewById(R.id.btnEditCat);
         btnDeleteCat = findViewById(R.id.btnDeleteCat);
 
         btnAddWeight.setOnClickListener(v -> showAddWeightDialog());
+        btnWeightHistory.setOnClickListener(v -> showWeightHistoryDialog());
         View.OnClickListener editCat = v -> {
             Intent intent = new Intent(this, AddEditCatActivity.class);
             intent.putExtra("cat_id", catId);
@@ -145,6 +153,9 @@ public class CatProfileActivity extends AppCompatActivity {
     private void populateWeightLogs(List<WeightLog> logs) {
         int rowPadding = getResources().getDimensionPixelSize(R.dimen.spacing_tiny);
         containerWeightLogs.removeAllViews();
+        weightChart.setWeightLogs(logs);
+        tvWeightChartHint.setVisibility(logs.size() >= 2 ? View.VISIBLE : View.GONE);
+        btnWeightHistory.setEnabled(!logs.isEmpty());
         if (logs.isEmpty()) {
             TextView tv = new TextView(this);
             tv.setText(R.string.empty_weight_logs);
@@ -153,17 +164,110 @@ public class CatProfileActivity extends AppCompatActivity {
             return;
         }
 
-        for (WeightLog log : logs) {
+        int previewCount = Math.min(WEIGHT_PREVIEW_LIMIT, logs.size());
+        for (int i = 0; i < previewCount; i++) {
             TextView tv = new TextView(this);
-            String dateStr = DateFormatUtils.formatDate(log.getDate());
-            String text = (log.getNotes() != null && !log.getNotes().isEmpty())
-                    ? getString(R.string.weight_log_row_with_notes, String.valueOf(log.getWeight()), dateStr, log.getNotes())
-                    : getString(R.string.weight_log_row, String.valueOf(log.getWeight()), dateStr);
-            tv.setText(text);
+            tv.setText(formatWeightLogLine(logs.get(i)));
             tv.setTextColor(ContextCompat.getColor(this, R.color.black));
             tv.setPadding(0, rowPadding, 0, rowPadding);
             containerWeightLogs.addView(tv);
         }
+        if (logs.size() > WEIGHT_PREVIEW_LIMIT) {
+            TextView more = new TextView(this);
+            more.setText(getString(R.string.weight_history_more, logs.size() - WEIGHT_PREVIEW_LIMIT));
+            more.setTextColor(ContextCompat.getColor(this, R.color.text_dark_gray));
+            more.setPadding(0, rowPadding, 0, rowPadding);
+            containerWeightLogs.addView(more);
+        }
+    }
+
+    private String formatWeightLogLine(WeightLog log) {
+        String dateStr = DateFormatUtils.formatDate(log.getDate());
+        if (log.getNotes() != null && !log.getNotes().isEmpty()) {
+            return getString(R.string.weight_log_row_with_notes,
+                    String.valueOf(log.getWeight()), dateStr, log.getNotes());
+        }
+        return getString(R.string.weight_log_row, String.valueOf(log.getWeight()), dateStr);
+    }
+
+    private void showWeightHistoryDialog() {
+        View layout = LayoutInflater.from(this).inflate(R.layout.dialog_weight_history, null, false);
+        LinearLayout rows = layout.findViewById(R.id.containerWeightHistoryRows);
+
+        weightHistoryDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_weight_history_title)
+                .setView(layout)
+                .setNegativeButton(R.string.btn_cancel, null)
+                .create();
+
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            List<WeightLog> logs = weightLogDao.getWeightLogsForCat(catId);
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                if (isFinishing() || weightHistoryDialog == null) return;
+                populateWeightHistoryRows(rows, logs);
+                if (!weightHistoryDialog.isShowing()) {
+                    weightHistoryDialog.show();
+                }
+            });
+        });
+    }
+
+    private void populateWeightHistoryRows(LinearLayout rows, List<WeightLog> logs) {
+        rows.removeAllViews();
+        if (logs.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText(R.string.empty_weight_logs);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_dark_gray));
+            rows.addView(empty);
+            return;
+        }
+        LayoutInflater inflater = LayoutInflater.from(this);
+        for (WeightLog log : logs) {
+            View row = inflater.inflate(R.layout.item_weight_log_row, rows, false);
+            TextView tv = row.findViewById(R.id.tvWeightLogText);
+            MaterialButton btnDelete = row.findViewById(R.id.btnDeleteWeightLog);
+            tv.setText(formatWeightLogLine(log));
+            btnDelete.setContentDescription(getString(R.string.cd_delete_weight));
+            btnDelete.setOnClickListener(v -> confirmDeleteWeightLog(log));
+            rows.addView(row);
+        }
+    }
+
+    private void confirmDeleteWeightLog(WeightLog log) {
+        String dateStr = DateFormatUtils.formatDate(log.getDate());
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.msg_delete_weight_title)
+                .setMessage(getString(R.string.msg_delete_weight_message,
+                        String.valueOf(log.getWeight()), dateStr))
+                .setPositiveButton(R.string.btn_delete, (dialog, which) -> deleteWeightLog(log.getId()))
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    private void deleteWeightLog(long logId) {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            weightLogDao.deleteWeightLog(logId);
+            List<WeightLog> remaining = weightLogDao.getWeightLogsForCat(catId);
+            Cat cat = catDao.getCatById(catId);
+            if (cat != null && !remaining.isEmpty()) {
+                // Profile "current weight" tracks the newest remaining weigh-in.
+                cat.setWeight(remaining.get(0).getWeight());
+                catDao.updateCat(cat);
+            }
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                Toast.makeText(this, R.string.msg_weight_deleted, Toast.LENGTH_SHORT).show();
+                if (weightHistoryDialog != null && weightHistoryDialog.isShowing()) {
+                    LinearLayout rows = weightHistoryDialog.findViewById(R.id.containerWeightHistoryRows);
+                    if (rows != null) {
+                        populateWeightHistoryRows(rows, remaining);
+                    }
+                    if (remaining.isEmpty()) {
+                        weightHistoryDialog.dismiss();
+                    }
+                }
+                loadCatProfile();
+            });
+        });
     }
 
     private void populateFeedingMeals(List<FeedingMeal> meals) {
