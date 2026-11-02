@@ -170,6 +170,32 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        // Repair installs whose user_version already matches but newer tables were never
+        // created (merge/upgrade drift). IF NOT EXISTS keeps healthy DBs untouched.
+        if (!db.isReadOnly()) {
+            ensureTable(db, SQL_CREATE_CARE_TASKS);
+            ensureTable(db, SQL_CREATE_CARE_TASK_LOGS);
+            ensureIndex(db, SQL_CREATE_INDEX_CARE_TASKS_CAT);
+            ensureIndex(db, SQL_CREATE_INDEX_CARE_TASK_LOGS_TASK);
+            ensureTable(db, SQL_CREATE_DAILY_CHECKINS);
+            ensureTable(db, SQL_CREATE_CHECKIN_ANSWERS);
+            ensureIndex(db, SQL_CREATE_INDEX_CHECKIN_ANSWERS_CHECKIN);
+            ensureTable(db, SQL_CREATE_DIARY_ENTRIES);
+            ensureIndex(db, SQL_CREATE_INDEX_DIARY_CAT_DATE);
+        }
+    }
+
+    private static void ensureTable(SQLiteDatabase db, String createSql) {
+        db.execSQL(createSql.replaceFirst("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS "));
+    }
+
+    private static void ensureIndex(SQLiteDatabase db, String createSql) {
+        db.execSQL(createSql.replaceFirst("CREATE INDEX ", "CREATE INDEX IF NOT EXISTS "));
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_CATS);
         db.execSQL(SQL_CREATE_WEIGHT_LOGS);

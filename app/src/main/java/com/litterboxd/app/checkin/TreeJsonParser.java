@@ -20,10 +20,13 @@ import java.util.List;
  *                      { "value": "normal", "labelKey": "chip_appetite_normal", "normal": true } ] } ] } ],
  *   "followUps": [
  *     { "id": "vomiting", "textKey": "q_vomiting",
- *       "options": [ { "value": "no", "labelKey": "btn_no" }, { "value": "yes", "labelKey": "btn_yes" } ] } ]
+ *       "options": [ { "value": "no", "labelKey": "btn_no" }, { "value": "yes", "labelKey": "btn_yes" } ] } ],
+ *   "historyTriggers": [
+ *     { "id": "water_rising_urination", "questionId": "water", "value": "more",
+ *       "consecutiveDays": 5, "addFollowUps": ["urination_more"] } ]
  * }
  * Every "...Key" is the NAME of a string resource, so all wording stays in strings.xml.
- * "selection" ("single" or "multi"), "followUps" and "normal" are optional.
+ * "selection" ("single" or "multi"), "followUps", "normal" and "historyTriggers" are optional.
  */
 public final class TreeJsonParser {
 
@@ -60,7 +63,21 @@ public final class TreeJsonParser {
             followUps.add(new Question(
                     q.getString("id"), q.getString("textKey"), readOptions(q.getJSONArray("options"))));
         }
-        return new DecisionTree(categories, followUps);
+
+        List<HistoryTrigger> historyTriggers = new ArrayList<>();
+        JSONArray historyArray = root.optJSONArray("historyTriggers");
+        if (historyArray != null) {
+            for (int i = 0; i < historyArray.length(); i++) {
+                JSONObject t = historyArray.getJSONObject(i);
+                historyTriggers.add(new HistoryTrigger(
+                        t.getString("id"),
+                        t.getString("questionId"),
+                        t.getString("value"),
+                        t.getInt("consecutiveDays"),
+                        readStringList(t.getJSONArray("addFollowUps"))));
+            }
+        }
+        return new DecisionTree(categories, followUps, historyTriggers);
     }
 
     private static List<AnswerOption> readOptions(JSONArray array) throws JSONException {

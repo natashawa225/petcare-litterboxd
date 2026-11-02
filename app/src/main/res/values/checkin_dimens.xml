@@ -2,4 +2,6 @@
 <resources>
     <dimen name="text_size_section">16sp</dimen>
     <dimen name="spacing_card">12dp</dimen>
+    <!-- Fixed height so 2-column chip rows stay level (e.g. litter + straining). -->
+    <dimen name="checkin_chip_height">52dp</dimen>
 </resources>

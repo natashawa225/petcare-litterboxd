@@ -27,8 +27,14 @@ public class DecisionTree {
     private final List<Question> groups;
     private final Map<String, Question> questions;
     private final Set<String> groupIds;
+    private final List<HistoryTrigger> historyTriggers;
 
     public DecisionTree(List<CheckInCategory> categories, List<Question> followUpQuestions) {
+        this(categories, followUpQuestions, Collections.<HistoryTrigger>emptyList());
+    }
+
+    public DecisionTree(List<CheckInCategory> categories, List<Question> followUpQuestions,
+                        List<HistoryTrigger> historyTriggers) {
         if (categories == null || categories.isEmpty()) {
             throw new IllegalArgumentException("Tree needs at least one category");
         }
@@ -49,6 +55,10 @@ public class DecisionTree {
         this.groups = Collections.unmodifiableList(allGroups);
         this.questions = Collections.unmodifiableMap(map);
         this.groupIds = Collections.unmodifiableSet(groupIdSet);
+        this.historyTriggers = Collections.unmodifiableList(
+                new ArrayList<>(historyTriggers == null
+                        ? Collections.<HistoryTrigger>emptyList()
+                        : historyTriggers));
         validate();
     }
 
@@ -81,6 +91,11 @@ public class DecisionTree {
         return questions.values();
     }
 
+    /** History rules that can inject follow-ups from past logs (may be empty). */
+    public List<HistoryTrigger> getHistoryTriggers() {
+        return historyTriggers;
+    }
+
     private void validate() {
         Set<String> referenced = new HashSet<>();
         for (Question q : questions.values()) {
@@ -100,6 +115,33 @@ public class DecisionTree {
                     }
                     referenced.add(followUpId);
                 }
+            }
+        }
+
+        Set<String> historyIds = new HashSet<>();
+        for (HistoryTrigger trigger : historyTriggers) {
+            if (!historyIds.add(trigger.getId())) {
+                throw new IllegalArgumentException("Duplicate history trigger id: " + trigger.getId());
+            }
+            if (!groupIds.contains(trigger.getQuestionId())) {
+                throw new IllegalArgumentException("History trigger '" + trigger.getId()
+                        + "' watches unknown group '" + trigger.getQuestionId() + "'");
+            }
+            Question watched = questions.get(trigger.getQuestionId());
+            if (watched.getOption(trigger.getValue()) == null) {
+                throw new IllegalArgumentException("History trigger '" + trigger.getId()
+                        + "' watches unknown value '" + trigger.getValue() + "'");
+            }
+            for (String followUpId : trigger.getAddFollowUps()) {
+                if (!questions.containsKey(followUpId)) {
+                    throw new IllegalArgumentException("History trigger '" + trigger.getId()
+                            + "' points to missing follow-up '" + followUpId + "'");
+                }
+                if (groupIds.contains(followUpId)) {
+                    throw new IllegalArgumentException("History trigger '" + trigger.getId()
+                            + "' cannot add chip group '" + followUpId + "'");
+                }
+                referenced.add(followUpId);
             }
         }
 

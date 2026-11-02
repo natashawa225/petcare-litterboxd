@@ -50,9 +50,15 @@ public final class CareReminderScheduler {
     }
 
     public static void rescheduleAll(Context context) {
-        CareTaskDao dao = new CareTaskDao(LitterboxdDbHelper.getInstance(context));
-        for (CareTask task : dao.getAllTasks()) {
-            schedule(context, task);
+        // Defensive: a stale install can be missing care_tasks after schema merges.
+        // Never let reminder repair crash the whole process (Feature A logging included).
+        try {
+            CareTaskDao dao = new CareTaskDao(LitterboxdDbHelper.getInstance(context));
+            for (CareTask task : dao.getAllTasks()) {
+                schedule(context, task);
+            }
+        } catch (RuntimeException e) {
+            android.util.Log.w("CareReminderScheduler", "Could not reschedule care reminders", e);
         }
     }
 

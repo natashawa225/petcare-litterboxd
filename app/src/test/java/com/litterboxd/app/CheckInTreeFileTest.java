@@ -135,10 +135,56 @@ public class CheckInTreeFileTest {
     }
 
     @Test
+    public void sayingYesToHidingAsksHowLong() {
+        CheckInSession s = new CheckInSession(tree);
+        s.toggle("energy", "low");
+        assertEquals(Collections.singletonList("hiding"), ids(s.getActiveFollowUps()));
+        s.answerFollowUp("hiding", "yes");
+        assertEquals(Arrays.asList("hiding", "hiding_since"), ids(s.getActiveFollowUps()));
+    }
+
+    @Test
+    public void litterStrainingAsksAboutUrineOutput() {
+        CheckInSession s = new CheckInSession(tree);
+        s.toggle("litter", "straining");
+        assertEquals(Collections.singletonList("urine_output"), ids(s.getActiveFollowUps()));
+    }
+
+    @Test
+    public void followUpReasonPointsAtTheChipThatOpenedIt() {
+        CheckInSession s = new CheckInSession(tree);
+        s.toggle("appetite", "less");
+        assertEquals(Collections.singletonList("chip_appetite_less"),
+                s.getFollowUpReasonLabelKeys("vomiting"));
+        assertEquals(Collections.singletonList("chip_appetite_less"),
+                s.getFollowUpReasonLabelKeys("hiding"));
+    }
+
+    @Test
     public void drankMoreAsksAboutPeeingMore() {
         CheckInSession s = new CheckInSession(tree);
         s.toggle("water", "more");
         assertEquals(Collections.singletonList("urination_more"), ids(s.getActiveFollowUps()));
+    }
+
+    @Test
+    public void treeFileHasWaterRisingHistoryTrigger() {
+        assertEquals(1, tree.getHistoryTriggers().size());
+        assertEquals("water_rising_urination", tree.getHistoryTriggers().get(0).getId());
+        assertEquals("water", tree.getHistoryTriggers().get(0).getQuestionId());
+        assertEquals("more", tree.getHistoryTriggers().get(0).getValue());
+        assertEquals(5, tree.getHistoryTriggers().get(0).getConsecutiveDays());
+        assertEquals(Collections.singletonList("urination_more"),
+                tree.getHistoryTriggers().get(0).getAddFollowUps());
+    }
+
+    @Test
+    public void historyFollowUpAppearsEvenWhenTodayIsAllNormal() {
+        CheckInSession s = new CheckInSession(tree);
+        s.setHistoryFollowUps(Collections.singletonList("urination_more"));
+        s.selectAllNormal();
+        assertEquals(Collections.singletonList("urination_more"), ids(s.getActiveFollowUps()));
+        assertTrue(s.hasHistoryFollowUpsActive());
     }
 
     @Test

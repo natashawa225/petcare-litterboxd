@@ -51,4 +51,11 @@ public class WeightLogDao {
         }
         return logs;
     }
+
+    public int deleteWeightLog(long logId) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        return db.delete(LitterboxdContract.WeightLogEntry.TABLE_NAME,
+                LitterboxdContract.WeightLogEntry.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(logId)});
+    }
 }

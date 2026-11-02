@@ -38,6 +38,10 @@
     <dimen name="settings_row_min_height">56dp</dimen>
     <dimen name="settings_icon_size">20dp</dimen>
 
+    <!-- Health log calendar (Feature A) -->
+    <dimen name="health_log_day_cell">44dp</dimen>
+    <dimen name="health_log_dot">6dp</dimen>
+
     <!-- Cat Diary -->
     <dimen name="diary_strip_photo_size">84dp</dimen>
     <dimen name="diary_thumb_size">72dp</dimen>

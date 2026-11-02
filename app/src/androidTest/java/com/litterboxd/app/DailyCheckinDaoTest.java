@@ -116,6 +116,40 @@ public class DailyCheckinDaoTest {
         assertNull(checkinDao.getCheckin(catId, DAY_1));
     }
 
+    @Test
+    public void deleteOlderThanRemovesOnlyRowsBeforeCutoff() {
+        long catId = catDao.insertCat(newCat("Mochi"));
+        checkinDao.saveCheckin(catId, "2026-01-01", single("water", "more"));
+        checkinDao.saveCheckin(catId, "2026-10-27", single("water", "normal"));
+
+        int removed = checkinDao.deleteOlderThan(catId, "2026-08-01");
+        assertEquals(1, removed);
+        assertNull(checkinDao.getCheckin(catId, "2026-01-01"));
+        assertNotNull(checkinDao.getCheckin(catId, "2026-10-27"));
+    }
+
+    @Test
+    public void saveCheckinAndTrimKeepsRecentLogsOnly() {
+        long catId = catDao.insertCat(newCat("Mochi"));
+        checkinDao.saveCheckin(catId, "2026-01-10", single("appetite", "less"));
+        long id = checkinDao.saveCheckinAndTrim(catId, DAY_2, single("appetite", "normal"), "2026-08-01");
+        assertTrue(id > 0);
+        assertNull(checkinDao.getCheckin(catId, "2026-01-10"));
+        assertNotNull(checkinDao.getCheckin(catId, DAY_2));
+    }
+
+    @Test
+    public void getAnswersByDateForCatReturnsEverySavedDay() {
+        long catId = catDao.insertCat(newCat("Mochi"));
+        checkinDao.saveCheckin(catId, DAY_1, single("water", "more"));
+        checkinDao.saveCheckin(catId, DAY_2, single("water", "more"));
+
+        Map<String, Map<String, List<String>>> byDate = checkinDao.getAnswersByDateForCat(catId);
+        assertEquals(2, byDate.size());
+        assertEquals("more", byDate.get(DAY_1).get("water").get(0));
+        assertEquals("more", byDate.get(DAY_2).get("water").get(0));
+    }
+
     private Map<String, List<String>> single(String questionId, String value) {
         Map<String, List<String>> answers = new LinkedHashMap<>();
         answers.put(questionId, Collections.singletonList(value));

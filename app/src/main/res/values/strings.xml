@@ -112,7 +112,9 @@
     <string name="label_life_stage">Life Stage: %s</string>
     <string name="section_weight_history">Weight History</string>
     <string name="btn_add_weight">Add Weight</string>
+    <string name="btn_weight_history">History</string>
     <string name="dialog_add_weight_title">Log New Weight</string>
+    <string name="dialog_weight_history_title">All weigh-ins</string>
     <string name="prompt_weight_grams">Weight (kg)</string>
     <string name="prompt_weight_notes">Notes (optional)</string>
     <string name="section_feeding_schedule">Feeding Schedule</string>
@@ -121,6 +123,11 @@
     <string name="empty_weight_logs">No weight logs recorded yet.</string>
     <string name="weight_log_row">• %1$s kg on %2$s</string>
     <string name="weight_log_row_with_notes">• %1$s kg on %2$s (%3$s)</string>
+    <string name="weight_history_more">…and %d more. Open History to scroll or delete.</string>
+    <string name="msg_delete_weight_title">Delete this weigh-in?</string>
+    <string name="msg_delete_weight_message">Remove %1$s kg logged on %2$s? This can\'t be undone.</string>
+    <string name="msg_weight_deleted">Weigh-in deleted.</string>
+    <string name="cd_delete_weight">Delete weigh-in</string>
     <string name="empty_feeding_schedule">No feeding schedule configured.</string>
     <string name="feeding_meal_row">• %1$s at %2$s — %3$sg</string>
     <string name="this_cat">this cat</string>
@@ -168,6 +175,10 @@
     <string name="chip_water_more">🌊 Drank more</string>
     <string name="q_vomiting">Has %1$s vomited today?</string>
     <string name="q_hiding">Is %1$s hiding more than usual?</string>
+    <string name="q_hiding_since">For how long has %1$s been hiding more?</string>
+    <string name="opt_hiding_today">Just today</string>
+    <string name="opt_hiding_few_days">A few days</string>
+    <string name="opt_hiding_week_plus">A week or more</string>
     <string name="q_urination_more">Is %1$s also peeing more than usual?</string>
     <string name="q_drinking_more">Is %1$s also drinking more than usual?</string>
     <string name="checkin_category_litter">Litter box</string>
@@ -175,6 +186,11 @@
     <string name="chip_litter_less">📉 Fewer visits</string>
     <string name="chip_litter_normal">🧻 Usual visits</string>
     <string name="chip_litter_more">📈 More visits</string>
+    <string name="chip_litter_straining">⚠️ Straining</string>
+    <string name="q_urine_output">How much urine did %1$s pass?</string>
+    <string name="opt_urine_little_or_none">Little or none</string>
+    <string name="opt_urine_some">Some urine</string>
+    <string name="opt_urine_not_sure">Not sure</string>
     <string name="checkin_category_energy_mood">Energy &amp; mood</string>
     <string name="checkin_group_energy">Energy</string>
     <string name="chip_energy_low">😴 Low energy</string>
@@ -190,9 +206,12 @@
 
     <!-- Daily check-in screens -->
     <string name="checkin_subtitle">How is %1$s today?</string>
+    <string name="checkin_subtitle_dated">How was %1$s on %2$s?</string>
+    <string name="checkin_error_future_date">You can\'t log a future day.</string>
     <string name="checkin_all_normal">All normal</string>
     <string name="checkin_followups_title">A few more questions</string>
     <string name="checkin_followups_hint">Optional. Tap an answer, or skip any you\'re unsure about.</string>
+    <string name="checkin_followups_hint_history">Includes a question from recent logs. Optional — tap an answer, or skip any you\'re unsure about.</string>
     <string name="checkin_save">Save check-in</string>
     <string name="checkin_back">Back</string>
     <string name="checkin_saved">Check-in saved for %1$s</string>
@@ -220,7 +239,91 @@
     <string name="daily_log_answer_row">%1$s: %2$s</string>
     <string name="btn_log_today">Log today</string>
     <string name="btn_update_log">Update today\'s log</string>
+    <string name="btn_open_health_log">Open health calendar</string>
     <string name="quick_actions_title">Quick actions</string>
+
+    <!-- Feature A: Flo-style health log calendar -->
+    <string name="health_log_title">Health log</string>
+    <string name="health_log_subtitle">Tap a day to check in for %1$s — same quick chips, no typing.</string>
+    <string name="health_log_prev_month">‹</string>
+    <string name="health_log_next_month">›</string>
+    <string name="health_log_legend">Sage = all-normal day · Coral = something noted that day (not a diagnosis).</string>
+    <string name="weight_chart_hint">Line goes left → right from older to newer weigh-ins.</string>
+    <string name="checkin_because_marked">Because you marked: %1$s</string>
+    <string name="checkin_because_history">Because of recent logs</string>
+    <string name="checkin_because_marked_and_history">Because you marked: %1$s · and recent logs</string>
+    <string name="health_log_selected_today">Today</string>
+    <string name="health_log_selected_day">%1$s</string>
+    <string name="health_log_day_empty">Nothing logged this day yet.</string>
+    <string name="health_log_day_logged_at">Logged at %1$s</string>
+    <string name="health_log_log_day">Log this day</string>
+    <string name="health_log_update_day">Update this day</string>
+    <string name="health_log_no_future_day">You can\'t log a future day.</string>
+    <string name="health_log_no_future_month">That month isn\'t here yet.</string>
+    <string name="cd_health_log_day">%1$s</string>
+    <string name="cd_health_log_day_logged">%1$s, logged</string>
+
+    <!-- Feature A: health alerts + preset articles -->
+    <string name="health_alerts_title">Health alerts</string>
+    <string name="health_alerts_subtitle">Patterns from %1$s\'s recent logs — not a diagnosis.</string>
+    <string name="health_alerts_empty">No alerts right now. Keep logging — we\'ll flag unusual patterns here.</string>
+    <string name="health_alerts_error">Couldn\'t load health alerts.</string>
+    <string name="health_alerts_disclaimer">Litterboxd does not diagnose. If you\'re worried, contact a vet.</string>
+    <string name="health_alert_dismissed">Alert dismissed for now.</string>
+    <string name="btn_open_health_alerts">Health alerts</string>
+    <string name="btn_suggested_reading">Suggested reading</string>
+    <string name="btn_dismiss_alert">Dismiss</string>
+    <string name="alert_severity_watch">Worth watching</string>
+    <string name="alert_severity_vet_visit">Worth a vet visit</string>
+    <string name="alert_severity_urgent">Urgent — contact a vet now</string>
+    <string name="daily_alerts_none">No new patterns from recent logs.</string>
+    <string name="daily_alerts_count">%1$d health alert(s) to review</string>
+
+    <string name="alert_water_rising_title">%1$s has been drinking more</string>
+    <string name="alert_water_rising_message">Over the past week, water intake looks higher than usual on several days. Worth keeping an eye on — and reading up if it continues.</string>
+    <string name="alert_drink_pee_title">Drinking more and peeing more</string>
+    <string name="alert_drink_pee_message">%1$s\'s logs show more drinking and more urination together. This combination is worth checking with a vet.</string>
+    <string name="alert_litter_drink_title">More litter visits and more drinking</string>
+    <string name="alert_litter_drink_message">%1$s has more litter visits along with drinking more. This combination is worth checking with a vet.</string>
+    <string name="alert_appetite_vomit_title">Eating less and vomiting</string>
+    <string name="alert_appetite_vomit_message">%1$s has been eating less, with repeated vomiting logged. This is worth checking with a vet.</string>
+    <string name="alert_hiding_title">Hiding for a week or more</string>
+    <string name="alert_hiding_message">%1$s has been hiding more for a week or longer. If this is unusual for them, consider checking with a vet.</string>
+    <string name="alert_urine_blockage_title">Possible urinary blockage</string>
+    <string name="alert_urine_blockage_message">%1$s was logged with straining or little/no urine. This can be an emergency — especially in male cats. Contact a vet now. Litterboxd does not diagnose.</string>
+    <string name="alert_drink_pee_weight_title">Drinking more, peeing more, and weight down</string>
+    <string name="alert_drink_pee_weight_message">%1$s\'s recent logs show more drinking and urination, and weight has dropped. This combination is worth checking with a vet.</string>
+    <string name="alert_litter_baseline_title">Litter visits above %1$s\'s usual</string>
+    <string name="alert_litter_baseline_message">Compared with %1$s\'s own earlier logs, “more litter visits” showed up about twice as often this week. Worth watching — not a diagnosis.</string>
+    <string name="article_obstruction_title">Urethral obstruction in cats</string>
+    <string name="article_obstruction_summary">A blocked bladder is life-threatening and almost always affects male cats. Straining with little or no urine needs urgent veterinary care — do not wait to “see if it passes.”</string>
+    <string name="article_flutd_title">Feline lower urinary tract disease</string>
+    <string name="article_flutd_summary">FLUTD covers several bladder/urethra problems. Cats may strain, visit the litter often, or pass little urine. Complete blockage is an absolute emergency.</string>
+
+    <string name="health_articles_title">Suggested reading</string>
+    <string name="health_articles_intro">Short takes for: %1$s. Tap Read more for the full article (also our source).</string>
+    <string name="health_articles_intro_generic">Short takes from trusted sources. Tap Read more for the full article.</string>
+    <string name="health_articles_empty">No preset articles for this alert.</string>
+    <string name="btn_read_more_article">Read more</string>
+    <string name="health_article_open_failed">Couldn\'t open the article link.</string>
+
+    <string name="article_source_icatcare">International Cat Care</string>
+    <string name="article_source_pdsa">PDSA</string>
+    <string name="article_source_cornell">Cornell Feline Health Center</string>
+    <string name="article_source_aspca">ASPCA</string>
+
+    <string name="article_thirst_title">Increased thirst and drinking</string>
+    <string name="article_thirst_summary">Drinking more than usual can point to kidney disease, diabetes, hyperthyroidism, and other issues. If intake stays high — especially over ~100 ml/kg/day — see a vet. Never withhold water.</string>
+    <string name="article_drink_wee_title">Is my cat drinking and weeing too much?</string>
+    <string name="article_drink_wee_summary">More drinking and more weeing often travel together. Common causes include urine infection, kidney disease, diabetes, and hyperthyroidism. Take a urine sample to the vet if you can.</string>
+    <string name="article_diabetes_title">Feline diabetes</string>
+    <string name="article_diabetes_summary">Classic signs include weight loss despite a good appetite, plus increased thirst and urination. Only a vet can diagnose and plan treatment — this is background reading, not a label for your cat.</string>
+    <string name="article_hyperthyroid_title">Hyperthyroidism in cats</string>
+    <string name="article_hyperthyroid_summary">Common in older cats: weight loss, bigger appetite, more thirst and urination, sometimes vomiting or a scruffy coat. Vet bloodwork is needed to confirm.</string>
+    <string name="article_vomiting_title">Vomiting in cats</string>
+    <string name="article_vomiting_summary">Occasional hairballs differ from repeated vomiting with a poor appetite. Repeated vomiting is a reason to contact a vet promptly.</string>
+    <string name="article_emergency_title">When pet symptoms need urgent care</string>
+    <string name="article_emergency_summary">Sudden collapse, straining without urine, severe lethargy, or ongoing vomiting can be emergencies. If you\'re unsure, err on the side of calling a vet or emergency clinic.</string>
     <string name="btn_quick_add_task">Add a task</string>
     <string name="daily_tasks_title">Today\'s care tasks</string>
     <string name="daily_tasks_summary">%1$d of %2$d tasks done</string>

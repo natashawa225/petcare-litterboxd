@@ -9,10 +9,19 @@
         android:id="@+id/tvSectionTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_tiny"
         android:textColor="@color/black"
         android:textSize="@dimen/text_size_section"
         android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvSectionReason"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="@dimen/spacing_tiny"
+        android:textColor="@color/text_dark_gray"
+        android:textSize="@dimen/text_size_caption"
+        android:visibility="gone" />
 
     <GridLayout
         android:id="@+id/gridChips"

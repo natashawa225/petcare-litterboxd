@@ -88,6 +88,18 @@
             android:name=".ui.checkin.CheckInActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.checkin.HealthLogActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.health.HealthAlertsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.health.HealthArticlesActivity"
+            android:exported="false" />
+
         <receiver
             android:name=".reminders.CareTaskReminderReceiver"
             android:exported="false" />

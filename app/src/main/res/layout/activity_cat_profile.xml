@@ -82,6 +82,17 @@
                 android:textStyle="bold" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnWeightHistory"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/btn_weight_history"
+                android:textColor="@color/sage_primary" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddWeight"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
@@ -89,6 +100,25 @@
                 android:text="@string/btn_add_weight"
                 app:strokeColor="@color/sage_primary" />
         </LinearLayout>
+
+        <com.litterboxd.app.ui.profile.WeightChartView
+            android:id="@+id/weightChart"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/white"
+            android:padding="8dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvWeightChartHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/weight_chart_hint"
+            android:textColor="@color/text_dark_gray"
+            android:textSize="@dimen/text_size_caption"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/containerWeightLogs"
