@@ -1,0 +1,127 @@
+{
+  "rules": [
+    {
+      "id": "urine_blockage_urgent",
+      "type": "signal",
+      "severity": "urgent",
+      "windowDays": 2,
+      "match": "any",
+      "signals": [
+        { "questionId": "litter", "value": "straining", "minDays": 1 },
+        { "questionId": "urine_output", "value": "little_or_none", "minDays": 1 }
+      ],
+      "titleKey": "alert_urine_blockage_title",
+      "messageKey": "alert_urine_blockage_message",
+      "keywords": ["straining", "urine_little", "urgent"],
+      "articleIds": ["icatcare_obstruction", "cornell_flutd", "aspca_emergency"]
+    },
+    {
+      "id": "drink_pee_weight",
+      "type": "signal",
+      "severity": "vet_visit",
+      "windowDays": 7,
+      "match": "all",
+      "signals": [
+        { "questionId": "water", "value": "more", "minDays": 3 },
+        { "questionId": "urination_more", "value": "yes", "minDays": 2 }
+      ],
+      "requiresWeightDropKg": 0.3,
+      "weightLookbackDays": 14,
+      "titleKey": "alert_drink_pee_weight_title",
+      "messageKey": "alert_drink_pee_weight_message",
+      "keywords": ["water_more", "drinking_more", "urinating_more", "weight_loss"],
+      "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "icatcare_thirst"]
+    },
+    {
+      "id": "drink_and_pee",
+      "type": "signal",
+      "severity": "vet_visit",
+      "windowDays": 7,
+      "match": "all",
+      "signals": [
+        { "questionId": "water", "value": "more", "minDays": 3 },
+        { "questionId": "urination_more", "value": "yes", "minDays": 2 }
+      ],
+      "titleKey": "alert_drink_pee_title",
+      "messageKey": "alert_drink_pee_message",
+      "keywords": ["water_more", "drinking_more", "urinating_more"],
+      "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "icatcare_thirst"]
+    },
+    {
+      "id": "litter_and_drinking",
+      "type": "signal",
+      "severity": "vet_visit",
+      "windowDays": 7,
+      "match": "all",
+      "signals": [
+        { "questionId": "litter", "value": "more", "minDays": 3 },
+        { "questionId": "drinking_more", "value": "yes", "minDays": 2 }
+      ],
+      "titleKey": "alert_litter_drink_title",
+      "messageKey": "alert_litter_drink_message",
+      "keywords": ["litter_more", "drinking_more", "urinating_more"],
+      "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "cornell_hyperthyroid"]
+    },
+    {
+      "id": "low_appetite_vomiting",
+      "type": "signal",
+      "severity": "vet_visit",
+      "windowDays": 7,
+      "match": "all",
+      "signals": [
+        { "questionId": "appetite", "value": "less", "minDays": 3 },
+        { "questionId": "vomiting", "value": "repeated", "minDays": 1 }
+      ],
+      "titleKey": "alert_appetite_vomit_title",
+      "messageKey": "alert_appetite_vomit_message",
+      "keywords": ["appetite_less", "vomiting"],
+      "articleIds": ["pdsa_vomiting", "aspca_emergency"]
+    },
+    {
+      "id": "litter_baseline_double",
+      "type": "baseline",
+      "severity": "watch",
+      "windowDays": 7,
+      "match": "all",
+      "signals": [],
+      "baselineQuestionId": "litter",
+      "baselineValue": "more",
+      "baselinePriorDays": 14,
+      "baselineMinPriorLogged": 7,
+      "baselineMinRecentLogged": 5,
+      "baselineMinRatio": 2.0,
+      "titleKey": "alert_litter_baseline_title",
+      "messageKey": "alert_litter_baseline_message",
+      "keywords": ["litter_more"],
+      "articleIds": ["pdsa_drink_wee", "cornell_flutd"]
+    },
+    {
+      "id": "water_rising_week",
+      "type": "signal",
+      "severity": "watch",
+      "windowDays": 7,
+      "match": "all",
+      "signals": [
+        { "questionId": "water", "value": "more", "minDays": 5 }
+      ],
+      "titleKey": "alert_water_rising_title",
+      "messageKey": "alert_water_rising_message",
+      "keywords": ["water_more", "drinking_more"],
+      "articleIds": ["icatcare_thirst", "pdsa_drink_wee"]
+    },
+    {
+      "id": "hiding_week_plus",
+      "type": "signal",
+      "severity": "watch",
+      "windowDays": 7,
+      "match": "all",
+      "signals": [
+        { "questionId": "hiding_since", "value": "week_plus", "minDays": 1 }
+      ],
+      "titleKey": "alert_hiding_title",
+      "messageKey": "alert_hiding_message",
+      "keywords": ["hiding", "energy_low"],
+      "articleIds": ["aspca_emergency", "pdsa_vomiting"]
+    }
+  ]
+}
