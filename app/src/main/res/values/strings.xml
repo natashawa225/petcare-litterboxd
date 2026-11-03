@@ -396,7 +396,7 @@
     <string name="diary_history_weight_note">⚖️ Weight logged: %1$s kg · %2$s</string>
     <string name="diary_history_checkin">📋 Daily check-in: %1$s</string>
     <string name="diary_history_all_normal">all as usual</string>
-    <string name="diary_history_observation">Logged observation, not a diagnosis</string>
+    <string name="diary_history_observation">Logged observation</string>
     <string name="diary_meta_tags">%1$s · %2$s</string>
     <string name="cd_diary_photo">Photo for %1$s</string>
     <string name="cd_no_photos">Sleeping cat mascot</string>
