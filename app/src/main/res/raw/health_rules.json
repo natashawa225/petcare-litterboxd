@@ -12,8 +12,7 @@
       ],
       "titleKey": "alert_urine_blockage_title",
       "messageKey": "alert_urine_blockage_message",
-      "keywords": ["straining", "urine_little", "urgent"],
-      "articleIds": ["icatcare_obstruction", "cornell_flutd", "aspca_emergency"]
+      "articleIds": ["icatcare_obstruction", "cornell_flutd", "cvs_emergency"]
     },
     {
       "id": "drink_pee_weight",
@@ -29,7 +28,7 @@
       "weightLookbackDays": 14,
       "titleKey": "alert_drink_pee_weight_title",
       "messageKey": "alert_drink_pee_weight_message",
-      "keywords": ["water_more", "drinking_more", "urinating_more", "weight_loss"],
+      "supersedes": ["drink_and_pee"],
       "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "icatcare_thirst"]
     },
     {
@@ -44,7 +43,6 @@
       ],
       "titleKey": "alert_drink_pee_title",
       "messageKey": "alert_drink_pee_message",
-      "keywords": ["water_more", "drinking_more", "urinating_more"],
       "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "icatcare_thirst"]
     },
     {
@@ -59,7 +57,6 @@
       ],
       "titleKey": "alert_litter_drink_title",
       "messageKey": "alert_litter_drink_message",
-      "keywords": ["litter_more", "drinking_more", "urinating_more"],
       "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "cornell_hyperthyroid"]
     },
     {
@@ -74,8 +71,7 @@
       ],
       "titleKey": "alert_appetite_vomit_title",
       "messageKey": "alert_appetite_vomit_message",
-      "keywords": ["appetite_less", "vomiting"],
-      "articleIds": ["pdsa_vomiting", "aspca_emergency"]
+      "articleIds": ["pdsa_vomiting", "cvs_emergency"]
     },
     {
       "id": "litter_baseline_double",
@@ -92,7 +88,6 @@
       "baselineMinRatio": 2.0,
       "titleKey": "alert_litter_baseline_title",
       "messageKey": "alert_litter_baseline_message",
-      "keywords": ["litter_more"],
       "articleIds": ["pdsa_drink_wee", "cornell_flutd"]
     },
     {
@@ -106,7 +101,6 @@
       ],
       "titleKey": "alert_water_rising_title",
       "messageKey": "alert_water_rising_message",
-      "keywords": ["water_more", "drinking_more"],
       "articleIds": ["icatcare_thirst", "pdsa_drink_wee"]
     },
     {
@@ -120,8 +114,7 @@
       ],
       "titleKey": "alert_hiding_title",
       "messageKey": "alert_hiding_message",
-      "keywords": ["hiding", "energy_low"],
-      "articleIds": ["aspca_emergency", "pdsa_vomiting"]
+      "articleIds": ["cvs_emergency", "pdsa_vomiting"]
     }
   ]
 }

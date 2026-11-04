@@ -14,26 +14,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.litterboxd.app.R;
 import com.litterboxd.app.data.dao.CatDao;
-import com.litterboxd.app.data.dao.DailyCheckinDao;
-import com.litterboxd.app.data.dao.WeightLogDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.session.AppPrefs;
-import com.litterboxd.app.health.HealthAlert;
 import com.litterboxd.app.health.HealthArticle;
 import com.litterboxd.app.health.HealthContent;
 import com.litterboxd.app.health.HealthRule;
 import com.litterboxd.app.health.HealthRuleEvaluator;
-import com.litterboxd.app.health.WeightPoints;
-import com.litterboxd.app.health.WeightTrend;
 import com.litterboxd.app.ui.checkin.CheckInContent;
 import com.litterboxd.app.util.AppExecutors;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Preset articles for one fired alert: short summary in-app, full detail via Read more (browser).
@@ -69,34 +61,13 @@ public class HealthArticlesActivity extends AppCompatActivity {
             List<HealthArticle> articles = Collections.emptyList();
             String catName = cat != null ? cat.getName() : getString(R.string.default_owner_name);
             String titleKey = null;
-            if (content != null && cat != null) {
-                Map<String, Map<String, List<String>>> answers =
-                        new DailyCheckinDao(db).getAnswersByDateForCat(cat.getId());
-                List<WeightTrend.Point> weights = WeightPoints.fromLogs(
-                        new WeightLogDao(db).getWeightLogsForCat(cat.getId()));
-                List<HealthAlert> alerts = HealthRuleEvaluator.evaluate(
-                        content.getRules(), content.getArticlesById(), answers,
-                        LocalDate.now(), null, weights);
-                for (HealthAlert alert : alerts) {
-                    if (ruleId.equals(alert.getRule().getId())) {
-                        articles = alert.getArticles();
-                        titleKey = alert.getRule().getTitleKey();
+            if (content != null) {
+                // The reading list is fixed per rule, so no need to re-run the evaluator.
+                for (HealthRule rule : content.getRules()) {
+                    if (ruleId.equals(rule.getId())) {
+                        titleKey = rule.getTitleKey();
+                        articles = HealthRuleEvaluator.articlesFor(rule, content.getArticlesById());
                         break;
-                    }
-                }
-                if (articles.isEmpty()) {
-                    // Still show the rule's preset list even if currently dismissed/not matching.
-                    for (HealthRule rule : content.getRules()) {
-                        if (ruleId.equals(rule.getId())) {
-                            titleKey = rule.getTitleKey();
-                            List<HealthArticle> listed = new ArrayList<>();
-                            for (String id : rule.getArticleIds()) {
-                                HealthArticle a = content.getArticle(id);
-                                if (a != null) listed.add(a);
-                            }
-                            articles = listed;
-                            break;
-                        }
                     }
                 }
             }

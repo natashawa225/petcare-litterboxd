@@ -110,6 +110,41 @@ public class HealthRuleEvaluatorTest {
     }
 
     @Test
+    public void weightRuleHidesGeneralDrinkPeeRule() {
+        LocalDate asOf = LocalDate.of(2026, 11, 3);
+        Map<String, Map<String, List<String>>> byDate = waterMoreDays(asOf, 3);
+        byDate.put(asOf.toString(), merge(ans("water", "more"), ans("urination_more", "yes")));
+        byDate.put(asOf.minusDays(1).toString(),
+                merge(ans("water", "more"), ans("urination_more", "yes")));
+        List<WeightTrend.Point> weights = Arrays.asList(
+                new WeightTrend.Point(millis(asOf.minusDays(10)), 5.6),
+                new WeightTrend.Point(millis(asOf), 5.2));
+
+        List<HealthAlert> alerts = HealthRuleEvaluator.evaluate(
+                rules, articles, byDate, asOf, Collections.emptySet(), weights);
+        assertTrue(hasRule(alerts, "drink_pee_weight"));
+        assertFalse(hasRule(alerts, "drink_and_pee"));
+
+        // Dismissing the specific alert must not bring the general duplicate back.
+        Set<String> dismissed = new HashSet<>(Collections.singleton("drink_pee_weight"));
+        List<HealthAlert> afterDismiss = HealthRuleEvaluator.evaluate(
+                rules, articles, byDate, asOf, dismissed, weights);
+        assertFalse(hasRule(afterDismiss, "drink_pee_weight"));
+        assertFalse(hasRule(afterDismiss, "drink_and_pee"));
+    }
+
+    @Test
+    public void articlesForReturnsRulesListInOrder() {
+        for (HealthRule rule : rules) {
+            List<HealthArticle> list = HealthRuleEvaluator.articlesFor(rule, articles);
+            assertEquals(rule.getArticleIds().size(), list.size());
+            for (int i = 0; i < list.size(); i++) {
+                assertEquals(rule.getArticleIds().get(i), list.get(i).getId());
+            }
+        }
+    }
+
+    @Test
     public void litterStrainingIsUrgentSameDay() {
         LocalDate asOf = LocalDate.of(2026, 11, 3);
         Map<String, Map<String, List<String>>> byDate = new HashMap<>();

@@ -20,8 +20,9 @@ public final class HealthRule {
     private final List<HealthSignal> signals;
     private final String titleKey;
     private final String messageKey;
-    private final List<String> keywords;
     private final List<String> articleIds;
+    /** Ids of less specific rules hidden when this rule matches (avoids duplicate cards). */
+    private final List<String> supersedes;
     /** If set, newest weight must be at least this many kg below an older reading in the lookback. */
     private final Double requiresWeightDropKg;
     private final int weightLookbackDays;
@@ -35,7 +36,7 @@ public final class HealthRule {
 
     public HealthRule(String id, String type, String severity, int windowDays, String match,
                       List<HealthSignal> signals, String titleKey, String messageKey,
-                      List<String> keywords, List<String> articleIds,
+                      List<String> articleIds, List<String> supersedes,
                       Double requiresWeightDropKg, int weightLookbackDays,
                       String baselineQuestionId, String baselineValue,
                       int baselinePriorDays, int baselineMinPriorLogged,
@@ -49,8 +50,9 @@ public final class HealthRule {
                 signals == null ? Collections.<HealthSignal>emptyList() : signals));
         this.titleKey = titleKey;
         this.messageKey = messageKey;
-        this.keywords = Collections.unmodifiableList(new ArrayList<>(keywords));
         this.articleIds = Collections.unmodifiableList(new ArrayList<>(articleIds));
+        this.supersedes = Collections.unmodifiableList(new ArrayList<>(
+                supersedes == null ? Collections.<String>emptyList() : supersedes));
         this.requiresWeightDropKg = requiresWeightDropKg;
         this.weightLookbackDays = weightLookbackDays;
         this.baselineQuestionId = baselineQuestionId;
@@ -69,8 +71,8 @@ public final class HealthRule {
     public List<HealthSignal> getSignals() { return signals; }
     public String getTitleKey() { return titleKey; }
     public String getMessageKey() { return messageKey; }
-    public List<String> getKeywords() { return keywords; }
     public List<String> getArticleIds() { return articleIds; }
+    public List<String> getSupersedes() { return supersedes; }
     public Double getRequiresWeightDropKg() { return requiresWeightDropKg; }
     public int getWeightLookbackDays() { return weightLookbackDays; }
     public String getBaselineQuestionId() { return baselineQuestionId; }
