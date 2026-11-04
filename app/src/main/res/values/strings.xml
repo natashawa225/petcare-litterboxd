@@ -270,6 +270,8 @@
     <string name="health_alerts_error">Couldn\'t load health alerts.</string>
     <string name="health_alerts_disclaimer">Litterboxd does not diagnose. If you\'re worried, contact a vet.</string>
     <string name="health_alert_dismissed">Alert dismissed for now.</string>
+    <string name="checkin_urgent_view">View alert</string>
+    <string name="checkin_urgent_later">Not now</string>
     <string name="btn_open_health_alerts">Health alerts</string>
     <string name="btn_suggested_reading">Suggested reading</string>
     <string name="btn_dismiss_alert">Dismiss</string>
@@ -310,7 +312,7 @@
     <string name="article_source_icatcare">International Cat Care</string>
     <string name="article_source_pdsa">PDSA</string>
     <string name="article_source_cornell">Cornell Feline Health Center</string>
-    <string name="article_source_aspca">ASPCA</string>
+    <string name="article_source_cvs">CVS Vets</string>
 
     <string name="article_thirst_title">Increased thirst and drinking</string>
     <string name="article_thirst_summary">Drinking more than usual can point to kidney disease, diabetes, hyperthyroidism, and other issues. If intake stays high — especially over ~100 ml/kg/day — see a vet. Never withhold water.</string>
@@ -323,7 +325,7 @@
     <string name="article_vomiting_title">Vomiting in cats</string>
     <string name="article_vomiting_summary">Occasional hairballs differ from repeated vomiting with a poor appetite. Repeated vomiting is a reason to contact a vet promptly.</string>
     <string name="article_emergency_title">When pet symptoms need urgent care</string>
-    <string name="article_emergency_summary">Sudden collapse, straining without urine, severe lethargy, or ongoing vomiting can be emergencies. If you\'re unsure, err on the side of calling a vet or emergency clinic.</string>
+    <string name="article_emergency_summary">Collapse, breathing with the mouth open, or straining in the litter tray without passing urine can be emergencies. If you\'re unsure whether it\'s urgent, call your vet or an emergency clinic.</string>
     <string name="btn_quick_add_task">Add a task</string>
     <string name="daily_tasks_title">Today\'s care tasks</string>
     <string name="daily_tasks_summary">%1$d of %2$d tasks done</string>

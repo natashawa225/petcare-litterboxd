@@ -5,9 +5,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** Parses res/raw health_articles.json and health_rules.json. Plain Java for unit tests. */
 public final class HealthContentParser {
@@ -25,8 +27,7 @@ public final class HealthContentParser {
                     o.getString("titleKey"),
                     o.getString("summaryKey"),
                     o.getString("sourceKey"),
-                    o.getString("url"),
-                    readStrings(o.getJSONArray("keywords")));
+                    o.getString("url"));
             if (map.put(article.getId(), article) != null) {
                 throw new IllegalArgumentException("Duplicate article id: " + article.getId());
             }
@@ -65,6 +66,11 @@ public final class HealthContentParser {
                             + "' references missing article '" + articleId + "'");
                 }
             }
+            JSONArray supersedesArray = o.optJSONArray("supersedes");
+            List<String> supersedes = supersedesArray == null
+                    ? new ArrayList<String>()
+                    : readStrings(supersedesArray);
+
             String severity = o.getString("severity");
             if (!HealthRule.SEVERITY_WATCH.equals(severity)
                     && !HealthRule.SEVERITY_VET_VISIT.equals(severity)
@@ -95,8 +101,8 @@ public final class HealthContentParser {
                     signals,
                     o.getString("titleKey"),
                     o.getString("messageKey"),
-                    readStrings(o.getJSONArray("keywords")),
                     articleIds,
+                    supersedes,
                     weightDrop,
                     weightLookback,
                     baselineQ,
@@ -105,6 +111,16 @@ public final class HealthContentParser {
                     o.optInt("baselineMinPriorLogged", 7),
                     o.optInt("baselineMinRecentLogged", 5),
                     o.optDouble("baselineMinRatio", 2.0)));
+        }
+        Set<String> ruleIds = new HashSet<>();
+        for (HealthRule rule : rules) ruleIds.add(rule.getId());
+        for (HealthRule rule : rules) {
+            for (String hidden : rule.getSupersedes()) {
+                if (!ruleIds.contains(hidden)) {
+                    throw new IllegalArgumentException("Rule '" + rule.getId()
+                            + "' supersedes missing rule '" + hidden + "'");
+                }
+            }
         }
         return rules;
     }

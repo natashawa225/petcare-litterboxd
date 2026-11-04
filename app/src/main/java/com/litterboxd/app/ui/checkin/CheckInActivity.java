@@ -1,5 +1,6 @@
 package com.litterboxd.app.ui.checkin;
 
+import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
@@ -24,9 +26,18 @@ import com.litterboxd.app.checkin.HistoryTriggerEvaluator;
 import com.litterboxd.app.checkin.Question;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.DailyCheckinDao;
+import com.litterboxd.app.data.dao.WeightLogDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.DailyCheckin;
+import com.litterboxd.app.data.session.AppPrefs;
+import com.litterboxd.app.health.HealthAlert;
+import com.litterboxd.app.health.HealthContent;
+import com.litterboxd.app.health.HealthRule;
+import com.litterboxd.app.health.HealthRuleEvaluator;
+import com.litterboxd.app.health.WeightPoints;
+import com.litterboxd.app.health.WeightTrend;
+import com.litterboxd.app.ui.health.HealthAlertsActivity;
 import com.litterboxd.app.util.AppExecutors;
 
 import java.time.LocalDate;
@@ -383,6 +394,7 @@ public class CheckInActivity extends AppCompatActivity {
 
         AppExecutors.getInstance().diskIO().execute(() -> {
             boolean saved;
+            HealthRule urgentRule = null;
             try {
                 String cutoff = LocalDate.now().minusDays(DailyCheckinDao.RETENTION_DAYS).toString();
                 new DailyCheckinDao(dbHelper).saveCheckinAndTrim(catId, checkinDate, answers, cutoff);
@@ -391,18 +403,65 @@ public class CheckInActivity extends AppCompatActivity {
                 Log.e(TAG, "Could not save the check-in", e);
                 saved = false;
             }
+            if (saved) {
+                try {
+                    urgentRule = findUrgentRule();
+                } catch (SQLiteException e) {
+                    Log.w(TAG, "Saved, but could not check health alerts", e);
+                }
+            }
             final boolean success = saved;
+            final HealthRule finalUrgentRule = urgentRule;
             AppExecutors.getInstance().mainThread().execute(() -> {
                 if (isFinishing() || isDestroyed()) return;
                 if (success) {
                     Toast.makeText(this, getString(R.string.checkin_saved, catName), Toast.LENGTH_SHORT).show();
-                    finish();
+                    if (finalUrgentRule != null) {
+                        showUrgentAlert(finalUrgentRule);
+                    } else {
+                        finish();
+                    }
                 } else {
                     Toast.makeText(this, R.string.checkin_error_save, Toast.LENGTH_LONG).show();
                     btnPrimary.setEnabled(true);
                 }
             });
         });
+    }
+
+    /**
+     * Background thread. Re-runs the health rules after saving and returns the first urgent
+     * one (e.g. possible urinary blockage) that the owner hasn't dismissed, or null.
+     */
+    private HealthRule findUrgentRule() {
+        HealthContent content = HealthContent.load(this);
+        if (content == null) return null;
+        Map<String, Map<String, List<String>>> answersByDate =
+                new DailyCheckinDao(dbHelper).getAnswersByDateForCat(catId);
+        List<WeightTrend.Point> weights = WeightPoints.fromLogs(
+                new WeightLogDao(dbHelper).getWeightLogsForCat(catId));
+        List<HealthAlert> alerts = HealthRuleEvaluator.evaluate(
+                content.getRules(), content.getArticlesById(), answersByDate, LocalDate.now(),
+                new AppPrefs(this).getDismissedHealthAlertIds(catId), weights);
+        for (HealthAlert alert : alerts) {
+            if (alert.getRule().isUrgent()) return alert.getRule();
+        }
+        return null;
+    }
+
+    /** Urgent patterns shouldn't wait behind a counter on Daily: tell the owner straight away. */
+    private void showUrgentAlert(HealthRule rule) {
+        new AlertDialog.Builder(this)
+                .setTitle(stringByKey(rule.getTitleKey(), catName))
+                .setMessage(stringByKey(rule.getMessageKey(), catName))
+                .setPositiveButton(R.string.checkin_urgent_view, (d, w) -> {
+                    Intent intent = new Intent(this, HealthAlertsActivity.class);
+                    intent.putExtra(HealthAlertsActivity.EXTRA_CAT_ID, catId);
+                    startActivity(intent);
+                })
+                .setNegativeButton(R.string.checkin_urgent_later, null)
+                .setOnDismissListener(d -> finish())
+                .show();
     }
 
     // ---- Helpers ----

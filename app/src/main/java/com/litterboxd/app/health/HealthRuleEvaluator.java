@@ -3,6 +3,7 @@ package com.litterboxd.app.health;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,22 +37,37 @@ public final class HealthRuleEvaluator {
         List<WeightTrend.Point> weights = weightPoints == null
                 ? Collections.<WeightTrend.Point>emptyList()
                 : weightPoints;
+        // 1) Find every matching rule (dismissed ones too, so a dismissed specific rule
+        //    still hides the general rule it supersedes).
+        List<HealthRule> matched = new ArrayList<>();
+        Set<String> superseded = new HashSet<>();
         for (HealthRule rule : rules) {
-            if (dismissedRuleIds != null && dismissedRuleIds.contains(rule.getId())) {
-                continue;
-            }
             if (matches(rule, answersByDate, asOf, weights)) {
-                List<HealthArticle> articles = new ArrayList<>();
-                for (String articleId : rule.getArticleIds()) {
-                    HealthArticle article = articlesById.get(articleId);
-                    if (article != null) articles.add(article);
-                }
-                alerts.add(new HealthAlert(rule, articles));
+                matched.add(rule);
+                superseded.addAll(rule.getSupersedes());
             }
+        }
+        // 2) Keep the ones that are neither dismissed nor covered by a more specific match.
+        for (HealthRule rule : matched) {
+            if (superseded.contains(rule.getId())) continue;
+            if (dismissedRuleIds != null && dismissedRuleIds.contains(rule.getId())) continue;
+            alerts.add(new HealthAlert(rule, articlesFor(rule, articlesById)));
         }
         alerts.sort((a, b) -> Integer.compare(
                 b.getRule().severityRank(), a.getRule().severityRank()));
         return alerts;
+    }
+
+    /** The rule's hand-picked reading list, in the order given in health_rules.json. */
+    public static List<HealthArticle> articlesFor(HealthRule rule,
+                                                  Map<String, HealthArticle> articlesById) {
+        List<HealthArticle> articles = new ArrayList<>();
+        if (rule == null || articlesById == null) return articles;
+        for (String articleId : rule.getArticleIds()) {
+            HealthArticle article = articlesById.get(articleId);
+            if (article != null) articles.add(article);
+        }
+        return articles;
     }
 
     private static boolean matches(HealthRule rule,
