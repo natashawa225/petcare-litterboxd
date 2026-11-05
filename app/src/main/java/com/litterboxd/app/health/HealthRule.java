@@ -33,6 +33,10 @@ public final class HealthRule {
     private final int baselineMinPriorLogged;
     private final int baselineMinRecentLogged;
     private final double baselineMinRatio;
+    /** Words typed into the live article search for this alert. */
+    private final String searchQuery;
+    /** Substrings that must appear in a page before it is shown (the signs that fire this alert). */
+    private final List<String> searchTerms;
 
     public HealthRule(String id, String type, String severity, int windowDays, String match,
                       List<HealthSignal> signals, String titleKey, String messageKey,
@@ -40,7 +44,8 @@ public final class HealthRule {
                       Double requiresWeightDropKg, int weightLookbackDays,
                       String baselineQuestionId, String baselineValue,
                       int baselinePriorDays, int baselineMinPriorLogged,
-                      int baselineMinRecentLogged, double baselineMinRatio) {
+                      int baselineMinRecentLogged, double baselineMinRatio,
+                      String searchQuery, List<String> searchTerms) {
         this.id = id;
         this.type = type == null ? TYPE_SIGNAL : type;
         this.severity = severity;
@@ -50,7 +55,8 @@ public final class HealthRule {
                 signals == null ? Collections.<HealthSignal>emptyList() : signals));
         this.titleKey = titleKey;
         this.messageKey = messageKey;
-        this.articleIds = Collections.unmodifiableList(new ArrayList<>(articleIds));
+        this.articleIds = Collections.unmodifiableList(new ArrayList<>(
+                articleIds == null ? Collections.<String>emptyList() : articleIds));
         this.supersedes = Collections.unmodifiableList(new ArrayList<>(
                 supersedes == null ? Collections.<String>emptyList() : supersedes));
         this.requiresWeightDropKg = requiresWeightDropKg;
@@ -61,6 +67,9 @@ public final class HealthRule {
         this.baselineMinPriorLogged = baselineMinPriorLogged;
         this.baselineMinRecentLogged = baselineMinRecentLogged;
         this.baselineMinRatio = baselineMinRatio;
+        this.searchQuery = searchQuery == null ? "" : searchQuery;
+        this.searchTerms = Collections.unmodifiableList(new ArrayList<>(
+                searchTerms == null ? Collections.<String>emptyList() : searchTerms));
     }
 
     public String getId() { return id; }
@@ -81,6 +90,8 @@ public final class HealthRule {
     public int getBaselineMinPriorLogged() { return baselineMinPriorLogged; }
     public int getBaselineMinRecentLogged() { return baselineMinRecentLogged; }
     public double getBaselineMinRatio() { return baselineMinRatio; }
+    public String getSearchQuery() { return searchQuery; }
+    public List<String> getSearchTerms() { return searchTerms; }
 
     public boolean isUrgent() {
         return SEVERITY_URGENT.equals(severity);

@@ -41,5 +41,36 @@
             android:layout_height="@dimen/button_height"
             android:layout_marginTop="@dimen/spacing_card"
             android:text="@string/btn_read_more_article" />
+
+        <LinearLayout
+            android:id="@+id/layoutCitation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_card"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvCitationLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+            <TextView
+                android:id="@+id/tvCitationUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_tiny"
+                android:textColor="@color/sage_primary"
+                android:textSize="@dimen/text_size_caption" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenCited"
+                style="@style/Widget.Litterboxd.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:text="@string/btn_open_cited_page" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

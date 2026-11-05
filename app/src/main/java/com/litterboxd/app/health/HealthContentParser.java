@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Parses res/raw health_articles.json and health_rules.json. Plain Java for unit tests. */
+/** Parses res/raw health_rules.json. Plain Java for unit tests. */
 public final class HealthContentParser {
 
     private HealthContentParser() {}
@@ -59,12 +59,26 @@ public final class HealthContentParser {
                         + "' needs signals");
             }
 
-            List<String> articleIds = readStrings(o.getJSONArray("articleIds"));
-            for (String articleId : articleIds) {
-                if (!articles.containsKey(articleId)) {
-                    throw new IllegalArgumentException("Rule '" + o.getString("id")
-                            + "' references missing article '" + articleId + "'");
+            JSONArray articleArray = o.optJSONArray("articleIds");
+            List<String> articleIds = articleArray == null
+                    ? new ArrayList<String>()
+                    : readStrings(articleArray);
+            if (articles != null) {
+                for (String articleId : articleIds) {
+                    if (!articles.containsKey(articleId)) {
+                        throw new IllegalArgumentException("Rule '" + o.getString("id")
+                                + "' references missing article '" + articleId + "'");
+                    }
                 }
+            }
+            String searchQuery = o.optString("searchQuery", "").trim();
+            JSONArray termArray = o.optJSONArray("searchTerms");
+            List<String> searchTerms = termArray == null
+                    ? new ArrayList<String>()
+                    : readStrings(termArray);
+            if (searchQuery.isEmpty() || searchTerms.isEmpty()) {
+                throw new IllegalArgumentException("Rule '" + o.getString("id")
+                        + "' needs searchQuery and searchTerms");
             }
             JSONArray supersedesArray = o.optJSONArray("supersedes");
             List<String> supersedes = supersedesArray == null
@@ -110,7 +124,9 @@ public final class HealthContentParser {
                     o.optInt("baselinePriorDays", 14),
                     o.optInt("baselineMinPriorLogged", 7),
                     o.optInt("baselineMinRecentLogged", 5),
-                    o.optDouble("baselineMinRatio", 2.0)));
+                    o.optDouble("baselineMinRatio", 2.0),
+                    searchQuery,
+                    searchTerms));
         }
         Set<String> ruleIds = new HashSet<>();
         for (HealthRule rule : rules) ruleIds.add(rule.getId());

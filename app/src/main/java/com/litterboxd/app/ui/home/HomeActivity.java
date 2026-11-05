@@ -1,6 +1,7 @@
 package com.litterboxd.app.ui.home;
 
 import android.Manifest;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -48,6 +50,7 @@ import com.litterboxd.app.ui.checkin.CheckInActivity;
 import com.litterboxd.app.ui.checkin.CheckInContent;
 import com.litterboxd.app.ui.checkin.HealthLogActivity;
 import com.litterboxd.app.ui.health.HealthAlertsActivity;
+import com.litterboxd.app.reminders.TodayListReminderScheduler;
 import com.litterboxd.app.ui.nav.BottomNavHelper;
 import com.litterboxd.app.ui.profile.CatProfileActivity;
 import com.litterboxd.app.ui.tasks.CareTasksActivity;
@@ -57,6 +60,7 @@ import com.litterboxd.app.util.DateFormatUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -73,6 +77,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView tvDailyLogStatus, tvTaskSummary, tvHealthAlertsStatus;
     private ImageView imgHomeCatPhoto;
     private MaterialButton btnSwitchCat, btnViewCatProfile, btnLogToday, btnOpenHealthLog, btnOpenHealthAlerts;
+    private MaterialButton btnTodayReminder;
     private LinearLayout layoutDailyLogAnswers, layoutTodayTasks;
     private ProgressBar progressTasks;
 
@@ -137,6 +142,8 @@ public class HomeActivity extends AppCompatActivity {
             BottomNavHelper.openTab(this, intent);
         });
         findViewById(R.id.btnSeeTasks).setOnClickListener(v -> BottomNavHelper.openTab(this, R.id.nav_tasks));
+        btnTodayReminder = findViewById(R.id.btnTodayReminder);
+        btnTodayReminder.setOnClickListener(v -> onTodayReminderClick());
 
         checkNotificationPermission();
     }
@@ -147,6 +154,66 @@ public class HomeActivity extends AppCompatActivity {
         // Reload whenever the tab is shown: another tab or screen may have changed the selected
         // cat, today's log or the tasks.
         loadData();
+        bindTodayReminderButton();
+    }
+
+    /** The unfinished-today reminder lives on this card. It cannot be removed, only turned off. */
+    private void onTodayReminderClick() {
+        if (!appPrefs.isTodayListReminderEnabled()) {
+            showTodayReminderTimePicker();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.daily_remind_dialog_title)
+                .setItems(new CharSequence[]{
+                        getString(R.string.daily_remind_change),
+                        getString(R.string.daily_remind_turn_off)
+                }, (dialog, which) -> {
+                    if (which == 0) {
+                        showTodayReminderTimePicker();
+                    } else {
+                        appPrefs.setTodayListReminderEnabled(false);
+                        TodayListReminderScheduler.scheduleFromPrefs(this);
+                        bindTodayReminderButton();
+                    }
+                })
+                .show();
+    }
+
+    private void showTodayReminderTimePicker() {
+        new TimePickerDialog(this, (view, hour, minute) -> {
+            appPrefs.setTodayListReminderTime(hour, minute);
+            appPrefs.setTodayListReminderEnabled(true);
+            TodayListReminderScheduler.scheduleFromPrefs(this);
+            bindTodayReminderButton();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                    && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        PERMISSION_REQUEST_CODE_NOTIFICATION);
+            }
+        }, appPrefs.getTodayListReminderHour(), appPrefs.getTodayListReminderMinute(),
+                DateFormat.is24HourFormat(this)).show();
+    }
+
+    private void bindTodayReminderButton() {
+        if (appPrefs.isTodayListReminderEnabled()) {
+            String clock = formatClock(appPrefs.getTodayListReminderHour(), appPrefs.getTodayListReminderMinute());
+            btnTodayReminder.setText(clock);
+            btnTodayReminder.setContentDescription(getString(R.string.cd_today_reminder_on, clock));
+        } else {
+            btnTodayReminder.setText(R.string.daily_remind_button_off);
+            btnTodayReminder.setContentDescription(getString(R.string.cd_today_reminder_off));
+        }
+    }
+
+    private String formatClock(int hour, int minute) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+        return DateFormatUtils.formatTime(calendar.getTimeInMillis());
     }
 
     /**

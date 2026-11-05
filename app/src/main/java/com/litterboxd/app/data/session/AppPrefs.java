@@ -12,6 +12,10 @@ public class AppPrefs {
     private static final String KEY_CARE_TASKS_SEEDED_PREFIX = "care_tasks_seeded_";
     private static final String KEY_OWNER_AVATAR = "owner_avatar";
     private static final String KEY_DISMISSED_ALERTS_PREFIX = "dismissed_health_alerts_";
+    private static final String KEY_TODAY_LIST_REMINDER_ON = "today_list_reminder_on";
+    private static final String KEY_TODAY_LIST_REMINDER_HOUR = "today_list_reminder_hour";
+    private static final String KEY_TODAY_LIST_REMINDER_MINUTE = "today_list_reminder_minute";
+    private static final String KEY_REMINDER_SLOT_PREFIX = "reminder_slot_posted_";
 
     /** Owner avatar values: "bundled:<drawable name>", "file:<private file name>", or none. */
     public static final String AVATAR_BUNDLED_PREFIX = "bundled:";
@@ -110,6 +114,43 @@ public class AppPrefs {
             sb.append(id);
         }
         return sb.toString();
+    }
+
+    public boolean isTodayListReminderEnabled() {
+        return prefs.getBoolean(KEY_TODAY_LIST_REMINDER_ON, false);
+    }
+
+    public void setTodayListReminderEnabled(boolean enabled) {
+        prefs.edit().putBoolean(KEY_TODAY_LIST_REMINDER_ON, enabled).apply();
+    }
+
+    /** Hour for the unfinished-today reminder. 8:00 pm until the owner picks one. */
+    public int getTodayListReminderHour() {
+        return prefs.getInt(KEY_TODAY_LIST_REMINDER_HOUR, 20);
+    }
+
+    public int getTodayListReminderMinute() {
+        return prefs.getInt(KEY_TODAY_LIST_REMINDER_MINUTE, 0);
+    }
+
+    public void setTodayListReminderTime(int hour, int minute) {
+        prefs.edit()
+                .putInt(KEY_TODAY_LIST_REMINDER_HOUR, hour)
+                .putInt(KEY_TODAY_LIST_REMINDER_MINUTE, minute)
+                .apply();
+    }
+
+    /**
+     * First caller for this reminder slot on this day returns true and may post.
+     * A second alarm for the same task and time the same day returns false.
+     */
+    public boolean claimReminderSlot(String slotKey, String day) {
+        synchronized (AppPrefs.class) {
+            String key = KEY_REMINDER_SLOT_PREFIX + slotKey;
+            String existing = prefs.getString(key, "");
+            if (day.equals(existing)) return false;
+            return prefs.edit().putString(key, day).commit();
+        }
     }
 
     public void clear() {

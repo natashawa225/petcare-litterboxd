@@ -22,11 +22,44 @@
             android:textAppearance="@style/TextAppearance.Litterboxd.ScreenTitle" />
 
         <TextView
+            android:id="@+id/tvAlertSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+        <TextView
             android:id="@+id/tvArticlesIntro"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_tiny"
+            android:layout_marginTop="@dimen/spacing_small"
             android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+        <ProgressBar
+            android:id="@+id/progressSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvSearchStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Litterboxd.Supporting"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSearchAgain"
+            style="@style/Widget.Litterboxd.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@string/btn_search_again"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/layoutArticles"
