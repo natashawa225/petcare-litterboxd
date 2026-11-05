@@ -268,20 +268,49 @@
                     android:orientation="vertical"
                     android:padding="@dimen/card_padding">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/daily_tasks_title"
-                        android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
-
-                    <TextView
-                        android:id="@+id/tvTaskSummary"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_tiny"
-                        android:textColor="@color/dark_olive_green"
-                        android:textSize="@dimen/text_size_small"
-                        android:textStyle="bold" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/daily_tasks_title"
+                                android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+                            <TextView
+                                android:id="@+id/tvTaskSummary"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_tiny"
+                                android:textColor="@color/dark_olive_green"
+                                android:textSize="@dimen/text_size_small"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTodayReminder"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_small"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:textAllCaps="false"
+                            android:paddingStart="@dimen/spacing_small"
+                            android:paddingEnd="@dimen/spacing_small"
+                            android:text="@string/daily_remind_button_off"
+                            android:textColor="@color/sage_primary"
+                            android:textSize="@dimen/text_size_caption" />
+                    </LinearLayout>
 
                     <ProgressBar
                         android:id="@+id/progressTasks"

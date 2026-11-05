@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/** Loads preset health rules and articles from res/raw. */
+/** Loads health rules from res/raw. Reading links are searched when the owner asks, not stored here. */
 public final class HealthContent {
 
     private static final String TAG = "HealthContent";
@@ -40,15 +40,13 @@ public final class HealthContent {
         return articlesById.get(id);
     }
 
-    /** Call off the UI thread. Returns null if either file is broken. */
+    /** Call off the UI thread. Returns null if the rules file is broken. */
     public static HealthContent load(Context context) {
         try {
-            String articlesJson = readRaw(context, R.raw.health_articles);
             String rulesJson = readRaw(context, R.raw.health_rules);
-            Map<String, HealthArticle> articles = HealthContentParser.parseArticles(articlesJson);
+            Map<String, HealthArticle> articles = Collections.emptyMap();
             List<HealthRule> rules = HealthContentParser.parseRules(rulesJson, articles);
-            return new HealthContent(Collections.unmodifiableMap(articles),
-                    Collections.unmodifiableList(rules));
+            return new HealthContent(articles, Collections.unmodifiableList(rules));
         } catch (IOException | JSONException | IllegalArgumentException e) {
             Log.e(TAG, "Could not load health content", e);
             return null;

@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Runtime permission (API 33+) for care reminders; requested once from HomeActivity. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -102,6 +104,10 @@
 
         <receiver
             android:name=".reminders.CareTaskReminderReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".reminders.TodayListReminderReceiver"
             android:exported="false" />
 
         <receiver

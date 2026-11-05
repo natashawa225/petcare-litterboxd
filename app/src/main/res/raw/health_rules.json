@@ -12,7 +12,8 @@
       ],
       "titleKey": "alert_urine_blockage_title",
       "messageKey": "alert_urine_blockage_message",
-      "articleIds": ["icatcare_obstruction", "cornell_flutd", "cvs_emergency"]
+      "searchQuery": "straining to urinate",
+      "searchTerms": ["strain", "urin"]
     },
     {
       "id": "drink_pee_weight",
@@ -29,7 +30,8 @@
       "titleKey": "alert_drink_pee_weight_title",
       "messageKey": "alert_drink_pee_weight_message",
       "supersedes": ["drink_and_pee"],
-      "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "icatcare_thirst"]
+      "searchQuery": "drinking more urinating weight loss",
+      "searchTerms": ["drink", "urin", "weight"]
     },
     {
       "id": "drink_and_pee",
@@ -43,7 +45,8 @@
       ],
       "titleKey": "alert_drink_pee_title",
       "messageKey": "alert_drink_pee_message",
-      "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "icatcare_thirst"]
+      "searchQuery": "drinking more and urinating",
+      "searchTerms": ["drink", "urin"]
     },
     {
       "id": "litter_and_drinking",
@@ -57,7 +60,8 @@
       ],
       "titleKey": "alert_litter_drink_title",
       "messageKey": "alert_litter_drink_message",
-      "articleIds": ["pdsa_drink_wee", "cornell_diabetes", "cornell_hyperthyroid"]
+      "searchQuery": "litter tray drinking more",
+      "searchTerms": ["litter", "drink"]
     },
     {
       "id": "low_appetite_vomiting",
@@ -71,7 +75,8 @@
       ],
       "titleKey": "alert_appetite_vomit_title",
       "messageKey": "alert_appetite_vomit_message",
-      "articleIds": ["pdsa_vomiting", "cvs_emergency"]
+      "searchQuery": "loss of appetite vomiting",
+      "searchTerms": ["appetite", "vomit"]
     },
     {
       "id": "litter_baseline_double",
@@ -88,7 +93,8 @@
       "baselineMinRatio": 2.0,
       "titleKey": "alert_litter_baseline_title",
       "messageKey": "alert_litter_baseline_message",
-      "articleIds": ["pdsa_drink_wee", "cornell_flutd"]
+      "searchQuery": "litter tray visits",
+      "searchTerms": ["litter"]
     },
     {
       "id": "water_rising_week",
@@ -101,7 +107,8 @@
       ],
       "titleKey": "alert_water_rising_title",
       "messageKey": "alert_water_rising_message",
-      "articleIds": ["icatcare_thirst", "pdsa_drink_wee"]
+      "searchQuery": "increased thirst drinking",
+      "searchTerms": ["drink"]
     },
     {
       "id": "hiding_week_plus",
@@ -114,7 +121,8 @@
       ],
       "titleKey": "alert_hiding_title",
       "messageKey": "alert_hiding_message",
-      "articleIds": ["cvs_emergency", "pdsa_vomiting"]
+      "searchQuery": "cat hiding",
+      "searchTerms": ["hid"]
     }
   ]
 }

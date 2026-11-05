@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Shows pattern-based health alerts for the selected cat, with optional preset reading.
+ * Shows pattern-based health alerts for the selected cat. More info searches current reading.
  * Wording stays non-diagnostic ("see a vet" / "worth watching").
  */
 public class HealthAlertsActivity extends AppCompatActivity {
@@ -171,8 +171,6 @@ public class HealthAlertsActivity extends AppCompatActivity {
             title.setText(CheckInContent.text(this, rule.getTitleKey(), catName));
             message.setText(CheckInContent.text(this, rule.getMessageKey(), catName));
 
-            boolean hasArticles = !alert.getArticles().isEmpty();
-            btnArticles.setEnabled(hasArticles);
             btnArticles.setOnClickListener(v -> openArticles(rule.getId()));
             btnDismiss.setOnClickListener(v -> dismissAlert(rule.getId()));
             layoutAlerts.addView(card);

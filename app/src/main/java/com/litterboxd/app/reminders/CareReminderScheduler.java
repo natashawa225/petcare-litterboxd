@@ -60,6 +60,11 @@ public final class CareReminderScheduler {
         } catch (RuntimeException e) {
             android.util.Log.w("CareReminderScheduler", "Could not reschedule care reminders", e);
         }
+        try {
+            TodayListReminderScheduler.scheduleFromPrefs(context);
+        } catch (RuntimeException e) {
+            android.util.Log.w("CareReminderScheduler", "Could not reschedule today's list reminder", e);
+        }
     }
 
     private static PendingIntent pendingIntent(Context context, long taskId) {

@@ -37,11 +37,9 @@ public class HealthRuleEvaluatorTest {
 
     @BeforeClass
     public static void loadFiles() throws IOException, JSONException {
-        String articlesJson = new String(Files.readAllBytes(
-                Paths.get("src/main/res/raw/health_articles.json")), StandardCharsets.UTF_8);
         String rulesJson = new String(Files.readAllBytes(
                 Paths.get("src/main/res/raw/health_rules.json")), StandardCharsets.UTF_8);
-        articles = HealthContentParser.parseArticles(articlesJson);
+        articles = Collections.emptyMap();
         rules = HealthContentParser.parseRules(rulesJson, articles);
     }
 
@@ -134,13 +132,10 @@ public class HealthRuleEvaluatorTest {
     }
 
     @Test
-    public void articlesForReturnsRulesListInOrder() {
+    public void everyRuleSearchesWithTheSignsThatFireIt() {
         for (HealthRule rule : rules) {
-            List<HealthArticle> list = HealthRuleEvaluator.articlesFor(rule, articles);
-            assertEquals(rule.getArticleIds().size(), list.size());
-            for (int i = 0; i < list.size(); i++) {
-                assertEquals(rule.getArticleIds().get(i), list.get(i).getId());
-            }
+            assertFalse(rule.getSearchQuery().isEmpty());
+            assertFalse(rule.getSearchTerms().isEmpty());
         }
     }
 
@@ -206,15 +201,8 @@ public class HealthRuleEvaluatorTest {
     }
 
     @Test
-    public void presetFilesParseAndCrossLink() {
-        assertEquals(8, articles.size());
+    public void rulesFileParses() {
         assertEquals(8, rules.size());
-        for (HealthRule rule : rules) {
-            assertFalse(rule.getArticleIds().isEmpty());
-            for (String id : rule.getArticleIds()) {
-                assertTrue(articles.containsKey(id));
-            }
-        }
     }
 
     private static Map<String, List<String>> merge(Map<String, List<String>> a,
