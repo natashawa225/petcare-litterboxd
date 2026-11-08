@@ -25,25 +25,87 @@
             android:paddingEnd="@dimen/margin_horizontal"
             android:paddingBottom="@dimen/spacing_large">
 
-            <!-- Greeting and date -->
-            <TextView
-                android:id="@+id/tvWelcomeUser"
+            <!-- "Pet the cat" widget: greeting over the clip's empty top half, cats below.
+                 Tap a cat to pet it; touch both cats with two fingers. See PetTheCatView. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPetTheCat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+                app:cardBackgroundColor="@color/pet_widget_background"
+                app:cardCornerRadius="@dimen/pet_widget_corner"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_tiny"
-                android:text="@string/daily_greeting"
-                android:textAppearance="@style/TextAppearance.Litterboxd.ScreenTitle" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextureView
+                        android:id="@+id/texturePetTheCat"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="H,2:1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/imgPetTheCatStill"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:importantForAccessibility="no"
+                        android:scaleType="matrix"
+                        android:src="@drawable/pet_the_cat_placeholder"
+                        app:layout_constraintBottom_toBottomOf="@id/texturePetTheCat"
+                        app:layout_constraintEnd_toEndOf="@id/texturePetTheCat"
+                        app:layout_constraintStart_toStartOf="@id/texturePetTheCat"
+                        app:layout_constraintTop_toTopOf="@id/texturePetTheCat" />
+
+                    <TextView
+                        android:id="@+id/tvWelcomeUser"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/card_padding"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:layout_marginEnd="@dimen/card_padding"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.ScreenTitle"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/texturePetTheCat" />
+
+                    <TextView
+                        android:id="@+id/tvDailyTagline"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/card_padding"
+                        android:layout_marginEnd="@dimen/card_padding"
+                        android:text="@string/daily_greeting"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvWelcomeUser" />
+
+                    <!-- Transparent touch + hearts layer, on top of everything else. -->
+                    <com.litterboxd.app.ui.home.PetTheCatView
+                        android:id="@+id/petTheCatView"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:contentDescription="@string/cd_pet_the_cat"
+                        app:layout_constraintBottom_toBottomOf="@id/texturePetTheCat"
+                        app:layout_constraintEnd_toEndOf="@id/texturePetTheCat"
+                        app:layout_constraintStart_toStartOf="@id/texturePetTheCat"
+                        app:layout_constraintTop_toTopOf="@id/texturePetTheCat" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:id="@+id/tvToday"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_tiny"
+                android:layout_marginTop="@dimen/spacing_small"
                 android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
 
             <!-- Selected cat -->

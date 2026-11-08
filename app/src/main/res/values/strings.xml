@@ -232,7 +232,8 @@
 
     <!-- Daily tab -->
     <string name="daily_greeting">For every chapter of their nine lives🐈</string>
-    <string name="daily_hello">Hi, %s</string>
+    <string name="daily_hello">Hi, %s!</string>
+    <string name="cd_pet_the_cat">Your cats. Tap a cat to pet it, or touch both cats with two fingers.</string>
     <string name="daily_no_cat">Add a cat to start logging.</string>
     <string name="cd_cat_photo">Photo of %s</string>
     <string name="cd_change_cat_photo">Photo of %1$s. Tap to change it.</string>

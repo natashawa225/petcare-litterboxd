@@ -14,4 +14,6 @@
     <color name="pastel_sage">#E5E8DD</color>
     <color name="pastel_coral">#F8DED2</color>
     <color name="pastel_yellow">#F3D76B</color>
+    <!-- Matches the background of the pet-the-cat clips so the card edges blend in. -->
+    <color name="pet_widget_background">#F7F3EC</color>
 </resources>
