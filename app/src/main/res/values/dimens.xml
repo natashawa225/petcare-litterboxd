@@ -49,4 +49,5 @@
     <dimen name="diary_photo_corner">12dp</dimen>
     <dimen name="diary_type_icon_size">14dp</dimen>
     <dimen name="diary_empty_icon_size">72dp</dimen>
+    <dimen name="pet_widget_corner">24dp</dimen>
 </resources>

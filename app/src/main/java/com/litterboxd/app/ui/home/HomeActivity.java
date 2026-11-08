@@ -78,6 +78,8 @@ public class HomeActivity extends AppCompatActivity {
     private ImageView imgHomeCatPhoto;
     private MaterialButton btnSwitchCat, btnViewCatProfile, btnLogToday, btnOpenHealthLog, btnOpenHealthAlerts;
     private MaterialButton btnTodayReminder;
+    private PetTheCatView petTheCatView;
+    private PetTheCatPlayer petTheCatPlayer;
     private LinearLayout layoutDailyLogAnswers, layoutTodayTasks;
     private ProgressBar progressTasks;
 
@@ -107,6 +109,12 @@ public class HomeActivity extends AppCompatActivity {
 
         tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
         tvToday = findViewById(R.id.tvToday);
+
+        // "Pet the cat" header widget: touches pick a clip, the player shows it.
+        petTheCatView = findViewById(R.id.petTheCatView);
+        petTheCatPlayer = new PetTheCatPlayer(this,
+                findViewById(R.id.texturePetTheCat), findViewById(R.id.imgPetTheCatStill));
+        petTheCatView.setOnPetListener(which -> petTheCatPlayer.play(which));
         tvHomeCatName = findViewById(R.id.tvHomeCatName);
         tvHomeCatDetails = findViewById(R.id.tvHomeCatDetails);
         imgHomeCatPhoto = findViewById(R.id.imgHomeCatPhoto);
@@ -155,6 +163,14 @@ public class HomeActivity extends AppCompatActivity {
         // cat, today's log or the tasks.
         loadData();
         bindTodayReminderButton();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Leaving Daily: stop the clip and the heart thread, back to the still picture.
+        petTheCatPlayer.stop();
+        petTheCatView.stopAnimation();
     }
 
     /** The unfinished-today reminder lives on this card. It cannot be removed, only turned off. */
