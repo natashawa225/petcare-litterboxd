@@ -102,6 +102,11 @@
             android:name=".ui.health.HealthArticlesActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.health.HealthArticleReaderActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden"
+            android:exported="false" />
+
         <receiver
             android:name=".reminders.CareTaskReminderReceiver"
             android:exported="false" />

@@ -39,8 +39,27 @@ public class HealthRuleEvaluatorTest {
     public static void loadFiles() throws IOException, JSONException {
         String rulesJson = new String(Files.readAllBytes(
                 Paths.get("src/main/res/raw/health_rules.json")), StandardCharsets.UTF_8);
-        articles = Collections.emptyMap();
+        articles = HealthContentParser.parseArticles(rulesJson);
         rules = HealthContentParser.parseRules(rulesJson, articles);
+    }
+
+    @Test
+    public void everyRuleGivesReasonsAndCitesARealPage() {
+        for (HealthRule rule : rules) {
+            assertFalse(rule.getId(), rule.getReasonsKey().isEmpty());
+            for (HealthArticle article : HealthRuleEvaluator.articlesFor(rule, articles)) {
+                assertTrue(rule.getId(), article.getUrl().startsWith("https://"));
+            }
+            assertFalse(rule.getId(), HealthRuleEvaluator.articlesFor(rule, articles).isEmpty());
+        }
+    }
+
+    @Test
+    public void disclaimerAppearsOnceAndNoAlertTitleNamesACondition() throws IOException {
+        String strings = new String(Files.readAllBytes(
+                Paths.get("src/main/res/values/strings.xml")), StandardCharsets.UTF_8);
+        assertEquals(2, strings.split("does not diagnose", -1).length);
+        assertFalse(strings.contains("Possible urinary blockage"));
     }
 
     private static Map<String, List<String>> ans(String questionId, String value) {
