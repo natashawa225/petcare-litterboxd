@@ -14,6 +14,14 @@
     <color name="pastel_sage">#E5E8DD</color>
     <color name="pastel_coral">#F8DED2</color>
     <color name="pastel_yellow">#F3D76B</color>
+    <!-- Soft pink of the cushion in the pet-the-cat widget; used as a gentle accent around the app. -->
+    <color name="blush_pink">#F6E4DE</color>
+    <!-- Soft earthy fills for the Daily "My cats" cards (and cat profile accents). -->
+    <color name="card_oat">#EFE5CF</color>
+    <!-- Deep red of the checked rug on the welcome screen; used for the wordmark accent. -->
+    <color name="rug_burgundy">#7B1E2B</color>
+    <color name="card_sage">#DDE3D3</color>
+    <color name="card_clay">#EED8C8</color>
     <!-- Matches the background of the pet-the-cat clips so the card edges blend in. -->
     <color name="pet_widget_background">#F7F3EC</color>
 </resources>

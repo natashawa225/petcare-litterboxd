@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rounded ink-outlined box around the three cat profile stats. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/off_white_background" />
+    <stroke
+        android:width="2dp"
+        android:color="@color/ink" />
+    <corners android:radius="18dp" />
+</shape>

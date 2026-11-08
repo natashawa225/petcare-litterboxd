@@ -42,6 +42,7 @@ public class WelcomeActivity extends AppCompatActivity implements TextureView.Su
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+        styleWordmark(findViewById(R.id.tvTitle));
 
         imgCatStatic = findViewById(R.id.imgCatStatic);
         textureViewCat = findViewById(R.id.textureViewCat);
@@ -216,5 +217,19 @@ public class WelcomeActivity extends AppCompatActivity implements TextureView.Su
     protected void onDestroy() {
         super.onDestroy();
         releaseMediaPlayer();
+    }
+
+    /** "Litter" stays bold ink; "boxd" becomes bold-italic burgundy, the wordmark's signature. */
+    private void styleWordmark(android.widget.TextView title) {
+        String name = getString(R.string.app_name);
+        int split = name.toLowerCase(java.util.Locale.ROOT).indexOf("boxd");
+        if (split <= 0) return;
+        android.text.SpannableString word = new android.text.SpannableString(name);
+        word.setSpan(new android.text.style.ForegroundColorSpan(
+                        androidx.core.content.ContextCompat.getColor(this, R.color.rug_burgundy)),
+                split, name.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        word.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD_ITALIC),
+                split, name.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        title.setText(word);
     }
 }

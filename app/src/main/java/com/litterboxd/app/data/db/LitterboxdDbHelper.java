@@ -64,6 +64,7 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
                     LitterboxdContract.CareTaskEntry.COLUMN_IS_DEFAULT + " INTEGER NOT NULL DEFAULT 0, " +
                     LitterboxdContract.CareTaskEntry.COLUMN_SORT_ORDER + " INTEGER NOT NULL DEFAULT 0, " +
                     LitterboxdContract.CareTaskEntry.COLUMN_CREATED_AT + " INTEGER NOT NULL, " +
+                    LitterboxdContract.CareTaskEntry.COLUMN_SOURCE + " TEXT, " +
                     "FOREIGN KEY(" + LitterboxdContract.CareTaskEntry.COLUMN_CAT_ID + ") REFERENCES " +
                     LitterboxdContract.CatEntry.TABLE_NAME + "(" + LitterboxdContract.CatEntry.COLUMN_ID + ") ON DELETE CASCADE)";
 
@@ -184,7 +185,20 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
             ensureIndex(db, SQL_CREATE_INDEX_CHECKIN_ANSWERS_CHECKIN);
             ensureTable(db, SQL_CREATE_DIARY_ENTRIES);
             ensureIndex(db, SQL_CREATE_INDEX_DIARY_CAT_DATE);
+            ensureColumn(db, LitterboxdContract.CareTaskEntry.TABLE_NAME,
+                    LitterboxdContract.CareTaskEntry.COLUMN_SOURCE, "TEXT");
         }
+    }
+
+    /** Adds a nullable column if it is missing. Existing rows keep their data (value NULL). */
+    private static void ensureColumn(SQLiteDatabase db, String table, String column, String type) {
+        try (android.database.Cursor c = db.rawQuery("PRAGMA table_info(" + table + ")", null)) {
+            int nameCol = c.getColumnIndexOrThrow("name");
+            while (c.moveToNext()) {
+                if (column.equals(c.getString(nameCol))) return;
+            }
+        }
+        db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
     }
 
     private static void ensureTable(SQLiteDatabase db, String createSql) {
@@ -228,6 +242,13 @@ public class LitterboxdDbHelper extends SQLiteOpenHelper {
         if (oldVersion < 6) {
             // v6: Cat Diary. A new table only, so all existing data is untouched.
             createDiaryTables(db);
+        }
+        if (oldVersion < 7) {
+            // v7: care_tasks.source marks reminders generated from the feeding schedule.
+            // Additive and nullable, so every existing task, log and reminder is kept.
+            // (ensureColumn skips it when the v<3 path above already created the new table.)
+            ensureColumn(db, LitterboxdContract.CareTaskEntry.TABLE_NAME,
+                    LitterboxdContract.CareTaskEntry.COLUMN_SOURCE, "TEXT");
         }
     }
 

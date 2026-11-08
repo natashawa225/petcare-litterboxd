@@ -75,11 +75,14 @@
     <!-- Home Activity -->
     <string name="default_owner_name">Cat Parent</string>
     <string name="no_cat_selected">No cat selected</string>
-    <string name="home_cat_summary">%1$s • %2$s • %3$s kg</string>
-    <string name="nav_cat_profile">Cat Profile</string>
     <string name="switch_cat">Switch Cat</string>
     <string name="title_cat_switcher">Select Cat</string>
     <string name="add_another_cat">+ Add another cat</string>
+    <string name="add_cat">Add cat</string>
+    <string name="my_cats_title">My cats (%d)</string>
+    <string name="my_cats_hint">Tap a cat to switch. Double tap for their profile.</string>
+    <string name="cd_cat_card">%s. Tap to switch to this cat.</string>
+    <string name="cd_cat_card_selected">%s, selected. Tap to open profile.</string>
     <string name="card_daily_checkin_title">Daily Check-in</string>
     <string name="btn_add_task">Add task</string>
     <string name="btn_delete">Delete</string>
@@ -95,12 +98,15 @@
     <string name="msg_delete_task_title">Delete task</string>
     <string name="msg_delete_task_message">Remove \"%s\" from this cat\'s checklist?</string>
     <string name="error_task_name_required">Please enter a task name.</string>
+    <!-- Old built-in task names: kept only so CareTaskSetup can recognise untouched placeholders. -->
     <string name="default_task_meals">Meals</string>
     <string name="default_task_brushing">Brushing (ears &amp; teeth)</string>
     <string name="default_task_poop_scoop">Poop scoop</string>
     <string name="default_task_play">Scheduled play sessions</string>
     <string name="default_task_vet">Vet appointments</string>
     <string name="default_task_grooming">Grooming (nails, hair, paws)</string>
+    <string name="feeding_task_description">%s g · from feeding schedule</string>
+    <string name="feeding_task_description_plain">From feeding schedule</string>
     <string name="notification_task_title">Litterboxd reminder</string>
     <string name="notification_task_title_cat">Care reminder for %1$s</string>
     <string name="notification_task_due_today">%s is still due today.</string>
@@ -114,7 +120,6 @@
 
     <!-- Cat Profile Activity -->
     <string name="title_cat_profile">Cat Profile</string>
-    <string name="label_life_stage">Life Stage: %s</string>
     <string name="section_weight_history">Weight History</string>
     <string name="btn_add_weight">Add Weight</string>
     <string name="btn_weight_history">History</string>
@@ -124,7 +129,6 @@
     <string name="prompt_weight_notes">Notes (optional)</string>
     <string name="section_feeding_schedule">Feeding Schedule</string>
     <string name="btn_edit_schedule">Edit Schedule</string>
-    <string name="profile_details">Breed: %1$s\nAge: %2$s | Weight: %3$s kg\nSex: %4$s | Neutered: %5$s\nCoat: %6$s | Lifestyle: %7$s</string>
     <string name="empty_weight_logs">No weight logs recorded yet.</string>
     <string name="weight_log_row">• %1$s kg on %2$s</string>
     <string name="weight_log_row_with_notes">• %1$s kg on %2$s (%3$s)</string>
@@ -136,7 +140,38 @@
     <string name="empty_feeding_schedule">No feeding schedule configured.</string>
     <string name="feeding_meal_row">• %1$s at %2$s — %3$sg</string>
     <string name="this_cat">this cat</string>
-    <string name="btn_delete_cat">Delete Cat</string>
+    <!-- Add weight: when was it weighed -->
+    <string name="weight_date_label">Weighed on</string>
+    <string name="weight_date_today">Today</string>
+    <string name="weight_date_pick">Pick a date…</string>
+    <!-- Cat profile header -->
+    <string name="cd_profile_menu">More options</string>
+    <string name="profile_menu_edit">Edit profile</string>
+    <string name="profile_menu_delete">Delete cat</string>
+    <string name="profile_age_pill">🎂 %1$s · %2$s</string>
+    <string name="profile_stat_weight">⚖️ Weight</string>
+    <string name="profile_stat_logged">📝 This week</string>
+    <string name="profile_stat_lifestyle">🏡 Lifestyle</string>
+    <string name="profile_weight_value">%s kg</string>
+    <string name="profile_weight_steady">Steady</string>
+    <string name="profile_weight_down">↓ %s kg</string>
+    <string name="profile_weight_up">↑ %s kg</string>
+    <string name="profile_weight_first">First log</string>
+    <string name="profile_weight_none">No logs</string>
+    <string name="profile_logged_value">%d / 7 days</string>
+    <string name="profile_logged_great">Great logging</string>
+    <string name="profile_logged_more">Keep going</string>
+    <string name="profile_neutered_yes">Neutered</string>
+    <string name="profile_neutered_no">Not neutered</string>
+    <string name="profile_unknown">—</string>
+    <string name="profile_status_urgent">Contact a vet now</string>
+    <string name="profile_status_vet">Worth a vet visit</string>
+    <string name="profile_status_watch">Worth watching</string>
+    <string name="profile_status_normal">All looks normal</string>
+    <string name="profile_status_none">No check-ins yet</string>
+    <string name="profile_status_sub_alerts">%1$s · tap for details</string>
+    <string name="profile_status_sub_last">Last check-in: %s</string>
+    <string name="profile_status_sub_none">Log a check-in to start spotting patterns</string>
     <string name="msg_delete_cat_title">Delete Cat Profile</string>
     <string name="msg_delete_cat_message">Are you sure you want to delete %s? All associated weight logs, feeding schedules, and care tasks will be removed.</string>
 
@@ -237,7 +272,8 @@
     <string name="daily_no_cat">Add a cat to start logging.</string>
     <string name="cd_cat_photo">Photo of %s</string>
     <string name="cd_change_cat_photo">Photo of %1$s. Tap to change it.</string>
-    <string name="daily_log_title">Today\'s little check-in</string>
+    <string name="daily_log_title">How is your cat today?</string>
+    <string name="daily_log_title_cat">How is %s today?</string>
     <string name="daily_log_empty">Nothing logged yet today. It only takes about 20 seconds.</string>
     <string name="daily_log_loading">Loading today\'s log…</string>
     <string name="daily_log_error">Couldn\'t load today\'s log. Pull it up again in a moment.</string>
@@ -332,7 +368,16 @@
     <string name="tasks_for_cat">For %s</string>
     <string name="tasks_section_todo">To do</string>
     <string name="tasks_section_done">Done</string>
-    <string name="tasks_empty">No little tasks today. Enjoy the extra cuddle time!</string>
+    <string name="tasks_empty">No care tasks yet. Set a feeding schedule in the cat\'s profile, or add a routine below.</string>
+    <!-- Suggested routines on the Tasks tab (added only when the owner taps one). -->
+    <string name="suggest_title">Add a routine for %s</string>
+    <string name="suggest_hint">Only what fits your cat. You choose the time.</string>
+    <string name="suggest_chip">+ %s</string>
+    <string name="suggest_litter">Litter scoop</string>
+    <string name="suggest_play">Playtime</string>
+    <string name="suggest_brushing">Brushing</string>
+    <string name="suggest_flea_worm">Flea &amp; worm treatment</string>
+    <string name="suggest_vet">Vet check-up</string>
     <string name="prompt_task_description">Description (optional)</string>
     <string name="prompt_task_cat">For which cat</string>
     <string name="btn_due_date_none">Add a due date (optional)</string>

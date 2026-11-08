@@ -120,6 +120,15 @@ public class CareTaskDao {
                 new String[]{String.valueOf(taskId), String.valueOf(completedAt)});
     }
 
+    /** True if the task was ever ticked off (it has at least one completion log). */
+    public boolean hasLogs(long taskId) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        return android.database.DatabaseUtils.queryNumEntries(db,
+                LitterboxdContract.CareTaskLogEntry.TABLE_NAME,
+                LitterboxdContract.CareTaskLogEntry.COLUMN_TASK_ID + " = ?",
+                new String[]{String.valueOf(taskId)}) > 0;
+    }
+
     public List<CareTaskLog> getLogsForTask(long taskId) {
         List<CareTaskLog> logs = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -171,6 +180,11 @@ public class CareTaskDao {
         }
         values.put(LitterboxdContract.CareTaskEntry.COLUMN_IS_DEFAULT, task.isDefault() ? 1 : 0);
         values.put(LitterboxdContract.CareTaskEntry.COLUMN_SORT_ORDER, task.getSortOrder());
+        if (task.getSource() != null) {
+            values.put(LitterboxdContract.CareTaskEntry.COLUMN_SOURCE, task.getSource());
+        } else {
+            values.putNull(LitterboxdContract.CareTaskEntry.COLUMN_SOURCE);
+        }
         values.put(LitterboxdContract.CareTaskEntry.COLUMN_CREATED_AT,
                 task.getCreatedAt() > 0 ? task.getCreatedAt() : System.currentTimeMillis());
         return values;
@@ -203,6 +217,10 @@ public class CareTaskDao {
         task.setDefault(cursor.getInt(cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_IS_DEFAULT)) == 1);
         task.setSortOrder(cursor.getInt(cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_SORT_ORDER)));
         task.setCreatedAt(cursor.getLong(cursor.getColumnIndexOrThrow(LitterboxdContract.CareTaskEntry.COLUMN_CREATED_AT)));
+        int sourceCol = cursor.getColumnIndex(LitterboxdContract.CareTaskEntry.COLUMN_SOURCE);
+        if (sourceCol >= 0 && !cursor.isNull(sourceCol)) {
+            task.setSource(cursor.getString(sourceCol));
+        }
         return task;
     }
 }

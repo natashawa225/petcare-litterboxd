@@ -2,7 +2,7 @@ package com.litterboxd.app.data.db;
 
 public final class LitterboxdContract {
     public static final String DATABASE_NAME = "litterboxd.db";
-    public static final int DATABASE_VERSION = 6;
+    public static final int DATABASE_VERSION = 7;
 
     private LitterboxdContract() {}
 
@@ -57,6 +57,12 @@ public final class LitterboxdContract {
         public static final String COLUMN_IS_DEFAULT = "is_default";
         public static final String COLUMN_SORT_ORDER = "sort_order";
         public static final String COLUMN_CREATED_AT = "created_at";
+        /**
+         * Where the task came from (added in DB v7): null for tasks the owner added (and older
+         * tasks), {@link #SOURCE_FEEDING} for reminders generated from the cat's feeding schedule.
+         */
+        public static final String COLUMN_SOURCE = "source";
+        public static final String SOURCE_FEEDING = "feeding";
     }
 
     public static class CareTaskLogEntry {

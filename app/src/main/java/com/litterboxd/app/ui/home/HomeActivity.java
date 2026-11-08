@@ -12,7 +12,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -31,13 +30,12 @@ import com.litterboxd.app.checkin.AnswerOption;
 import com.litterboxd.app.checkin.DecisionTree;
 import com.litterboxd.app.checkin.Question;
 import com.litterboxd.app.data.CareTaskCompletion;
-import com.litterboxd.app.data.CareTaskSeeder;
+import com.litterboxd.app.data.CareTaskSetup;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.DailyCheckinDao;
 import com.litterboxd.app.data.dao.WeightLogDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
-import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.CareTask;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.DailyCheckin;
@@ -52,9 +50,9 @@ import com.litterboxd.app.ui.checkin.HealthLogActivity;
 import com.litterboxd.app.ui.health.HealthAlertsActivity;
 import com.litterboxd.app.reminders.TodayListReminderScheduler;
 import com.litterboxd.app.ui.nav.BottomNavHelper;
+import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
 import com.litterboxd.app.ui.profile.CatProfileActivity;
 import com.litterboxd.app.ui.tasks.CareTasksActivity;
-import com.litterboxd.app.util.AgeUtils;
 import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
 
@@ -73,10 +71,10 @@ import java.util.Set;
  */
 public class HomeActivity extends AppCompatActivity {
 
-    private TextView tvWelcomeUser, tvToday, tvHomeCatName, tvHomeCatDetails;
+    private TextView tvWelcomeUser, tvToday, tvMyCatsTitle, tvDailyLogTitle;
+    private CatCardRow catCardRow;
     private TextView tvDailyLogStatus, tvTaskSummary, tvHealthAlertsStatus;
-    private ImageView imgHomeCatPhoto;
-    private MaterialButton btnSwitchCat, btnViewCatProfile, btnLogToday, btnOpenHealthLog, btnOpenHealthAlerts;
+    private MaterialButton btnLogToday, btnOpenHealthLog, btnOpenHealthAlerts;
     private MaterialButton btnTodayReminder;
     private PetTheCatView petTheCatView;
     private PetTheCatPlayer petTheCatPlayer;
@@ -87,7 +85,6 @@ public class HomeActivity extends AppCompatActivity {
     private CatDao catDao;
     private CareTaskDao careTaskDao;
     private DailyCheckinDao dailyCheckinDao;
-    private FileStorageHelper fileStorageHelper;
     private Cat currentCat;
     private List<Cat> allCats = new ArrayList<>();
     /** Question tree, loaded once (it only changes with an app update). */
@@ -105,7 +102,6 @@ public class HomeActivity extends AppCompatActivity {
         catDao = new CatDao(dbHelper);
         careTaskDao = new CareTaskDao(dbHelper);
         dailyCheckinDao = new DailyCheckinDao(dbHelper);
-        fileStorageHelper = new FileStorageHelper(this);
 
         tvWelcomeUser = findViewById(R.id.tvWelcomeUser);
         tvToday = findViewById(R.id.tvToday);
@@ -115,11 +111,9 @@ public class HomeActivity extends AppCompatActivity {
         petTheCatPlayer = new PetTheCatPlayer(this,
                 findViewById(R.id.texturePetTheCat), findViewById(R.id.imgPetTheCatStill));
         petTheCatView.setOnPetListener(which -> petTheCatPlayer.play(which));
-        tvHomeCatName = findViewById(R.id.tvHomeCatName);
-        tvHomeCatDetails = findViewById(R.id.tvHomeCatDetails);
-        imgHomeCatPhoto = findViewById(R.id.imgHomeCatPhoto);
-        btnSwitchCat = findViewById(R.id.btnSwitchCat);
-        btnViewCatProfile = findViewById(R.id.btnViewCatProfile);
+        tvMyCatsTitle = findViewById(R.id.tvMyCatsTitle);
+        tvDailyLogTitle = findViewById(R.id.tvDailyLogTitle);
+        catCardRow = new CatCardRow(this, findViewById(R.id.scrollMyCats), findViewById(R.id.layoutMyCats));
         tvDailyLogStatus = findViewById(R.id.tvDailyLogStatus);
         layoutDailyLogAnswers = findViewById(R.id.layoutDailyLogAnswers);
         btnLogToday = findViewById(R.id.btnLogToday);
@@ -132,14 +126,6 @@ public class HomeActivity extends AppCompatActivity {
 
         BottomNavHelper.setup(this, (BottomNavigationView) findViewById(R.id.bottomNav), R.id.nav_daily);
 
-        btnSwitchCat.setOnClickListener(v -> CatSwitcher.show(this, allCats, cat -> loadData()));
-        btnViewCatProfile.setOnClickListener(v -> {
-            if (currentCat != null) {
-                Intent intent = new Intent(this, CatProfileActivity.class);
-                intent.putExtra("cat_id", currentCat.getId());
-                startActivity(intent);
-            }
-        });
         btnLogToday.setOnClickListener(v -> openCheckIn());
         btnOpenHealthLog.setOnClickListener(v -> openHealthLog());
         btnOpenHealthAlerts.setOnClickListener(v -> openHealthAlerts());
@@ -288,7 +274,7 @@ public class HomeActivity extends AppCompatActivity {
             DailyCheckin checkin = null;
             int alertCount = 0;
             if (selected != null) {
-                CareTaskSeeder.seedIfEmpty(this, careTaskDao, selected.getId());
+                CareTaskSetup.prepareCat(this, careTaskDao, selected.getId());
                 tasks = careTaskDao.getTasksForCat(selected.getId());
                 checkin = dailyCheckinDao.getCheckin(selected.getId(), today);
                 HealthContent healthContent = HealthContent.load(this);
@@ -329,22 +315,34 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    /** The "My cats" row: switch cat, open the selected cat's profile, or add a cat. */
     private void updateCatCard() {
-        if (currentCat != null) {
-            tvHomeCatName.setText(currentCat.getName());
-            String ageStr = AgeUtils.getAgeDisplay(currentCat.getBirthday(), currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
-            tvHomeCatDetails.setText(getString(R.string.home_cat_summary, currentCat.getBreed(), ageStr, String.valueOf(currentCat.getWeight())));
-            imgHomeCatPhoto.setContentDescription(getString(R.string.cd_cat_photo, currentCat.getName()));
-            fileStorageHelper.showCatPhoto(imgHomeCatPhoto, currentCat.getPhotoPath());
-            btnSwitchCat.setVisibility(View.VISIBLE);
-            btnViewCatProfile.setEnabled(true);
-        } else {
-            tvHomeCatName.setText(R.string.no_cat_selected);
-            tvHomeCatDetails.setText(R.string.daily_no_cat);
-            imgHomeCatPhoto.setImageResource(R.drawable.ic_cat_face);
-            btnSwitchCat.setVisibility(View.GONE);
-            btnViewCatProfile.setEnabled(false);
-        }
+        tvMyCatsTitle.setText(getString(R.string.my_cats_title, allCats.size()));
+        tvDailyLogTitle.setText(currentCat != null
+                ? getString(R.string.daily_log_title_cat, currentCat.getName())
+                : getString(R.string.daily_log_title));
+        long selectedId = currentCat != null ? currentCat.getId() : -1L;
+        catCardRow.bind(allCats, selectedId, new CatCardRow.Listener() {
+            @Override
+            public void onSelectCat(Cat cat) {
+                appPrefs.setSelectedCatId(cat.getId());
+                loadData();
+            }
+
+            @Override
+            public void onOpenProfile(Cat cat) {
+                Intent intent = new Intent(HomeActivity.this, CatProfileActivity.class);
+                intent.putExtra("cat_id", cat.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAddCat() {
+                Intent intent = new Intent(HomeActivity.this, AddEditCatActivity.class);
+                intent.putExtra(AddEditCatActivity.EXTRA_ADD_ANOTHER, true);
+                startActivity(intent);
+            }
+        });
     }
 
     /** Today's saved answers as "Appetite: Ate normally" rows, or the friendly empty state. */

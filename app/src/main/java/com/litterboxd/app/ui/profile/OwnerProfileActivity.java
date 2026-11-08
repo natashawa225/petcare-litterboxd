@@ -18,7 +18,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.litterboxd.app.R;
-import com.litterboxd.app.data.CareTaskSeeder;
+import com.litterboxd.app.data.SampleData;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.FeedingScheduleDao;
@@ -164,94 +164,13 @@ public class OwnerProfileActivity extends AppCompatActivity {
                 .show();
     }
 
+    /** Adds the fictional demo cats (see SampleData); cats already there are skipped. */
     private void loadSampleData() {
         AppExecutors.getInstance().diskIO().execute(() -> {
-            // Loading twice would duplicate Mochi and Biscuit.
-            boolean hasMochi = false, hasBiscuit = false;
-            for (Cat c : catDao.getAllCats()) {
-                if ("Mochi".equals(c.getName())) hasMochi = true;
-                if ("Biscuit".equals(c.getName())) hasBiscuit = true;
-            }
-            if (hasMochi && hasBiscuit) {
-                AppExecutors.getInstance().mainThread().execute(() ->
-                        Toast.makeText(this, R.string.msg_sample_data_already_loaded, Toast.LENGTH_SHORT).show());
-                return;
-            }
-
-            // Mochi
-            Cat mochi = new Cat();
-            mochi.setName("Mochi");
-            mochi.setApproxAgeYears(2);
-            mochi.setApproxAgeMonths(4);
-            mochi.setBreed("Domestic Shorthair");
-            mochi.setSex("Female");
-            mochi.setNeutered(true);
-            mochi.setWeight(4.1);
-            mochi.setCoatColor("Calico");
-            mochi.setLifestyle("Indoor only");
-            mochi.setCreatedAt(System.currentTimeMillis() - 86400000L * 30);
-            long mochiId = catDao.insertCat(mochi);
-
-            WeightLog w1 = new WeightLog();
-            w1.setCatId(mochiId);
-            w1.setWeight(4.0);
-            w1.setDate(System.currentTimeMillis() - 86400000L * 15);
-            w1.setNotes("Initial check");
-            weightLogDao.insertWeightLog(w1);
-
-            FeedingMeal m1 = new FeedingMeal();
-            m1.setCatId(mochiId);
-            m1.setMealLabel("Breakfast");
-            m1.setMealTime("08:00"); // same 24-hour HH:mm format as the feeding schedule screen
-            m1.setPortionGrams(45.0);
-            feedingScheduleDao.insertFeedingMeal(m1);
-
-            FeedingMeal m2 = new FeedingMeal();
-            m2.setCatId(mochiId);
-            m2.setMealLabel("Dinner");
-            m2.setMealTime("18:00");
-            m2.setPortionGrams(45.0);
-            feedingScheduleDao.insertFeedingMeal(m2);
-
-            // Biscuit
-            Cat biscuit = new Cat();
-            biscuit.setName("Biscuit");
-            biscuit.setApproxAgeYears(5);
-            biscuit.setApproxAgeMonths(0);
-            biscuit.setBreed("Maine Coon");
-            biscuit.setSex("Male");
-            biscuit.setNeutered(true);
-            biscuit.setWeight(6.8);
-            biscuit.setCoatColor("Ginger");
-            biscuit.setLifestyle("Indoor / Outdoor");
-            biscuit.setCreatedAt(System.currentTimeMillis() - 86400000L * 60);
-            long biscuitId = catDao.insertCat(biscuit);
-
-            WeightLog w2 = new WeightLog();
-            w2.setCatId(biscuitId);
-            w2.setWeight(6.7);
-            w2.setDate(System.currentTimeMillis() - 86400000L * 20);
-            w2.setNotes("Healthy");
-            weightLogDao.insertWeightLog(w2);
-
-            FeedingMeal bm1 = new FeedingMeal();
-            bm1.setCatId(biscuitId);
-            bm1.setMealLabel("Morning Feed");
-            bm1.setMealTime("07:30");
-            bm1.setPortionGrams(70.0);
-            feedingScheduleDao.insertFeedingMeal(bm1);
-
-            CareTaskSeeder.seedIfEmpty(this, careTaskDao, mochiId);
-            CareTaskSeeder.seedIfEmpty(this, careTaskDao, biscuitId);
-
-            if (appPrefs.getSelectedCatId() == -1L) {
-                appPrefs.setSelectedCatId(mochiId);
-            }
-            appPrefs.setOnboardingComplete(true);
-
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                Toast.makeText(this, R.string.msg_sample_data_loaded, Toast.LENGTH_SHORT).show();
-            });
+            int added = SampleData.load(this);
+            AppExecutors.getInstance().mainThread().execute(() -> Toast.makeText(this,
+                    added > 0 ? R.string.msg_sample_data_loaded : R.string.msg_sample_data_already_loaded,
+                    Toast.LENGTH_SHORT).show());
         });
     }
 
