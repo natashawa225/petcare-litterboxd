@@ -137,6 +137,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
+
+            <!-- Suggested routines (CareTasksActivity.renderSuggestions): tap one to add it with
+                 your own time. Hidden once the cat has them all. -->
+            <LinearLayout
+                android:id="@+id/layoutSuggestions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/section_gap"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvSuggestionsTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/suggest_hint"
+                    android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipsSuggestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_small" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 

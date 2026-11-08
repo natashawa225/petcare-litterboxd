@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Add cat" card: white with a dashed ink outline. Inset like the cat cards (which leave
+     4dp right/bottom for the lifted shadow) so all cards line up. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:right="4dp" android:bottom="4dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/ink"
+                android:dashGap="5dp"
+                android:dashWidth="8dp" />
+            <corners android:radius="@dimen/cat_card_corner" />
+        </shape>
+    </item>
+</layer-list>

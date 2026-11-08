@@ -19,6 +19,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
+import com.litterboxd.app.data.CareTaskSetup;
 import com.litterboxd.app.data.dao.FeedingScheduleDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.model.FeedingMeal;
@@ -276,6 +277,8 @@ public class FeedingScheduleActivity extends AppCompatActivity {
                 for (FeedingMeal meal : meals) {
                     feedingScheduleDao.insertFeedingMeal(meal);
                 }
+                // One daily reminder per meal for this cat; edits update them, never duplicate.
+                CareTaskSetup.syncFeedingTasks(this, catId);
             }
 
             if (!editMode) appPrefs.setOnboardingComplete(true);

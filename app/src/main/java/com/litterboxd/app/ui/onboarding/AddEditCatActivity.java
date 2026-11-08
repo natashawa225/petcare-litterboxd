@@ -28,7 +28,7 @@ import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
-import com.litterboxd.app.data.CareTaskSeeder;
+import com.litterboxd.app.data.CareTaskSetup;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
@@ -389,7 +389,7 @@ public class AddEditCatActivity extends AppCompatActivity {
 
             cat.setCreatedAt(System.currentTimeMillis());
             long catId = catDao.insertCat(cat);
-            CareTaskSeeder.seedIfEmpty(AddEditCatActivity.this,
+            CareTaskSetup.prepareCat(AddEditCatActivity.this,
                     new CareTaskDao(LitterboxdDbHelper.getInstance(AddEditCatActivity.this)), catId);
             if (addAnother || appPrefs.getSelectedCatId() == -1L) {
                 appPrefs.setSelectedCatId(catId);

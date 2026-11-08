@@ -50,4 +50,22 @@
     <dimen name="diary_type_icon_size">14dp</dimen>
     <dimen name="diary_empty_icon_size">72dp</dimen>
     <dimen name="pet_widget_corner">24dp</dimen>
+    <!-- Welcome screen wordmark -->
+    <dimen name="welcome_header_top">88dp</dimen>
+    <dimen name="welcome_title_size">54sp</dimen>
+    <dimen name="welcome_tagline_size">11sp</dimen>
+    <!-- Cat profile -->
+    <dimen name="profile_card_corner">24dp</dimen>
+    <dimen name="profile_photo_size">104dp</dimen>
+    <dimen name="profile_name_size">26sp</dimen>
+    <!-- Daily "My cats" row -->
+    <dimen name="cat_card_min_width">128dp</dimen>
+    <dimen name="cat_card_name_max_width">140dp</dimen>
+    <dimen name="cat_card_add_width">96dp</dimen>
+    <dimen name="cat_card_height">76dp</dimen>
+    <dimen name="cat_card_avatar">52dp</dimen>
+    <dimen name="cat_card_corner">22dp</dimen>
+    <dimen name="cat_card_name_size">17sp</dimen>
+    <!-- Negative margin so the row scrolls edge to edge past the page padding. -->
+    <dimen name="my_cats_bleed">-16dp</dimen>
 </resources>

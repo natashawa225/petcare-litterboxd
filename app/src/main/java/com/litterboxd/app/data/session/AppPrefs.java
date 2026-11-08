@@ -10,6 +10,7 @@ public class AppPrefs {
     private static final String KEY_SELECTED_CAT_ID = "selected_cat_id";
     private static final String KEY_NOTIFICATION_PERMISSION_ASKED = "notification_permission_asked";
     private static final String KEY_CARE_TASKS_SEEDED_PREFIX = "care_tasks_seeded_";
+    private static final String KEY_CARE_TASKS_PREPARED_PREFIX = "care_tasks_prepared_v2_";
     private static final String KEY_OWNER_AVATAR = "owner_avatar";
     private static final String KEY_DISMISSED_ALERTS_PREFIX = "dismissed_health_alerts_";
     private static final String KEY_TODAY_LIST_REMINDER_ON = "today_list_reminder_on";
@@ -60,6 +61,15 @@ public class AppPrefs {
     }
 
     /** True once the default care tasks were created for this cat, so deleted defaults are not re-added. */
+    /** Set once CareTaskSetup has prepared this cat's tasks (placeholder clean-up + feeding sync). */
+    public boolean isCareTasksPrepared(long catId) {
+        return prefs.getBoolean(KEY_CARE_TASKS_PREPARED_PREFIX + catId, false);
+    }
+
+    public void setCareTasksPrepared(long catId) {
+        prefs.edit().putBoolean(KEY_CARE_TASKS_PREPARED_PREFIX + catId, true).apply();
+    }
+
     public boolean isCareTasksSeeded(long catId) {
         return prefs.getBoolean(KEY_CARE_TASKS_SEEDED_PREFIX + catId, false);
     }

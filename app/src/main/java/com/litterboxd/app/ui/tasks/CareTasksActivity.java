@@ -27,7 +27,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
 import com.litterboxd.app.data.CareTaskCompletion;
-import com.litterboxd.app.data.CareTaskSeeder;
+import com.litterboxd.app.data.CareTaskSetup;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
@@ -57,7 +57,9 @@ public class CareTasksActivity extends AppCompatActivity {
     public static final String EXTRA_OPEN_ADD_TASK = "open_add_task";
 
     private ImageView imgTasksCat;
-    private TextView tvTasksForCat, tvEmptyCareTasks, tvTodoSection, tvDoneSection;
+    private TextView tvTasksForCat, tvEmptyCareTasks, tvTodoSection, tvDoneSection, tvSuggestionsTitle;
+    private View layoutSuggestions;
+    private com.google.android.material.chip.ChipGroup chipsSuggestions;
     private LinearLayout layoutTodoTasks, layoutDoneTasks;
     private MaterialButton btnAddCareTask, btnSwitchCat;
 
@@ -82,6 +84,9 @@ public class CareTasksActivity extends AppCompatActivity {
         tvTasksForCat = findViewById(R.id.tvTasksForCat);
         imgTasksCat = findViewById(R.id.imgTasksCat);
         tvEmptyCareTasks = findViewById(R.id.tvEmptyCareTasks);
+        layoutSuggestions = findViewById(R.id.layoutSuggestions);
+        tvSuggestionsTitle = findViewById(R.id.tvSuggestionsTitle);
+        chipsSuggestions = findViewById(R.id.chipsSuggestions);
         tvTodoSection = findViewById(R.id.tvTodoSection);
         tvDoneSection = findViewById(R.id.tvDoneSection);
         layoutTodoTasks = findViewById(R.id.layoutTodoTasks);
@@ -91,7 +96,7 @@ public class CareTasksActivity extends AppCompatActivity {
 
         BottomNavHelper.setup(this, (BottomNavigationView) findViewById(R.id.bottomNav), R.id.nav_tasks);
         btnAddCareTask.setOnClickListener(v -> {
-            if (currentCat != null) showTaskEditor(null);
+            if (currentCat != null) showTaskEditor(null, null);
         });
         btnSwitchCat.setOnClickListener(v -> CatSwitcher.show(this, allCats, cat -> loadData()));
 
@@ -136,7 +141,7 @@ public class CareTasksActivity extends AppCompatActivity {
             }
             List<CareTask> tasks = new ArrayList<>();
             if (selected != null) {
-                CareTaskSeeder.seedIfEmpty(this, careTaskDao, selected.getId());
+                CareTaskSetup.prepareCat(this, careTaskDao, selected.getId());
                 tasks = careTaskDao.getTasksForCat(selected.getId());
             }
             final Cat finalSelected = selected;
@@ -160,7 +165,7 @@ public class CareTasksActivity extends AppCompatActivity {
                 renderCareTasks();
                 if (openAddWhenLoaded && currentCat != null) {
                     openAddWhenLoaded = false;
-                    showTaskEditor(null);
+                    showTaskEditor(null, null);
                 }
             });
         });
@@ -183,6 +188,51 @@ public class CareTasksActivity extends AppCompatActivity {
         tvEmptyCareTasks.setVisibility(careTasks.isEmpty() && currentCat != null ? View.VISIBLE : View.GONE);
         tvTodoSection.setVisibility(todo == 0 ? View.GONE : View.VISIBLE);
         tvDoneSection.setVisibility(done == 0 ? View.GONE : View.VISIBLE);
+        renderSuggestions();
+    }
+
+    // ---- Suggested routines: the owner adds them (with their own times); nothing is invented ----
+
+    /** Name, frequency and a starting reminder time for each suggestion (owner can change all). */
+    private static final Object[][] SUGGESTIONS = {
+            {R.string.suggest_litter, TaskFrequency.DAILY, 9},
+            {R.string.suggest_play, TaskFrequency.DAILY, 19},
+            {R.string.suggest_brushing, TaskFrequency.MONTHLY, 10},
+            {R.string.suggest_flea_worm, TaskFrequency.MONTHLY, 10},
+            {R.string.suggest_vet, TaskFrequency.ONCE, 10},
+    };
+
+    private void renderSuggestions() {
+        chipsSuggestions.removeAllViews();
+        if (currentCat == null) {
+            layoutSuggestions.setVisibility(View.GONE);
+            return;
+        }
+        java.util.Set<String> have = new java.util.HashSet<>();
+        for (CareTask task : careTasks) have.add(task.getName().trim().toLowerCase(java.util.Locale.ROOT));
+        int shown = 0;
+        for (Object[] suggestion : SUGGESTIONS) {
+            String name = getString((Integer) suggestion[0]);
+            if (have.contains(name.toLowerCase(java.util.Locale.ROOT))) continue;
+            com.google.android.material.chip.Chip chip = new com.google.android.material.chip.Chip(this);
+            chip.setText(getString(R.string.suggest_chip, name));
+            chip.setChipBackgroundColorResource(R.color.card_oat);
+            chip.setChipStrokeColorResource(R.color.ink);
+            chip.setChipStrokeWidth(getResources().getDisplayMetrics().density * 1.5f);
+            chip.setTextColor(ContextCompat.getColor(this, R.color.black));
+            chip.setOnClickListener(v -> {
+                CareTask template = new CareTask();
+                template.setName(name);
+                template.setFrequency((TaskFrequency) suggestion[1]);
+                template.setReminderHour((Integer) suggestion[2]);
+                template.setReminderMinute(0);
+                showTaskEditor(null, template);
+            });
+            chipsSuggestions.addView(chip);
+            shown++;
+        }
+        tvSuggestionsTitle.setText(getString(R.string.suggest_title, currentCat.getName()));
+        layoutSuggestions.setVisibility(shown == 0 ? View.GONE : View.VISIBLE);
     }
 
     private View createTaskRow(LayoutInflater inflater, LinearLayout parent, CareTask task,
@@ -216,7 +266,7 @@ public class CareTasksActivity extends AppCompatActivity {
         name.setOnClickListener(toggle);
         schedule.setOnClickListener(toggle);
         edit.setContentDescription(getString(R.string.cd_task_edit, task.getName()));
-        edit.setOnClickListener(v -> showTaskEditor(task));
+        edit.setOnClickListener(v -> showTaskEditor(task, null));
         return row;
     }
 
@@ -326,7 +376,11 @@ public class CareTasksActivity extends AppCompatActivity {
 
     // ---- Add / edit dialog ----
 
-    private void showTaskEditor(CareTask existing) {
+    /**
+     * @param existing the task to edit, or null to add one
+     * @param template prefilled name/frequency/time for a new task (a suggested routine), or null
+     */
+    private void showTaskEditor(CareTask existing, CareTask template) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_care_task, null, false);
         TextInputLayout tilName = dialogView.findViewById(R.id.tilTaskName);
         TextInputEditText etName = dialogView.findViewById(R.id.etTaskName);
@@ -400,6 +454,14 @@ public class CareTasksActivity extends AppCompatActivity {
             }
         } else {
             cbReminder.setChecked(true);
+            if (template != null) {
+                etName.setText(template.getName());
+                spinnerFrequency.setSelection(template.getFrequency().ordinal());
+                if (template.hasReminder()) {
+                    time[0] = template.getReminderHour();
+                    time[1] = template.getReminderMinute();
+                }
+            }
         }
 
         Runnable refreshDueButtons = () -> {

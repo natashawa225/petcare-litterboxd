@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One cat in the Daily "My cats" row. Background colour and the lifted (selected) look are set in
+     CatCardRow so each cat gets its own colour. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/cat_card_height"
+    android:minWidth="@dimen/cat_card_min_width"
+    android:layout_marginEnd="@dimen/spacing_small"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/spacing_small"
+    android:paddingEnd="@dimen/spacing_small"
+    android:paddingBottom="4dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imgCatCardPhoto"
+        android:layout_width="@dimen/cat_card_avatar"
+        android:layout_height="@dimen/cat_card_avatar"
+        android:background="@color/white"
+        android:importantForAccessibility="no"
+        android:padding="@dimen/avatar_stroke"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Litterboxd.Circle"
+        app:srcCompat="@drawable/ic_cat_face"
+        app:strokeColor="@color/ink"
+        app:strokeWidth="@dimen/avatar_stroke" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_small"
+        android:layout_marginEnd="@dimen/spacing_small"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvCatCardName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:maxWidth="@dimen/cat_card_name_max_width"
+            android:textColor="@color/black"
+            android:textSize="@dimen/cat_card_name_size"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Only on the selected cat: tapping it again opens the profile. -->
+    <ImageView
+        android:id="@+id/imgCatCardChevron"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_chevron_right"
+        android:visibility="gone" />
+</LinearLayout>

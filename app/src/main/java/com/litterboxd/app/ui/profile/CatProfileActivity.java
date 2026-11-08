@@ -1,11 +1,15 @@
 package com.litterboxd.app.ui.profile;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,10 +18,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.litterboxd.app.R;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
+import com.litterboxd.app.data.dao.DailyCheckinDao;
 import com.litterboxd.app.data.dao.DiaryDao;
 import com.litterboxd.app.data.dao.FeedingScheduleDao;
 import com.litterboxd.app.data.dao.WeightLogDao;
@@ -27,6 +33,13 @@ import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.FeedingMeal;
 import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.session.AppPrefs;
+import com.litterboxd.app.health.HealthAlert;
+import com.litterboxd.app.health.HealthContent;
+import com.litterboxd.app.health.HealthRule;
+import com.litterboxd.app.health.HealthRuleEvaluator;
+import com.litterboxd.app.health.WeightPoints;
+import com.litterboxd.app.ui.checkin.CheckInContent;
+import com.litterboxd.app.ui.health.HealthAlertsActivity;
 import com.litterboxd.app.reminders.CareReminderScheduler;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
@@ -37,16 +50,25 @@ import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
 import com.litterboxd.app.util.Validators;
 
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class CatProfileActivity extends AppCompatActivity {
 
     private static final int WEIGHT_PREVIEW_LIMIT = 3;
 
-    private TextView tvProfileName, tvProfileLifeStage, tvProfileDetails, tvWeightChartHint;
+    private TextView tvProfileName, tvProfileDetails, tvProfileAgePill, tvWeightChartHint;
+    private TextView tvHealthStatusIcon, tvHealthStatusTitle, tvHealthStatusSub;
+    private TextView tvStatWeight, tvStatWeightPill, tvStatLogged, tvStatLoggedPill;
+    private TextView tvStatLifestyle, tvStatLifestylePill;
+    private View cardHealthStatus;
     private ImageView imgProfilePhoto;
     private LinearLayout containerWeightLogs, containerFeedingMeals;
-    private MaterialButton btnAddWeight, btnWeightHistory, btnEditCat, btnDeleteCat;
+    private MaterialButton btnAddWeight, btnWeightHistory;
     private WeightChartView weightChart;
     private AlertDialog weightHistoryDialog;
 
@@ -76,8 +98,18 @@ public class CatProfileActivity extends AppCompatActivity {
         appPrefs = new AppPrefs(this);
 
         tvProfileName = findViewById(R.id.tvProfileName);
-        tvProfileLifeStage = findViewById(R.id.tvProfileLifeStage);
         tvProfileDetails = findViewById(R.id.tvProfileDetails);
+        tvProfileAgePill = findViewById(R.id.tvProfileAgePill);
+        cardHealthStatus = findViewById(R.id.cardHealthStatus);
+        tvHealthStatusIcon = findViewById(R.id.tvHealthStatusIcon);
+        tvHealthStatusTitle = findViewById(R.id.tvHealthStatusTitle);
+        tvHealthStatusSub = findViewById(R.id.tvHealthStatusSub);
+        tvStatWeight = findViewById(R.id.tvStatWeight);
+        tvStatWeightPill = findViewById(R.id.tvStatWeightPill);
+        tvStatLogged = findViewById(R.id.tvStatLogged);
+        tvStatLoggedPill = findViewById(R.id.tvStatLoggedPill);
+        tvStatLifestyle = findViewById(R.id.tvStatLifestyle);
+        tvStatLifestylePill = findViewById(R.id.tvStatLifestylePill);
         imgProfilePhoto = findViewById(R.id.imgProfilePhoto);
         containerWeightLogs = findViewById(R.id.containerWeightLogs);
         containerFeedingMeals = findViewById(R.id.containerFeedingMeals);
@@ -85,8 +117,6 @@ public class CatProfileActivity extends AppCompatActivity {
         tvWeightChartHint = findViewById(R.id.tvWeightChartHint);
         btnAddWeight = findViewById(R.id.btnAddWeight);
         btnWeightHistory = findViewById(R.id.btnWeightHistory);
-        btnEditCat = findViewById(R.id.btnEditCat);
-        btnDeleteCat = findViewById(R.id.btnDeleteCat);
 
         btnAddWeight.setOnClickListener(v -> showAddWeightDialog());
         btnWeightHistory.setOnClickListener(v -> showWeightHistoryDialog());
@@ -95,10 +125,25 @@ public class CatProfileActivity extends AppCompatActivity {
             intent.putExtra("cat_id", catId);
             startActivity(intent);
         };
-        btnEditCat.setOnClickListener(editCat);
         // Tapping the cat's picture is a shortcut to change it (same edit screen and photo picker).
         imgProfilePhoto.setOnClickListener(editCat);
-        btnDeleteCat.setOnClickListener(v -> showDeleteConfirmationDialog());
+        // ⋮ menu: Edit profile / Delete cat.
+        findViewById(R.id.btnProfileMenu).setOnClickListener(v -> {
+            PopupMenu menu = new PopupMenu(this, v);
+            menu.getMenu().add(0, 1, 0, R.string.profile_menu_edit);
+            menu.getMenu().add(0, 2, 1, R.string.profile_menu_delete);
+            menu.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == 1) editCat.onClick(v);
+                else showDeleteConfirmationDialog();
+                return true;
+            });
+            menu.show();
+        });
+        cardHealthStatus.setOnClickListener(v -> {
+            Intent intent = new Intent(this, HealthAlertsActivity.class);
+            intent.putExtra(HealthAlertsActivity.EXTRA_CAT_ID, catId);
+            startActivity(intent);
+        });
         findViewById(R.id.btnEditSchedule).setOnClickListener(v -> {
             Intent intent = new Intent(this, FeedingScheduleActivity.class);
             intent.putExtra(FeedingScheduleActivity.EXTRA_CAT_ID, catId);
@@ -123,20 +168,20 @@ public class CatProfileActivity extends AppCompatActivity {
             Cat loaded = catDao.getCatById(catId);
             List<WeightLog> weightLogs = weightLogDao.getWeightLogsForCat(catId);
             List<FeedingMeal> feedingMeals = feedingScheduleDao.getFeedingMealsForCat(catId);
+            final ProfileHealth health = loadHealth(weightLogs);
 
             AppExecutors.getInstance().mainThread().execute(() -> {
                 currentCat = loaded;
                 if (currentCat != null) {
                     tvProfileName.setText(currentCat.getName());
+                    tvProfileDetails.setText(joinDetails(currentCat.getSex(),
+                            currentCat.getBreed(), currentCat.getCoatColor()));
                     String lifeStage = AgeUtils.calculateLifeStage(currentCat.getBirthday(), currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
-                    tvProfileLifeStage.setText(getString(R.string.label_life_stage, lifeStage));
-
                     String ageStr = AgeUtils.getAgeDisplay(currentCat.getBirthday(), currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
-                    String details = getString(R.string.profile_details,
-                            currentCat.getBreed(), ageStr, String.valueOf(currentCat.getWeight()),
-                            currentCat.getSex(), getString(currentCat.isNeutered() ? R.string.btn_yes : R.string.btn_no),
-                            currentCat.getCoatColor(), currentCat.getLifestyle());
-                    tvProfileDetails.setText(details);
+                    tvProfileAgePill.setText(getString(R.string.profile_age_pill, ageStr, lifeStage));
+                    tvProfileAgePill.setBackground(pill(R.color.blush_pink, false));
+                    bindStats(weightLogs, health);
+                    bindHealthStatus(health);
 
                     fileStorageHelper.showCatPhoto(imgProfilePhoto, currentCat.getPhotoPath());
                     imgProfilePhoto.setContentDescription(getString(R.string.cd_change_cat_photo, currentCat.getName()));
@@ -148,6 +193,151 @@ public class CatProfileActivity extends AppCompatActivity {
                 }
             });
         });
+    }
+
+    // ---- Header: health status + stats ----
+
+    /** What the header needs from the health rules and check-ins (built off the UI thread). */
+    private static final class ProfileHealth {
+        HealthRule topRule;      // most severe current alert, or null
+        String lastCheckin;      // yyyy-MM-dd, or null if never logged
+        int loggedThisWeek;      // days with a check-in in the last 7 days (incl. today)
+    }
+
+    /** Background thread. Same rules and dismissals as the Health alerts screen. */
+    private ProfileHealth loadHealth(List<WeightLog> weightLogs) {
+        ProfileHealth health = new ProfileHealth();
+        LitterboxdDbHelper db = LitterboxdDbHelper.getInstance(this);
+        Map<String, Map<String, List<String>>> answers =
+                new DailyCheckinDao(db).getAnswersByDateForCat(catId);
+        LocalDate today = LocalDate.now();
+        for (String day : answers.keySet()) {
+            if (health.lastCheckin == null || day.compareTo(health.lastCheckin) > 0) {
+                health.lastCheckin = day;
+            }
+            try {
+                LocalDate date = LocalDate.parse(day);
+                if (!date.isAfter(today) && date.isAfter(today.minusDays(7))) health.loggedThisWeek++;
+            } catch (RuntimeException ignored) {
+                // skip a malformed date key
+            }
+        }
+        HealthContent content = HealthContent.load(this);
+        if (content != null) {
+            List<HealthAlert> alerts = HealthRuleEvaluator.evaluate(content.getRules(),
+                    content.getArticlesById(), answers, today,
+                    appPrefs.getDismissedHealthAlertIds(catId), WeightPoints.fromLogs(weightLogs));
+            if (!alerts.isEmpty()) health.topRule = alerts.get(0).getRule(); // sorted by severity
+        }
+        return health;
+    }
+
+    private void bindHealthStatus(ProfileHealth health) {
+        int fill;
+        int titleColour;
+        String icon;
+        String title;
+        String sub;
+        HealthRule rule = health.topRule;
+        if (rule != null) {
+            String alertTitle = CheckInContent.text(this, rule.getTitleKey(), currentCat.getName());
+            sub = getString(R.string.profile_status_sub_alerts, alertTitle);
+            if (rule.isUrgent()) {
+                fill = R.color.pastel_coral; titleColour = R.color.error_red; icon = "🚨";
+                title = getString(R.string.profile_status_urgent);
+            } else if (rule.isVetVisit()) {
+                fill = R.color.card_clay; titleColour = R.color.muted_pinkish_brown; icon = "🩺";
+                title = getString(R.string.profile_status_vet);
+            } else {
+                fill = R.color.card_oat; titleColour = R.color.muted_pinkish_brown; icon = "👀";
+                title = getString(R.string.profile_status_watch);
+            }
+        } else if (health.lastCheckin != null) {
+            fill = R.color.card_sage; titleColour = R.color.sage_primary; icon = "🌿";
+            title = getString(R.string.profile_status_normal);
+            sub = getString(R.string.profile_status_sub_last, formatIsoDate(health.lastCheckin));
+        } else {
+            fill = R.color.card_oat; titleColour = R.color.sage_primary; icon = "📝";
+            title = getString(R.string.profile_status_none);
+            sub = getString(R.string.profile_status_sub_none);
+        }
+        cardHealthStatus.setBackground(pill(fill, true));
+        tvHealthStatusIcon.setText(icon);
+        tvHealthStatusTitle.setText(title);
+        tvHealthStatusTitle.setTextColor(ContextCompat.getColor(this, titleColour));
+        tvHealthStatusSub.setText(sub);
+        cardHealthStatus.setContentDescription(title + ". " + sub);
+    }
+
+    private void bindStats(List<WeightLog> logs, ProfileHealth health) {
+        // Weight: newest log (falls back to the profile weight) and how it moved since the last log.
+        double latest = logs.isEmpty() ? currentCat.getWeight() : logs.get(0).getWeight();
+        tvStatWeight.setText(latest > 0
+                ? getString(R.string.profile_weight_value, formatKg(latest))
+                : getString(R.string.profile_unknown));
+        if (logs.size() >= 2) {
+            double diff = logs.get(0).getWeight() - logs.get(1).getWeight(); // newest first
+            if (Math.abs(diff) < 0.05) {
+                setPill(tvStatWeightPill, getString(R.string.profile_weight_steady), R.color.card_sage);
+            } else if (diff < 0) {
+                setPill(tvStatWeightPill, getString(R.string.profile_weight_down, formatKg(-diff)), R.color.card_clay);
+            } else {
+                setPill(tvStatWeightPill, getString(R.string.profile_weight_up, formatKg(diff)), R.color.card_oat);
+            }
+        } else {
+            setPill(tvStatWeightPill, getString(logs.isEmpty()
+                    ? R.string.profile_weight_none : R.string.profile_weight_first), R.color.card_oat);
+        }
+
+        tvStatLogged.setText(getString(R.string.profile_logged_value, health.loggedThisWeek));
+        setPill(tvStatLoggedPill, getString(health.loggedThisWeek >= 5
+                ? R.string.profile_logged_great : R.string.profile_logged_more),
+                health.loggedThisWeek >= 5 ? R.color.card_sage : R.color.card_oat);
+
+        String lifestyle = currentCat.getLifestyle();
+        tvStatLifestyle.setText(lifestyle == null || lifestyle.trim().isEmpty()
+                ? getString(R.string.profile_unknown) : lifestyle);
+        setPill(tvStatLifestylePill, getString(currentCat.isNeutered()
+                ? R.string.profile_neutered_yes : R.string.profile_neutered_no), R.color.blush_pink);
+    }
+
+    private void setPill(TextView view, String text, int fillRes) {
+        view.setText(text);
+        view.setBackground(pill(fillRes, false));
+    }
+
+    /** Rounded fill with a thin ink outline: status card (outlined=true, softer corners) or pill. */
+    private GradientDrawable pill(int fillRes, boolean card) {
+        float density = getResources().getDisplayMetrics().density;
+        GradientDrawable d = new GradientDrawable();
+        d.setColor(ContextCompat.getColor(this, fillRes));
+        d.setCornerRadius((card ? 16 : 999) * density);
+        d.setStroke(Math.round((card ? 2f : 1.5f) * density), ContextCompat.getColor(this, R.color.ink));
+        return d;
+    }
+
+    /** "Female • British Shorthair • Tabby", skipping blanks. */
+    private static String joinDetails(String... parts) {
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            if (part == null || part.trim().isEmpty()) continue;
+            if (sb.length() > 0) sb.append(" • ");
+            sb.append(part.trim());
+        }
+        return sb.toString();
+    }
+
+    private static String formatKg(double kg) {
+        return String.format(Locale.getDefault(), "%.1f", kg);
+    }
+
+    private static String formatIsoDate(String isoDay) {
+        try {
+            LocalDate day = LocalDate.parse(isoDay);
+            return DateFormatUtils.formatDate(day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        } catch (RuntimeException e) {
+            return isoDay;
+        }
     }
 
     private void populateWeightLogs(List<WeightLog> logs) {
@@ -295,6 +485,38 @@ public class CatProfileActivity extends AppCompatActivity {
         View layout = LayoutInflater.from(this).inflate(R.layout.dialog_add_weight, null, false);
         TextInputEditText etWeight = layout.findViewById(R.id.etDialogWeight);
         TextInputEditText etNotes = layout.findViewById(R.id.etDialogWeightNotes);
+        MaterialButtonToggleGroup toggleDate = layout.findViewById(R.id.toggleWeightDate);
+        MaterialButton btnPickDate = layout.findViewById(R.id.btnWeightPickDate);
+
+        // null = today (saved with the current time); otherwise the picked past day, at noon.
+        final Long[] pickedDay = {null};
+        btnPickDate.setOnClickListener(v -> {
+            Calendar initial = Calendar.getInstance();
+            if (pickedDay[0] != null) initial.setTimeInMillis(pickedDay[0]);
+            DatePickerDialog picker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+                Calendar chosen = Calendar.getInstance();
+                chosen.set(year, month, dayOfMonth, 12, 0, 0);
+                chosen.set(Calendar.MILLISECOND, 0);
+                if (DateUtils.isToday(chosen.getTimeInMillis())) {
+                    pickedDay[0] = null;
+                    btnPickDate.setText(R.string.weight_date_pick);
+                    toggleDate.check(R.id.btnWeightToday);
+                } else {
+                    pickedDay[0] = chosen.getTimeInMillis();
+                    btnPickDate.setText(DateFormatUtils.formatDate(pickedDay[0]));
+                    toggleDate.check(R.id.btnWeightPickDate);
+                }
+            }, initial.get(Calendar.YEAR), initial.get(Calendar.MONTH), initial.get(Calendar.DAY_OF_MONTH));
+            picker.getDatePicker().setMaxDate(System.currentTimeMillis()); // no future weights
+            picker.setOnCancelListener(d -> {
+                if (pickedDay[0] == null) toggleDate.check(R.id.btnWeightToday);
+            });
+            picker.show();
+        });
+        layout.findViewById(R.id.btnWeightToday).setOnClickListener(v -> {
+            pickedDay[0] = null;
+            btnPickDate.setText(R.string.weight_date_pick);
+        });
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_add_weight_title)
@@ -307,18 +529,21 @@ public class CatProfileActivity extends AppCompatActivity {
                         Toast.makeText(this, R.string.error_invalid_weight, Toast.LENGTH_LONG).show();
                         return;
                     }
+                    final long date = pickedDay[0] != null ? pickedDay[0] : System.currentTimeMillis();
                     AppExecutors.getInstance().diskIO().execute(() -> {
                         WeightLog log = new WeightLog();
                         log.setCatId(catId);
                         log.setWeight(weight);
-                        log.setDate(System.currentTimeMillis());
+                        log.setDate(date);
                         log.setNotes(notes);
                         weightLogDao.insertWeightLog(log);
 
-                        // Re-read the cat here instead of using currentCat, which belongs to the UI thread.
+                        // The profile weight follows the newest log, so backfilling an old
+                        // weight doesn't overwrite a more recent one. (Logs come newest first.)
+                        List<WeightLog> logs = weightLogDao.getWeightLogsForCat(catId);
                         Cat cat = catDao.getCatById(catId);
-                        if (cat != null) {
-                            cat.setWeight(weight);
+                        if (cat != null && !logs.isEmpty()) {
+                            cat.setWeight(logs.get(0).getWeight());
                             catDao.updateCat(cat);
                         }
 

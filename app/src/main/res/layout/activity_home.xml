@@ -108,83 +108,42 @@
                 android:layout_marginTop="@dimen/spacing_small"
                 android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
 
-            <!-- Selected cat -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardSelectedCat"
+            <!-- My cats: swipeable row of cat cards + "Add cat" (built by CatCardRow).
+                 Tap a cat to switch; tap the selected (lifted) cat for its profile. -->
+            <TextView
+                android:id="@+id/tvMyCatsTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_medium"
-                app:cardBackgroundColor="@color/surface_card">
+                android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+            <HorizontalScrollView
+                android:id="@+id/scrollMyCats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/my_cats_bleed"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/my_cats_bleed"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingStart="@dimen/margin_horizontal"
+                android:paddingEnd="@dimen/margin_horizontal"
+                android:scrollbars="none">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/layoutMyCats"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/card_padding">
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:id="@+id/imgHomeCatPhoto"
-                            android:layout_width="@dimen/cat_avatar_size"
-                            android:layout_height="@dimen/cat_avatar_size"
-                            android:background="@color/white"
-                            android:contentDescription="@string/title_cat_profile"
-                            android:padding="@dimen/avatar_stroke"
-                            android:scaleType="centerCrop"
-                            app:shapeAppearanceOverlay="@style/ShapeAppearance.Litterboxd.Circle"
-                            app:srcCompat="@drawable/ic_cat_face"
-                            app:strokeColor="@color/ink"
-                            app:strokeWidth="@dimen/avatar_stroke" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_medium"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tvHomeCatName"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/black"
-                                android:textSize="@dimen/text_size_cat_name"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tvHomeCatDetails"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="2dp"
-                                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
-                        </LinearLayout>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnSwitchCat"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:minHeight="@dimen/button_height"
-                            android:text="@string/switch_cat"
-                            android:textColor="@color/dark_olive_green"
-                            android:textSize="@dimen/text_size_caption"
-                            app:strokeColor="@color/sage_primary" />
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnViewCatProfile"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
-                        android:layout_marginTop="@dimen/spacing_card"
-                        android:text="@string/nav_cat_profile"
-                        app:backgroundTint="@color/sage_primary" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <TextView
+                android:id="@+id/tvMyCatsHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_tiny"
+                android:text="@string/my_cats_hint"
+                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
 
             <!-- Today's check-in (CheckInActivity holds the form) -->
             <com.google.android.material.card.MaterialCardView
@@ -201,6 +160,7 @@
                     android:padding="@dimen/card_padding">
 
                     <TextView
+                        android:id="@+id/tvDailyLogTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/daily_log_title"

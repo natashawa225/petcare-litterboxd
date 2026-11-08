@@ -13,6 +13,8 @@ public class CareTask {
     private Integer reminderMinute;
     private Long lastCompletedAt;
     private boolean isDefault;
+    /** null = added by the owner; "feeding" = generated from the feeding schedule. */
+    private String source;
     private int sortOrder;
     private long createdAt;
 
@@ -47,6 +49,11 @@ public class CareTask {
     public void setLastCompletedAt(Long lastCompletedAt) { this.lastCompletedAt = lastCompletedAt; }
 
     public boolean isDefault() { return isDefault; }
+    public String getSource() { return source; }
+    public void setSource(String source) { this.source = source; }
+    public boolean isFromFeedingSchedule() {
+        return com.litterboxd.app.data.db.LitterboxdContract.CareTaskEntry.SOURCE_FEEDING.equals(source);
+    }
     public void setDefault(boolean aDefault) { isDefault = aDefault; }
 
     public int getSortOrder() { return sortOrder; }

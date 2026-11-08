@@ -32,18 +32,19 @@
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#26000000"
+        android:background="#14000000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Stylized Typography Header Container -->
+    <!-- Wordmark: bold serif "Litter" in ink + italic "boxd" in the rug's burgundy (span set in
+         WelcomeActivity), a short burgundy rule, then a small tracked uppercase tagline. -->
     <LinearLayout
         android:id="@+id/headerContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="@dimen/welcome_header_top"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,25 +55,34 @@
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/title_font"
+            android:fontFamily="serif"
             android:gravity="center"
             android:includeFontPadding="false"
+            android:letterSpacing="-0.035"
             android:text="@string/app_name"
-            android:textColor="@color/dark_olive_green"
-            android:textSize="40sp"
+            android:textColor="@color/ink"
+            android:textSize="@dimen/welcome_title_size"
             android:textStyle="bold" />
+
+        <View
+            android:layout_width="28dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="14dp"
+            android:background="@color/rug_burgundy" />
 
         <TextView
             android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/subtitle_font"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
             android:gravity="center"
             android:includeFontPadding="false"
+            android:letterSpacing="0.2"
             android:text="@string/subtitle_text"
-            android:textColor="@color/muted_pinkish_brown"
-            android:textSize="16sp" />
+            android:textAllCaps="true"
+            android:textColor="@color/rug_burgundy"
+            android:textSize="@dimen/welcome_tagline_size" />
 
     </LinearLayout>
 

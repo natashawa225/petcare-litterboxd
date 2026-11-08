@@ -10,7 +10,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.DiaryDao;
+import com.litterboxd.app.data.db.LitterboxdContract;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
+import com.litterboxd.app.data.model.CareTask;
 import com.litterboxd.app.data.model.DiaryEntry;
 
 import org.junit.After;
@@ -24,7 +26,7 @@ import static org.junit.Assert.*;
 
 /**
  * Builds a version-5 database file (the schema before the Cat Diary) containing user data, then
- * opens it with the current helper so onUpgrade runs. Uses its own file, never litterboxd.db.
+ * opens it with the current helper so every later upgrade step runs (v6 diary, v7 task source). Uses its own file, never litterboxd.db.
  */
 @RunWith(AndroidJUnit4.class)
 public class DatabaseUpgradeTest {
@@ -62,10 +64,14 @@ public class DatabaseUpgradeTest {
 
         LitterboxdDbHelper helper = LitterboxdDbHelper.openNamedForTests(context, DB_NAME);
         try {
-            SQLiteDatabase db = helper.getWritableDatabase(); // runs onUpgrade(5 -> 6)
-            assertEquals(6, db.getVersion());
+            SQLiteDatabase db = helper.getWritableDatabase(); // runs onUpgrade(5 -> current)
+            assertEquals(LitterboxdContract.DATABASE_VERSION, db.getVersion());
             assertEquals("Mochi", new CatDao(helper).getCatById(1).getName());
             assertEquals(1, new CareTaskDao(helper).countForCat(1));
+            // v7: the new care_tasks.source column exists; the old task is kept, as owner-made (null).
+            CareTask kept = new CareTaskDao(helper).getTasksForCat(1).get(0);
+            assertEquals("Meals", kept.getName());
+            assertNull(kept.getSource());
             try (Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='diary_entries'", null)) {
                 assertTrue("diary_entries should exist after the upgrade", c.moveToFirst());
             }
