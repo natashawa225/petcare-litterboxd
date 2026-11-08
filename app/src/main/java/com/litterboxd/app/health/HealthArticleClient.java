@@ -34,7 +34,8 @@ public final class HealthArticleClient {
             return new ArrayList<>();
         }
         String searchHtml = get(searchUrl(query.trim()));
-        List<HealthArticleFinder.Hit> hits = HealthArticleFinder.parseSearch(searchHtml);
+        List<HealthArticleFinder.Hit> hits = HealthArticleFinder.bestCandidates(
+                HealthArticleFinder.parseSearch(searchHtml), terms);
         if (hits.isEmpty()) return new ArrayList<>();
         int count = Math.min(MAX_CANDIDATES, hits.size());
         ExecutorService pool = Executors.newFixedThreadPool(Math.min(3, count));

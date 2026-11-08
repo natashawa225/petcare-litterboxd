@@ -1,4 +1,36 @@
 {
+  "articles": [
+    {
+      "id": "source_flutd",
+      "titleKey": "alert_source_flutd_title",
+      "sourceKey": "alert_source_cornell",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/feline-lower-urinary-tract-disease"
+    },
+    {
+      "id": "source_thirst",
+      "titleKey": "alert_source_thirst_title",
+      "sourceKey": "alert_source_icatcare",
+      "url": "https://icatcare.org/articles/increased-thirst-and-drinking"
+    },
+    {
+      "id": "source_urinary",
+      "titleKey": "alert_source_urinary_title",
+      "sourceKey": "alert_source_cats_protection",
+      "url": "https://www.cats.org.uk/help-and-advice/health/urinary-problems"
+    },
+    {
+      "id": "source_vomiting",
+      "titleKey": "alert_source_vomiting_title",
+      "sourceKey": "alert_source_cornell",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/vomiting"
+    },
+    {
+      "id": "source_hiding",
+      "titleKey": "alert_source_hiding_title",
+      "sourceKey": "alert_source_cats_protection",
+      "url": "https://www.cats.org.uk/help-and-advice/cat-behaviour/cats-hiding"
+    }
+  ],
   "rules": [
     {
       "id": "urine_blockage_urgent",
@@ -12,6 +44,8 @@
       ],
       "titleKey": "alert_urine_blockage_title",
       "messageKey": "alert_urine_blockage_message",
+      "reasonsKey": "alert_reasons_urinary_urgent",
+      "articleIds": ["source_flutd"],
       "searchQuery": "straining to urinate",
       "searchTerms": ["strain", "urin"]
     },
@@ -29,6 +63,8 @@
       "weightLookbackDays": 14,
       "titleKey": "alert_drink_pee_weight_title",
       "messageKey": "alert_drink_pee_weight_message",
+      "reasonsKey": "alert_reasons_thirst",
+      "articleIds": ["source_thirst"],
       "supersedes": ["drink_and_pee"],
       "searchQuery": "drinking more urinating weight loss",
       "searchTerms": ["drink", "urin", "weight"]
@@ -45,6 +81,8 @@
       ],
       "titleKey": "alert_drink_pee_title",
       "messageKey": "alert_drink_pee_message",
+      "reasonsKey": "alert_reasons_thirst",
+      "articleIds": ["source_thirst"],
       "searchQuery": "drinking more and urinating",
       "searchTerms": ["drink", "urin"]
     },
@@ -60,8 +98,10 @@
       ],
       "titleKey": "alert_litter_drink_title",
       "messageKey": "alert_litter_drink_message",
+      "reasonsKey": "alert_reasons_thirst",
+      "articleIds": ["source_thirst"],
       "searchQuery": "litter tray drinking more",
-      "searchTerms": ["litter", "drink"]
+      "searchTerms": ["litter tray", "drink"]
     },
     {
       "id": "low_appetite_vomiting",
@@ -75,6 +115,8 @@
       ],
       "titleKey": "alert_appetite_vomit_title",
       "messageKey": "alert_appetite_vomit_message",
+      "reasonsKey": "alert_reasons_vomiting",
+      "articleIds": ["source_vomiting"],
       "searchQuery": "loss of appetite vomiting",
       "searchTerms": ["appetite", "vomit"]
     },
@@ -93,8 +135,10 @@
       "baselineMinRatio": 2.0,
       "titleKey": "alert_litter_baseline_title",
       "messageKey": "alert_litter_baseline_message",
+      "reasonsKey": "alert_reasons_litter_more",
+      "articleIds": ["source_urinary"],
       "searchQuery": "litter tray visits",
-      "searchTerms": ["litter"]
+      "searchTerms": ["litter tray", "urin"]
     },
     {
       "id": "water_rising_week",
@@ -107,8 +151,10 @@
       ],
       "titleKey": "alert_water_rising_title",
       "messageKey": "alert_water_rising_message",
+      "reasonsKey": "alert_reasons_water_rising",
+      "articleIds": ["source_thirst"],
       "searchQuery": "increased thirst drinking",
-      "searchTerms": ["drink"]
+      "searchTerms": ["drink", "thirst"]
     },
     {
       "id": "hiding_week_plus",
@@ -121,8 +167,10 @@
       ],
       "titleKey": "alert_hiding_title",
       "messageKey": "alert_hiding_message",
+      "reasonsKey": "alert_reasons_hiding",
+      "articleIds": ["source_hiding"],
       "searchQuery": "cat hiding",
-      "searchTerms": ["hid"]
+      "searchTerms": ["hid", "stress"]
     }
   ]
 }

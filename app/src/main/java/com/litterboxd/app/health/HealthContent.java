@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/** Loads health rules from res/raw. Reading links are searched when the owner asks, not stored here. */
+/** Loads health rules and the articles they cite from res/raw. Further reading is searched when asked. */
 public final class HealthContent {
 
     private static final String TAG = "HealthContent";
@@ -44,7 +44,7 @@ public final class HealthContent {
     public static HealthContent load(Context context) {
         try {
             String rulesJson = readRaw(context, R.raw.health_rules);
-            Map<String, HealthArticle> articles = Collections.emptyMap();
+            Map<String, HealthArticle> articles = HealthContentParser.parseArticles(rulesJson);
             List<HealthRule> rules = HealthContentParser.parseRules(rulesJson, articles);
             return new HealthContent(articles, Collections.unmodifiableList(rules));
         } catch (IOException | JSONException | IllegalArgumentException e) {

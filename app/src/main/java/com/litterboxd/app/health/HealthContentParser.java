@@ -25,7 +25,6 @@ public final class HealthContentParser {
             HealthArticle article = new HealthArticle(
                     o.getString("id"),
                     o.getString("titleKey"),
-                    o.getString("summaryKey"),
                     o.getString("sourceKey"),
                     o.getString("url"));
             if (map.put(article.getId(), article) != null) {
@@ -71,6 +70,10 @@ public final class HealthContentParser {
                     }
                 }
             }
+            if (articleIds.isEmpty()) {
+                throw new IllegalArgumentException("Rule '" + o.getString("id")
+                        + "' needs an article to cite");
+            }
             String searchQuery = o.optString("searchQuery", "").trim();
             JSONArray termArray = o.optJSONArray("searchTerms");
             List<String> searchTerms = termArray == null
@@ -115,6 +118,7 @@ public final class HealthContentParser {
                     signals,
                     o.getString("titleKey"),
                     o.getString("messageKey"),
+                    o.getString("reasonsKey"),
                     articleIds,
                     supersedes,
                     weightDrop,

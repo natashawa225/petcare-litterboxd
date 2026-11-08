@@ -65,6 +65,39 @@ public class HealthArticleFinderTest {
     }
 
     @Test
+    public void signsMustBeWholeWordsNotPartsOfOtherWords() {
+        String trapping = "<div class=\"Article-content\"><p>Use a carrier with a restraint facility "
+                + "during the journey.</p></div>";
+        assertFalse(HealthArticleFinder.pageMatches(trapping, Arrays.asList("strain", "urin")));
+        assertTrue(HealthArticleFinder.pageMatches(
+                "<div class=\"Article-content\"><p>Straining to urinate.</p></div>",
+                Arrays.asList("strain", "urin")));
+    }
+
+    @Test
+    public void signsInTheSiteMenuDoNotCount() {
+        String page = "<nav>Urinary problems</nav><div class=\"Article-content\"><p>Straining.</p></div>";
+        assertFalse(HealthArticleFinder.pageMatches(page, Arrays.asList("strain", "urin")));
+    }
+
+    @Test
+    public void pagesNamedAfterTheSignsReplacePassingMentions() {
+        List<HealthArticleFinder.Hit> best = HealthArticleFinder.bestCandidates(Arrays.asList(
+                new HealthArticleFinder.Hit("Trapping", "/articles/trapping"),
+                new HealthArticleFinder.Hit("Feline Lower Urinary Tract Disease", "/articles/flutd")),
+                Arrays.asList("strain", "urin"));
+        assertEquals(1, best.size());
+        assertEquals("/articles/flutd", best.get(0).path);
+    }
+
+    @Test
+    public void allHitsAreKeptWhenNoTitleNamesTheSigns() {
+        List<HealthArticleFinder.Hit> hits = Arrays.asList(
+                new HealthArticleFinder.Hit("Trapping", "/articles/trapping"));
+        assertEquals(1, HealthArticleFinder.bestCandidates(hits, Arrays.asList("vomit")).size());
+    }
+
+    @Test
     public void openingSummaryIsTheIntroAndStaysShort() {
         String summary = HealthArticleFinder.openingSummary(MATCHING_ARTICLE);
         assertTrue(summary.startsWith("Urethral obstruction, otherwise known as a blocked bladder"));
