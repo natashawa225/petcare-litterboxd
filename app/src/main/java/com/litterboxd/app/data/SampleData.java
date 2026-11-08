@@ -2,6 +2,7 @@ package com.litterboxd.app.data;
 
 import android.content.Context;
 
+import com.litterboxd.app.R;
 import com.litterboxd.app.data.dao.CareTaskDao;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.dao.DailyCheckinDao;
@@ -30,9 +31,9 @@ import java.util.Set;
  *
  *  - Mochi  (adult, indoor): two meals, litter scoop done today, a booked booster vaccination
  *           coming up, a calm week of check-ins -> "All looks normal".
- *  - Biscuit (Maine Coon, indoor/outdoor): two different meal times, monthly flea & worm
- *           treatment already done this month, weight drifting down, drinking more for 5 days
- *           -> a "Worth watching" alert.
+ *  - Biscuit (Maine Coon, indoor/outdoor): two different meal times plus a full care routine
+ *           (litter, play, brushing, monthly vet and grooming; some done, some to do), weight
+ *           drifting down, drinking more for 5 days -> a "Worth watching" alert.
  *  - Pip    (kitten): three small meals and nothing else yet -> only feeding reminders, plus the
  *           Tasks tab's suggestions; no check-ins -> "No check-ins yet".
  *
@@ -112,12 +113,24 @@ public final class SampleData {
         meals(db, id, new String[][]{{"Morning feed", "07:30", "70"}, {"Evening feed", "19:00", "60"}});
         finishTasks(context, id);
 
-        // Monthly treatment already ticked off this month, so nothing is pending for it.
+        // Biscuit is the established cat with a full care routine (the classic set of routines,
+        // minus a generic "Meals" task: his feeding reminders above already cover meals).
+        // Saved as the owner's own tasks, so the placeholder tidy-up never removes them.
+        // Statuses are mixed so the demo shows both "To do" and "Done".
         CareTaskDao tasks = new CareTaskDao(db);
-        long flea = ownerTask(context, tasks, id, "Flea & worm treatment", "Spot-on, back of the neck",
-                TaskFrequency.MONTHLY, 10, 0, null, now);
+        long scoop = ownerTask(context, tasks, id, context.getString(R.string.default_task_poop_scoop),
+                null, TaskFrequency.DAILY, 9, 0, null, now);
+        complete(tasks, scoop, now - 2 * 3_600_000L); // done earlier today
+        ownerTask(context, tasks, id, context.getString(R.string.default_task_play),
+                null, TaskFrequency.DAILY, 18, 0, null, now);
+        ownerTask(context, tasks, id, context.getString(R.string.default_task_brushing),
+                null, TaskFrequency.DAILY, 19, 0, null, now);
+        long vet = ownerTask(context, tasks, id, context.getString(R.string.default_task_vet),
+                "Annual check-up booked (sample)", TaskFrequency.MONTHLY, 10, 0, null, now);
         int dayOfMonth = LocalDate.now().getDayOfMonth();
-        complete(tasks, flea, now - Math.min(3, dayOfMonth - 1) * DAY);
+        complete(tasks, vet, now - Math.min(3, dayOfMonth - 1) * DAY); // done this month
+        ownerTask(context, tasks, id, context.getString(R.string.default_task_grooming),
+                null, TaskFrequency.MONTHLY, 10, 0, null, now);
 
         // Drinking more on each of the last 5 days -> the "water rising" watch alert.
         DailyCheckinDao checkins = new DailyCheckinDao(db);
