@@ -1,7 +1,5 @@
 package com.litterboxd.app.ui.health;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -161,26 +159,9 @@ public class HealthArticlesActivity extends AppCompatActivity {
                 summary.setText(article.getSummary());
             }
             MaterialButton readMore = row.findViewById(R.id.btnReadMore);
-            View citation = row.findViewById(R.id.layoutCitation);
-            TextView citationLabel = row.findViewById(R.id.tvCitationLabel);
-            TextView citationUrl = row.findViewById(R.id.tvCitationUrl);
-            MaterialButton openCited = row.findViewById(R.id.btnOpenCited);
-            citationLabel.setText(getString(R.string.health_article_cite_label, article.getSource()));
-            citationUrl.setText(article.getUrl());
-            readMore.setOnClickListener(v -> {
-                citation.setVisibility(View.VISIBLE);
-                readMore.setVisibility(View.GONE);
-            });
-            openCited.setOnClickListener(v -> openUrl(article.getUrl()));
+            readMore.setOnClickListener(v -> HealthArticleReaderActivity.start(
+                    this, article.getTitle(), article.getUrl()));
             layoutArticles.addView(row);
-        }
-    }
-
-    private void openUrl(String url) {
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.health_article_open_failed, Toast.LENGTH_LONG).show();
         }
     }
 }

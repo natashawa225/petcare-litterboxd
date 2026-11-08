@@ -307,7 +307,7 @@
 
     <!-- Feature A: health alerts. Reading is searched when the owner asks for more info. -->
     <string name="health_alerts_title">Health alerts</string>
-    <string name="health_alerts_subtitle">Patterns from %1$s\'s recent logs — not a diagnosis.</string>
+    <string name="health_alerts_subtitle">Patterns from %1$s\'s recent logs.</string>
     <string name="health_alerts_empty">No alerts right now. Keep logging — we\'ll flag unusual patterns here.</string>
     <string name="health_alerts_error">Couldn\'t load health alerts.</string>
     <string name="health_alerts_disclaimer">Litterboxd does not diagnose. If you\'re worried, contact a vet.</string>
@@ -333,23 +333,42 @@
     <string name="alert_appetite_vomit_message">%1$s has been eating less, with repeated vomiting logged. This is worth checking with a vet.</string>
     <string name="alert_hiding_title">Hiding for a week or more</string>
     <string name="alert_hiding_message">%1$s has been hiding more for a week or longer. If this is unusual for them, consider checking with a vet.</string>
-    <string name="alert_urine_blockage_title">Possible urinary blockage</string>
-    <string name="alert_urine_blockage_message">%1$s was logged with straining or little/no urine. This can be an emergency — especially in male cats. Contact a vet now. Litterboxd does not diagnose.</string>
+    <string name="alert_urine_blockage_title">Straining or passing little urine</string>
+    <string name="alert_urine_blockage_message">%1$s was logged straining or passing little or no urine. Contact a vet now, because some causes can quickly become an emergency, especially in male cats.</string>
     <string name="alert_drink_pee_weight_title">Drinking more, peeing more, and weight down</string>
     <string name="alert_drink_pee_weight_message">%1$s\'s recent logs show more drinking and urination, and weight has dropped. This combination is worth checking with a vet.</string>
     <string name="alert_litter_baseline_title">Litter visits above %1$s\'s usual</string>
-    <string name="alert_litter_baseline_message">Compared with %1$s\'s own earlier logs, “more litter visits” showed up about twice as often this week. Worth watching — not a diagnosis.</string>
+    <string name="alert_litter_baseline_message">Compared with %1$s\'s own earlier logs, “more litter visits” showed up about twice as often this week.</string>
+
+    <!-- Possible reasons on alerts. Each list follows the source cited for that alert. -->
+    <string name="health_alert_reasons_heading">Possible reasons</string>
+    <string name="health_alert_source">Source: %1$s, %2$s</string>
+    <string name="health_alert_read_source">Read source</string>
+    <string name="alert_reasons_urinary_urgent">• Bladder inflammation (cystitis)\n• A urine infection or bladder stones\n• A blocked urethra, which is an emergency</string>
+    <string name="alert_reasons_thirst">• Kidney disease\n• Diabetes\n• An overactive thyroid</string>
+    <string name="alert_reasons_water_rising">• Warmer weather or more dry food\n• Kidney disease or diabetes\n• An overactive thyroid</string>
+    <string name="alert_reasons_vomiting">• Eating something harmful or spoiled\n• A gut condition, such as inflammatory bowel disease\n• Internal parasites or a swallowed object</string>
+    <string name="alert_reasons_litter_more">• Bladder inflammation (cystitis)\n• A urine infection or bladder stones\n• Stress</string>
+    <string name="alert_reasons_hiding">• Illness or pain\n• Stress or anxiety, such as from other cats or loud noises\n• A change at home</string>
+    <string name="alert_source_cornell">Cornell Feline Health Center</string>
+    <string name="alert_source_icatcare">International Cat Care</string>
+    <string name="alert_source_cats_protection">Cats Protection</string>
+    <string name="alert_source_flutd_title">Feline Lower Urinary Tract Disease</string>
+    <string name="alert_source_thirst_title">Increased thirst and drinking</string>
+    <string name="alert_source_urinary_title">Urinary Problems in Cats</string>
+    <string name="alert_source_vomiting_title">Vomiting</string>
+    <string name="alert_source_hiding_title">Cats Hiding</string>
 
     <string name="health_articles_title">More info</string>
-    <string name="health_articles_intro">You can stop here. The note above is the quick read. Pages below are optional. Read more only shows the website. Open a page if you want to leave the app.</string>
+    <string name="health_articles_intro">You can stop here. The note above is the quick read. Pages below are optional and open inside Litterboxd.</string>
     <string name="health_articles_searching">Searching for current pages…</string>
     <string name="health_articles_none">No current page mentioned all of these signs. The note above still applies.</string>
     <string name="health_articles_error">Couldn\'t search right now. The note above still applies.</string>
     <string name="btn_search_again">Search again</string>
     <string name="btn_read_more_article">Read more</string>
-    <string name="health_article_cite_label">This opens %1$s:</string>
-    <string name="btn_open_cited_page">Open this page</string>
-    <string name="health_article_open_failed">Couldn\'t open the article link.</string>
+    <string name="health_article_load_failed">Couldn\'t load this article. Check your connection and try again.</string>
+    <string name="btn_reader_close">Close</string>
+    <string name="btn_reader_retry">Try again</string>
     <string name="btn_quick_add_task">Add a task</string>
     <string name="daily_tasks_title">Today\'s care tasks</string>
     <string name="daily_remind_button_off">Remind me</string>

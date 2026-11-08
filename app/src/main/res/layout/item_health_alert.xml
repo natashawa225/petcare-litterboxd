@@ -34,11 +34,39 @@
             android:layout_marginTop="@dimen/spacing_tiny"
             android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_small"
+            android:text="@string/health_alert_reasons_heading"
+            android:textColor="@color/text_dark_gray"
+            android:textSize="@dimen/text_size_small"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvAlertReasons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_tiny"
+            android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+        <TextView
+            android:id="@+id/tvAlertSource"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/button_height"
+            android:textColor="@color/sage_primary"
+            android:textSize="@dimen/text_size_caption" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAlertArticles"
             android:layout_width="match_parent"
             android:layout_height="@dimen/button_height"
-            android:layout_marginTop="@dimen/spacing_card"
+            android:layout_marginTop="@dimen/spacing_small"
             android:text="@string/btn_suggested_reading"
             app:backgroundTint="@color/sage_primary" />
 

@@ -21,6 +21,7 @@ import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.health.HealthAlert;
+import com.litterboxd.app.health.HealthArticle;
 import com.litterboxd.app.health.HealthContent;
 import com.litterboxd.app.health.HealthRule;
 import com.litterboxd.app.health.HealthRuleEvaluator;
@@ -148,6 +149,8 @@ public class HealthAlertsActivity extends AppCompatActivity {
             TextView severity = card.findViewById(R.id.tvAlertSeverity);
             TextView title = card.findViewById(R.id.tvAlertTitle);
             TextView message = card.findViewById(R.id.tvAlertMessage);
+            TextView reasons = card.findViewById(R.id.tvAlertReasons);
+            TextView source = card.findViewById(R.id.tvAlertSource);
             MaterialButton btnArticles = card.findViewById(R.id.btnAlertArticles);
             MaterialButton btnDismiss = card.findViewById(R.id.btnAlertDismiss);
 
@@ -170,6 +173,10 @@ public class HealthAlertsActivity extends AppCompatActivity {
             }
             title.setText(CheckInContent.text(this, rule.getTitleKey(), catName));
             message.setText(CheckInContent.text(this, rule.getMessageKey(), catName));
+            reasons.setText(CheckInContent.text(this, rule.getReasonsKey()));
+            HealthArticle article = HealthCitations.sourceOf(alert);
+            source.setText(HealthCitations.sourceLine(this, article));
+            source.setOnClickListener(v -> HealthCitations.open(this, article));
 
             btnArticles.setOnClickListener(v -> openArticles(rule.getId()));
             btnDismiss.setOnClickListener(v -> dismissAlert(rule.getId()));
