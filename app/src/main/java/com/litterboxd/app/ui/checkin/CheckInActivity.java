@@ -32,12 +32,14 @@ import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.DailyCheckin;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.health.HealthAlert;
+import com.litterboxd.app.health.HealthArticle;
 import com.litterboxd.app.health.HealthContent;
 import com.litterboxd.app.health.HealthRule;
 import com.litterboxd.app.health.HealthRuleEvaluator;
 import com.litterboxd.app.health.WeightPoints;
 import com.litterboxd.app.health.WeightTrend;
 import com.litterboxd.app.ui.health.HealthAlertsActivity;
+import com.litterboxd.app.ui.health.HealthCitations;
 import com.litterboxd.app.util.AppExecutors;
 
 import java.time.LocalDate;
@@ -394,7 +396,7 @@ public class CheckInActivity extends AppCompatActivity {
 
         AppExecutors.getInstance().diskIO().execute(() -> {
             boolean saved;
-            HealthRule urgentRule = null;
+            HealthAlert urgentAlert = null;
             try {
                 String cutoff = LocalDate.now().minusDays(DailyCheckinDao.RETENTION_DAYS).toString();
                 new DailyCheckinDao(dbHelper).saveCheckinAndTrim(catId, checkinDate, answers, cutoff);
@@ -405,19 +407,19 @@ public class CheckInActivity extends AppCompatActivity {
             }
             if (saved) {
                 try {
-                    urgentRule = findUrgentRule();
+                    urgentAlert = findUrgentAlert();
                 } catch (SQLiteException e) {
                     Log.w(TAG, "Saved, but could not check health alerts", e);
                 }
             }
             final boolean success = saved;
-            final HealthRule finalUrgentRule = urgentRule;
+            final HealthAlert finalUrgentAlert = urgentAlert;
             AppExecutors.getInstance().mainThread().execute(() -> {
                 if (isFinishing() || isDestroyed()) return;
                 if (success) {
                     Toast.makeText(this, getString(R.string.checkin_saved, catName), Toast.LENGTH_SHORT).show();
-                    if (finalUrgentRule != null) {
-                        showUrgentAlert(finalUrgentRule);
+                    if (finalUrgentAlert != null) {
+                        showUrgentAlert(finalUrgentAlert);
                     } else {
                         finish();
                     }
@@ -431,9 +433,9 @@ public class CheckInActivity extends AppCompatActivity {
 
     /**
      * Background thread. Re-runs the health rules after saving and returns the first urgent
-     * one (e.g. possible urinary blockage) that the owner hasn't dismissed, or null.
+     * one (e.g. straining or little urine) that the owner hasn't dismissed, or null.
      */
-    private HealthRule findUrgentRule() {
+    private HealthAlert findUrgentAlert() {
         HealthContent content = HealthContent.load(this);
         if (content == null) return null;
         Map<String, Map<String, List<String>>> answersByDate =
@@ -444,16 +446,24 @@ public class CheckInActivity extends AppCompatActivity {
                 content.getRules(), content.getArticlesById(), answersByDate, LocalDate.now(),
                 new AppPrefs(this).getDismissedHealthAlertIds(catId), weights);
         for (HealthAlert alert : alerts) {
-            if (alert.getRule().isUrgent()) return alert.getRule();
+            if (alert.getRule().isUrgent()) return alert;
         }
         return null;
     }
 
     /** Urgent patterns shouldn't wait behind a counter on Daily: tell the owner straight away. */
-    private void showUrgentAlert(HealthRule rule) {
+    private void showUrgentAlert(HealthAlert alert) {
+        HealthRule rule = alert.getRule();
+        HealthArticle article = HealthCitations.sourceOf(alert);
+        String body = stringByKey(rule.getMessageKey(), catName)
+                + "\n\n" + getString(R.string.health_alert_reasons_heading)
+                + "\n" + stringByKey(rule.getReasonsKey())
+                + "\n\n" + HealthCitations.sourceLine(this, article);
         new AlertDialog.Builder(this)
                 .setTitle(stringByKey(rule.getTitleKey(), catName))
-                .setMessage(stringByKey(rule.getMessageKey(), catName))
+                .setMessage(body)
+                .setNeutralButton(R.string.health_alert_read_source,
+                        (d, w) -> HealthCitations.open(this, article))
                 .setPositiveButton(R.string.checkin_urgent_view, (d, w) -> {
                     Intent intent = new Intent(this, HealthAlertsActivity.class);
                     intent.putExtra(HealthAlertsActivity.EXTRA_CAT_ID, catId);
