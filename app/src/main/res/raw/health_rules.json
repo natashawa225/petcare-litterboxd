@@ -29,7 +29,44 @@
       "titleKey": "alert_source_hiding_title",
       "sourceKey": "alert_source_cats_protection",
       "url": "https://www.cats.org.uk/help-and-advice/cat-behaviour/cats-hiding"
+    },
+    {
+      "id": "source_inappetence",
+      "titleKey": "alert_source_inappetence_title",
+      "sourceKey": "alert_source_icatcare",
+      "url": "https://icatcare.org/articles/inappetence-in-cats"
+    },
+    {
+      "id": "source_hydration",
+      "titleKey": "alert_source_hydration_title",
+      "sourceKey": "alert_source_cornell",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/hydration"
+    },
+    {
+      "id": "source_constipation",
+      "titleKey": "alert_source_constipation_title",
+      "sourceKey": "alert_source_icatcare",
+      "url": "https://icatcare.org/articles/constipation-in-cats"
+    },
+    {
+      "id": "source_lethargy",
+      "titleKey": "alert_source_lethargy_title",
+      "sourceKey": "alert_source_pdsa",
+      "url": "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/low-energy-lethargy-in-cats"
+    },
+    {
+      "id": "source_stress",
+      "titleKey": "alert_source_stress_title",
+      "sourceKey": "alert_source_icatcare",
+      "url": "https://icatcare.org/articles/stress-in-cats"
     }
+  ],
+  "readings": [
+    { "questionId": "appetite", "value": "less", "articleId": "source_inappetence" },
+    { "questionId": "water", "value": "less", "articleId": "source_hydration" },
+    { "questionId": "litter", "value": "less", "articleId": "source_constipation" },
+    { "questionId": "energy", "value": "low", "articleId": "source_lethargy" },
+    { "questionId": "mood", "value": "grumpy", "articleId": "source_stress" }
   ],
   "rules": [
     {
@@ -117,6 +154,7 @@
       "messageKey": "alert_appetite_vomit_message",
       "reasonsKey": "alert_reasons_vomiting",
       "articleIds": ["source_vomiting"],
+      "supersedes": ["appetite_less_repeat"],
       "searchQuery": "loss of appetite vomiting",
       "searchTerms": ["appetite", "vomit"]
     },
@@ -171,6 +209,70 @@
       "articleIds": ["source_hiding"],
       "searchQuery": "cat hiding",
       "searchTerms": ["hid", "stress"]
+    },
+    {
+      "id": "appetite_less_repeat",
+      "type": "signal",
+      "severity": "vet_visit",
+      "windowDays": 3,
+      "match": "all",
+      "signals": [
+        { "questionId": "appetite", "value": "less", "minDays": 3 }
+      ],
+      "titleKey": "alert_appetite_less_title",
+      "messageKey": "alert_appetite_less_message",
+      "reasonsKey": "alert_reasons_appetite_less",
+      "articleIds": ["source_inappetence"],
+      "searchQuery": "inappetence",
+      "searchTerms": ["inappetence"]
+    },
+    {
+      "id": "litter_less_repeat",
+      "type": "signal",
+      "severity": "vet_visit",
+      "windowDays": 3,
+      "match": "all",
+      "signals": [
+        { "questionId": "litter", "value": "less", "minDays": 2 }
+      ],
+      "titleKey": "alert_litter_less_title",
+      "messageKey": "alert_litter_less_message",
+      "reasonsKey": "alert_reasons_litter_less",
+      "articleIds": ["source_constipation"],
+      "searchQuery": "constipation",
+      "searchTerms": ["constipat"]
+    },
+    {
+      "id": "energy_low_repeat",
+      "type": "signal",
+      "severity": "vet_visit",
+      "windowDays": 3,
+      "match": "all",
+      "signals": [
+        { "questionId": "energy", "value": "low", "minDays": 2 }
+      ],
+      "titleKey": "alert_energy_low_title",
+      "messageKey": "alert_energy_low_message",
+      "reasonsKey": "alert_reasons_energy_low",
+      "articleIds": ["source_lethargy"],
+      "searchQuery": "lethargy",
+      "searchTerms": ["low energy"]
+    },
+    {
+      "id": "water_less_repeat",
+      "type": "signal",
+      "severity": "watch",
+      "windowDays": 3,
+      "match": "all",
+      "signals": [
+        { "questionId": "water", "value": "less", "minDays": 3 }
+      ],
+      "titleKey": "alert_water_less_title",
+      "messageKey": "alert_water_less_message",
+      "reasonsKey": "alert_reasons_water_less",
+      "articleIds": ["source_hydration"],
+      "searchQuery": "encourage your cat to drink",
+      "searchTerms": ["encourage", "drink"]
     }
   ]
 }

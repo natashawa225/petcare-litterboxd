@@ -13,7 +13,25 @@ import java.util.Set;
  */
 public final class HealthRuleEvaluator {
 
+    private static final int MAX_READINGS = 3;
+
     private HealthRuleEvaluator() {}
+
+    /** "Worth a read" articles for today's answers, one per article, in the order of the rules file. */
+    public static List<HealthArticle> readingsFor(List<HealthReading> readings,
+                                                  Map<String, HealthArticle> articlesById,
+                                                  Map<String, List<String>> todayAnswers) {
+        List<HealthArticle> articles = new ArrayList<>();
+        if (readings == null || articlesById == null || todayAnswers == null) return articles;
+        for (HealthReading reading : readings) {
+            List<String> values = todayAnswers.get(reading.getQuestionId());
+            if (values == null || !values.contains(reading.getValue())) continue;
+            HealthArticle article = articlesById.get(reading.getArticleId());
+            if (article != null && !articles.contains(article)) articles.add(article);
+            if (articles.size() == MAX_READINGS) break;
+        }
+        return articles;
+    }
 
     public static List<HealthAlert> evaluate(List<HealthRule> rules,
                                              Map<String, HealthArticle> articlesById,

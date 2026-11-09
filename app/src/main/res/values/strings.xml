@@ -320,6 +320,8 @@
     <string name="alert_severity_watch">Worth watching</string>
     <string name="alert_severity_vet_visit">Worth a vet visit</string>
     <string name="alert_severity_urgent">Urgent — contact a vet now</string>
+    <string name="daily_readings_title">Worth a read</string>
+    <string name="daily_reading_row">%1$s, %2$s</string>
     <string name="daily_alerts_none">No new patterns from recent logs.</string>
     <string name="daily_alerts_count">%1$d health alert(s) to review</string>
 
@@ -350,6 +352,24 @@
     <string name="alert_reasons_vomiting">• Eating something harmful or spoiled\n• A gut condition, such as inflammatory bowel disease\n• Internal parasites or a swallowed object</string>
     <string name="alert_reasons_litter_more">• Bladder inflammation (cystitis)\n• A urine infection or bladder stones\n• Stress</string>
     <string name="alert_reasons_hiding">• Illness or pain\n• Stress or anxiety, such as from other cats or loud noises\n• A change at home</string>
+    <string name="alert_appetite_less_title">Eating less for three days</string>
+    <string name="alert_appetite_less_message">%1$s was logged eating less for three days in a row. International Cat Care advises contacting your vet urgently at this point.</string>
+    <string name="alert_reasons_appetite_less">• Dental disease\n• Kidney, liver or intestinal problems\n• Stress or a change of diet</string>
+    <string name="alert_water_less_title">Drinking less for three days</string>
+    <string name="alert_water_less_message">%1$s was logged drinking less for three days in a row. If you\'re worried %1$s is dehydrated, contact a vet promptly.</string>
+    <string name="alert_reasons_water_less">• Eating more wet food, which contains more water\n• Dental problems or feeling unwell\n• Trouble reaching the water, such as conflict with other pets</string>
+    <string name="alert_litter_less_title">Fewer litter visits</string>
+    <string name="alert_litter_less_message">%1$s was logged with fewer litter visits on at least two of the last three days. If %1$s is struggling to pass urine, contact a vet now, as this can be an emergency.</string>
+    <string name="alert_reasons_litter_less">• Constipation\n• Not drinking enough\n• A litter tray the cat dislikes, such as a dirty or noisy one</string>
+    <string name="alert_energy_low_title">Low energy on several days</string>
+    <string name="alert_energy_low_message">%1$s was logged with low energy on at least two of the last three days. PDSA advises contacting your vet if a cat has been lethargic for more than 24 hours.</string>
+    <string name="alert_reasons_energy_low">• A cat bite abscess\n• Kidney disease or diabetes\n• Poisoning</string>
+    <string name="alert_source_pdsa">PDSA</string>
+    <string name="alert_source_inappetence_title">Inappetence in cats</string>
+    <string name="alert_source_hydration_title">Hydration</string>
+    <string name="alert_source_constipation_title">Constipation in cats</string>
+    <string name="alert_source_lethargy_title">Low energy (lethargy) in cats</string>
+    <string name="alert_source_stress_title">Stress in cats</string>
     <string name="alert_source_cornell">Cornell Feline Health Center</string>
     <string name="alert_source_icatcare">International Cat Care</string>
     <string name="alert_source_cats_protection">Cats Protection</string>
