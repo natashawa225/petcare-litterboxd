@@ -32,6 +32,8 @@ final class PetTheCatPlayer implements TextureView.SurfaceTextureListener {
     /** All clips are 1280x720 and start from the same frame. */
     private static final int VIDEO_W = 1280;
     private static final int VIDEO_H = 720;
+    /** How long the still takes to fade back in over the clip's last frame. */
+    private static final long FADE_BACK_MS = 600;
     /** Same first frame for every visit to Daily, so it is only decoded once. */
     private static Bitmap cachedStill;
 
@@ -70,12 +72,16 @@ final class PetTheCatPlayer implements TextureView.SurfaceTextureListener {
             mp.setOnPreparedListener(MediaPlayer::start);
             mp.setOnInfoListener((p, what, extra) -> {
                 if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START && p == player) {
+                    still.animate().cancel();
+                    still.setAlpha(1f);
                     still.setVisibility(View.INVISIBLE);
                 }
                 return false;
             });
+            // The clips don't always end exactly on the still picture, so fade the still back in
+            // over the clip's last frame (which stays on screen) instead of snapping to it.
             mp.setOnCompletionListener(p -> {
-                if (p == player) stop();
+                if (p == player) fadeBackToStill(p);
             });
             mp.setOnErrorListener((p, what, extra) -> {
                 Log.w(TAG, "Clip failed: what=" + what + " extra=" + extra);
@@ -89,8 +95,24 @@ final class PetTheCatPlayer implements TextureView.SurfaceTextureListener {
         }
     }
 
+    /** Clip finished: cross-fade from its last frame to the still, then free the player. */
+    private void fadeBackToStill(MediaPlayer finished) {
+        still.animate().cancel();
+        still.setAlpha(0f);
+        still.setVisibility(View.VISIBLE);
+        still.animate()
+                .alpha(1f)
+                .setDuration(FADE_BACK_MS)
+                .withEndAction(() -> {
+                    if (player == finished) stop(); // a new pet during the fade already took over
+                })
+                .start();
+    }
+
     /** Back to the still image. Safe to call any time (Daily calls it from onPause). */
     void stop() {
+        still.animate().cancel();
+        still.setAlpha(1f);
         still.setVisibility(View.VISIBLE);
         playingClip = 0;
         if (player != null) {
