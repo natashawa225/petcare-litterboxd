@@ -34,7 +34,8 @@
       "id": "source_inappetence",
       "titleKey": "alert_source_inappetence_title",
       "sourceKey": "alert_source_icatcare",
-      "url": "https://icatcare.org/articles/inappetence-in-cats"
+      "url": "https://icatcare.org/articles/inappetence-in-cats",
+      "image": "https://icatcare.org/img/asset/aW1hZ2VzL2dyYXBoaWNzL3NsaWNlMy53ZWJw/slice3.webp?p=default&w=1200&h=630&fit=crop&s=6d806652299f7121f02f2afab06a9695"
     },
     {
       "id": "source_hydration",
@@ -46,19 +47,22 @@
       "id": "source_constipation",
       "titleKey": "alert_source_constipation_title",
       "sourceKey": "alert_source_icatcare",
-      "url": "https://icatcare.org/articles/constipation-in-cats"
+      "url": "https://icatcare.org/articles/constipation-in-cats",
+      "image": "https://icatcare.org/img/asset/aW1hZ2VzL2Fkb2Jlc3RvY2tfMzc2NDk1MDU4LmpwZw/adobestock_376495058.jpg?p=default&w=1200&h=630&fit=crop&s=a170f7324743fbe4ecce967668c998cc"
     },
     {
       "id": "source_lethargy",
       "titleKey": "alert_source_lethargy_title",
       "sourceKey": "alert_source_pdsa",
-      "url": "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/low-energy-lethargy-in-cats"
+      "url": "https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/low-energy-lethargy-in-cats",
+      "image": "https://www.pdsa.org.uk/media/4709/cat-lying-down-og.png"
     },
     {
       "id": "source_stress",
       "titleKey": "alert_source_stress_title",
       "sourceKey": "alert_source_icatcare",
-      "url": "https://icatcare.org/articles/stress-in-cats"
+      "url": "https://icatcare.org/articles/stress-in-cats",
+      "image": "https://icatcare.org/img/asset/aW1hZ2VzL2FydGljbGVzL3RodW1ibmFpbHMvYWRvYmVzdG9ja18zMzg5MDU1MjEuanBn/adobestock_338905521.jpg?p=default&w=1200&h=630&fit=crop&s=ff1e1c1216998988940cd388e9903931"
     }
   ],
   "readings": [

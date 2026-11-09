@@ -43,17 +43,31 @@
     <dimen name="health_log_dot">6dp</dimen>
 
     <!-- Cat Diary -->
-    <dimen name="diary_strip_photo_size">84dp</dimen>
     <dimen name="diary_thumb_size">72dp</dimen>
     <dimen name="diary_photo_preview_height">200dp</dimen>
     <dimen name="diary_photo_corner">12dp</dimen>
     <dimen name="diary_type_icon_size">14dp</dimen>
     <dimen name="diary_empty_icon_size">72dp</dimen>
+    <!-- Diary entry read-only "reminiscing" view -->
+    <dimen name="diary_detail_line_spacing">8dp</dimen>
     <dimen name="pet_widget_corner">24dp</dimen>
     <!-- Welcome screen wordmark -->
     <dimen name="welcome_header_top">88dp</dimen>
     <dimen name="welcome_title_size">54sp</dimen>
     <dimen name="welcome_tagline_size">11sp</dimen>
+    <!-- Daily tab rhythm: one bigger gap between sections, small gaps inside them. -->
+    <dimen name="daily_section_gap">32dp</dimen>
+    <dimen name="daily_bottom_padding">32dp</dimen>
+    <!-- Diary entry detail -->
+    <dimen name="diary_detail_photo_corner">24dp</dimen>
+    <dimen name="diary_detail_title_size">26sp</dimen>
+    <dimen name="diary_detail_body_size">17sp</dimen>
+    <!-- Daily Reading Corner cards -->
+    <dimen name="reading_thumb_corner">16dp</dimen>
+    <dimen name="reading_title_size">15sp</dimen>
+    <dimen name="reading_carousel_width">220dp</dimen>
+    <dimen name="reading_carousel_image_height">124dp</dimen>
+    <dimen name="reading_carousel_gap">12dp</dimen>
     <!-- Cat profile -->
     <dimen name="profile_card_corner">24dp</dimen>
     <dimen name="profile_photo_size">104dp</dimen>

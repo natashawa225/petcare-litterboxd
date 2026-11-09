@@ -33,6 +33,8 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.8.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    // Loads and caches Reading Corner thumbnails and full-size diary photos.
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     testImplementation("junit:junit:4.13.2")
     // Real org.json for JVM unit tests: the copy inside android.jar is a stub that throws "not mocked".
     testImplementation("org.json:json:20231013")

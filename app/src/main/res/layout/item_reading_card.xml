@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One Reading Corner carousel item (ReadingCardAdapter): an outlined card like the
+     rest of Daily. A rounded teaser image (Glide) over a tinted emoji tile, then a small label, the title and the source. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/reading_carousel_width"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="2dp"
+    android:layout_marginEnd="@dimen/reading_carousel_gap"
+    android:layout_marginBottom="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_small">
+
+    <!-- The emoji tile shows when there is no image, it is loading, or the phone is offline. -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardReadingThumb"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/reading_carousel_image_height"
+        app:cardCornerRadius="@dimen/reading_thumb_corner"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp">
+
+        <TextView
+            android:id="@+id/tvReadingThumb"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:importantForAccessibility="no"
+            android:textSize="40sp" />
+
+        <ImageView
+            android:id="@+id/imgReadingThumb"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="centerCrop" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/tvReadingLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:textSize="@dimen/text_size_caption"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvReadingTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:lineSpacingMultiplier="1.1"
+        android:maxLines="2"
+        android:minLines="2"
+        android:textColor="@color/black"
+        android:textSize="@dimen/reading_title_size"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvReadingMeta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_tiny"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/text_dark_gray"
+        android:textSize="@dimen/text_size_caption" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

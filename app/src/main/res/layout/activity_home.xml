@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Daily tab (default landing screen): greeting, selected cat, today's check-in, quick actions
-     and a care-task summary. The shared bottom navigation sits below the scrolling content. -->
+<!-- Daily tab (default landing screen), flat and minimal: greeting widget, cat row, then in order
+     of importance today's check-in, a health-alerts row, today's tasks and the Reading Corner
+     carousel. Each core section sits in an outlined card (the app's Card style), 32dp apart. -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollDaily"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -23,7 +24,7 @@
             android:paddingStart="@dimen/margin_horizontal"
             android:paddingTop="@dimen/screen_padding_top"
             android:paddingEnd="@dimen/margin_horizontal"
-            android:paddingBottom="@dimen/spacing_large">
+            android:paddingBottom="@dimen/daily_bottom_padding">
 
             <!-- "Pet the cat" widget: greeting over the clip's empty top half, cats below.
                  Tap a cat to pet it; touch both cats with two fingers. See PetTheCatView. -->
@@ -108,21 +109,14 @@
                 android:layout_marginTop="@dimen/spacing_small"
                 android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
 
-            <!-- My cats: swipeable row of cat cards + "Add cat" (built by CatCardRow).
-                 Tap a cat to switch; tap the selected (lifted) cat for its profile. -->
-            <TextView
-                android:id="@+id/tvMyCatsTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_medium"
-                android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
-
+            <!-- Cats: swipeable row (CatCardRow). Tap a cat to switch; the selected cat opens its
+                 profile. No heading or hint: the avatars and names say what this is. -->
             <HorizontalScrollView
                 android:id="@+id/scrollMyCats"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/my_cats_bleed"
-                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginTop="@dimen/spacing_medium"
                 android:layout_marginEnd="@dimen/my_cats_bleed"
                 android:clipToPadding="false"
                 android:overScrollMode="never"
@@ -137,20 +131,12 @@
                     android:orientation="horizontal" />
             </HorizontalScrollView>
 
-            <TextView
-                android:id="@+id/tvMyCatsHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_tiny"
-                android:text="@string/my_cats_hint"
-                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
-
-            <!-- Today's check-in (CheckInActivity holds the form) -->
+            <!-- 1. Today's check-in: the primary daily action, first. -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardDailyLog"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/section_gap"
+                android:layout_marginTop="@dimen/daily_section_gap"
                 app:cardBackgroundColor="@color/white">
 
                 <LinearLayout
@@ -159,12 +145,27 @@
                     android:orientation="vertical"
                     android:padding="@dimen/card_padding">
 
-                    <TextView
-                        android:id="@+id/tvDailyLogTitle"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/daily_log_title"
-                        android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+                        android:layout_marginTop="0dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvDailyLogTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/daily_log_title"
+                            android:textAppearance="@style/TextAppearance.Litterboxd.DailyHeading" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnOpenHealthLog"
+                            style="@style/Widget.Litterboxd.TextLink"
+                            android:enabled="false"
+                            android:text="@string/daily_link_calendar" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tvDailyLogStatus"
@@ -181,130 +182,76 @@
                         android:layout_marginTop="@dimen/spacing_small"
                         android:orientation="vertical" />
 
-                    <LinearLayout
-                        android:id="@+id/layoutDailyReadings"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:orientation="vertical"
-                        android:visibility="gone">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/daily_readings_title"
-                            android:textColor="@color/text_dark_gray"
-                            android:textSize="@dimen/text_size_small"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:id="@+id/layoutDailyReadingRows"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical" />
-                    </LinearLayout>
-
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogToday"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/button_height"
-                        android:layout_marginTop="@dimen/spacing_card"
+                        android:layout_marginTop="@dimen/spacing_medium"
                         android:enabled="false"
                         android:text="@string/btn_log_today"
                         app:backgroundTint="@color/sage_primary" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnOpenHealthLog"
-                        style="@style/Widget.Litterboxd.Button.Secondary"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:enabled="false"
-                        android:text="@string/btn_open_health_log" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Health alerts (pattern rules + preset articles) -->
+            <!-- 2. Health alerts: one slim tappable row in its own card. -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardHealthAlerts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/section_gap"
+                android:layout_marginTop="@dimen/daily_section_gap"
                 app:cardBackgroundColor="@color/white">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/card_padding">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/health_alerts_title"
-                        android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
-
-                    <TextView
-                        android:id="@+id/tvHealthAlertsStatus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_tiny"
-                        android:text="@string/daily_alerts_none"
-                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
-
-                    <com.google.android.material.button.MaterialButton
+                    <LinearLayout
                         android:id="@+id/btnOpenHealthAlerts"
-                        style="@style/Widget.Litterboxd.Button.Secondary"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
-                        android:layout_marginTop="@dimen/spacing_card"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
                         android:enabled="false"
-                        android:text="@string/btn_open_health_alerts" />
-                </LinearLayout>
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:minHeight="@dimen/button_height"
+                        android:orientation="horizontal"
+                        android:paddingStart="@dimen/card_padding"
+                        android:paddingTop="@dimen/spacing_small"
+                        android:paddingEnd="@dimen/card_padding"
+                        android:paddingBottom="@dimen/spacing_small">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/health_alerts_title"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/text_size_body"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvHealthAlertsStatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_small"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:gravity="end"
+                            android:maxLines="1"
+                            android:text="@string/daily_alerts_none"
+                            android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginStart="@dimen/spacing_tiny"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_chevron_right" />
+                    </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Quick actions -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/section_gap"
-                android:text="@string/quick_actions_title"
-                android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnQuickLog"
-                    style="@style/Widget.Litterboxd.Button.Secondary"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_marginEnd="@dimen/spacing_small"
-                    android:layout_weight="1"
-                    android:text="@string/btn_log_today"
-                    app:icon="@drawable/ic_nav_daily" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnQuickAddTask"
-                    style="@style/Widget.Litterboxd.Button.Secondary"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_marginStart="@dimen/spacing_small"
-                    android:layout_weight="1"
-                    android:text="@string/btn_quick_add_task"
-                    app:icon="@drawable/ic_add" />
-            </LinearLayout>
-
-            <!-- Today's care tasks: progress plus a tickable list (all tasks live on the Tasks tab) -->
+            <!-- 3. Today's tasks: checklist; "All tasks" opens the Tasks tab. -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardTaskSummary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/section_gap"
+                android:layout_marginTop="@dimen/daily_section_gap"
                 app:cardBackgroundColor="@color/white">
 
                 <LinearLayout
@@ -312,6 +259,26 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="@dimen/card_padding">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/daily_tasks_title"
+                            android:textAppearance="@style/TextAppearance.Litterboxd.DailyHeading" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSeeTasks"
+                            style="@style/Widget.Litterboxd.TextLink"
+                            android:text="@string/daily_link_all_tasks" />
+                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -319,42 +286,17 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/tvTaskSummary"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/daily_tasks_title"
-                                android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
-
-                            <TextView
-                                android:id="@+id/tvTaskSummary"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/spacing_tiny"
-                                android:textColor="@color/dark_olive_green"
-                                android:textSize="@dimen/text_size_small"
-                                android:textStyle="bold" />
-                        </LinearLayout>
+                            android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnTodayReminder"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/spacing_small"
-                            android:minWidth="0dp"
-                            android:minHeight="0dp"
-                            android:textAllCaps="false"
-                            android:paddingStart="@dimen/spacing_small"
-                            android:paddingEnd="@dimen/spacing_small"
-                            android:text="@string/daily_remind_button_off"
-                            android:textColor="@color/sage_primary"
-                            android:textSize="@dimen/text_size_caption" />
+                            style="@style/Widget.Litterboxd.TextLink"
+                            android:text="@string/daily_remind_button_off" />
                     </LinearLayout>
 
                     <ProgressBar
@@ -370,21 +312,35 @@
                         android:id="@+id/layoutTodayTasks"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
+                        android:layout_marginTop="@dimen/spacing_tiny"
                         android:orientation="vertical" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSeeTasks"
-                        style="@style/Widget.Litterboxd.Button.Secondary"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
-                        android:layout_marginTop="@dimen/spacing_card"
-                        android:text="@string/btn_see_tasks"
-                        app:icon="@drawable/ic_nav_tasks" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- 4. Reading Corner, last and quiet: a horizontal carousel, so any number of
+                 articles costs one row of height. "For you" (from today's log) comes first. -->
+            <TextView
+                android:id="@+id/tvReadingCornerTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/daily_section_gap"
+                android:text="@string/reading_corner_title_plain"
+                android:textAppearance="@style/TextAppearance.Litterboxd.DailyHeading" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerReadingCorner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/my_cats_bleed"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:layout_marginEnd="@dimen/my_cats_bleed"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
+                android:paddingStart="@dimen/margin_horizontal"
+                android:paddingEnd="@dimen/margin_horizontal" />
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <include
         android:id="@+id/bottomNav"

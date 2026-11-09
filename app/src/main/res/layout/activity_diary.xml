@@ -114,28 +114,63 @@
                     android:textColor="@color/sage_primary" />
             </LinearLayout>
 
-            <!-- Photo-led overview: recent photos, or a friendly empty state -->
-            <TextView
-                android:id="@+id/tvRecentPhotos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/section_gap"
-                android:text="@string/diary_recent_photos"
-                android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
-
-            <HorizontalScrollView
-                android:id="@+id/scrollDiaryPhotos"
+            <!-- Photo-led overview: a clickable banner into the Memories collage, or a friendly empty state -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMemories"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_small"
-                android:scrollbars="none">
+                android:layout_marginTop="@dimen/section_gap"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@color/white">
 
                 <LinearLayout
-                    android:id="@+id/layoutDiaryPhotos"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal" />
-            </HorizontalScrollView>
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/card_padding">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/imgMemoriesPreview"
+                        android:layout_width="@dimen/diary_thumb_size"
+                        android:layout_height="@dimen/diary_thumb_size"
+                        android:background="@color/pastel_sage"
+                        android:padding="@dimen/avatar_stroke"
+                        android:scaleType="centerCrop"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Litterboxd.DiaryPhoto"
+                        app:strokeColor="@color/ink"
+                        app:strokeWidth="@dimen/avatar_stroke" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_medium"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:text="@string/diary_memories_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+                        <TextView
+                            android:id="@+id/tvMemoriesSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_tiny"
+                            android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="@dimen/settings_icon_size"
+                        android:layout_height="@dimen/settings_icon_size"
+                        android:importantForAccessibility="no"
+                        app:srcCompat="@drawable/ic_chevron_right"
+                        app:tint="@color/text_dark_gray" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardNoPhotos"
