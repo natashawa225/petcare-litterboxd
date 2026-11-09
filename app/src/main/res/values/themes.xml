@@ -116,6 +116,30 @@
         <item name="android:textSize">@dimen/text_size_caption</item>
     </style>
 
+    <!-- Daily tab section heading: quieter than the screen title, no colour, lets content lead. -->
+    <style name="TextAppearance.Litterboxd.DailyHeading" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/text_size_subtitle</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Slim text link for secondary actions (no fill, no border, no caps). -->
+    <style name="Widget.Litterboxd.TextLink" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:paddingStart">@dimen/spacing_small</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textColor">@color/sage_primary</item>
+        <item name="android:textSize">@dimen/text_size_small</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
     <style name="Widget.Litterboxd.Button" parent="Widget.MaterialComponents.Button">
         <item name="cornerRadius">14dp</item>
         <item name="strokeColor">@color/ink</item>

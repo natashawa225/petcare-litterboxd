@@ -60,8 +60,6 @@ public class DiaryActivity extends AppCompatActivity {
 
     private static final String STATE_FILTER = "diary_filter";
     private static final int FILTER_ALL = 0, FILTER_MEMORIES = 1, FILTER_MILESTONES = 2, FILTER_HISTORY = 3;
-    /** How many photos the "Recent snaps" strip shows. */
-    private static final int MAX_STRIP_PHOTOS = 12;
 
     /** One row of the timeline: a diary entry or a piece of care history. */
     private static final class TimelineItem {
@@ -78,10 +76,10 @@ public class DiaryActivity extends AppCompatActivity {
         }
     }
 
-    private TextView tvCatName, tvCounts, tvTimelineEmpty, tvRecentPhotos, tvNoPhotosBody;
-    private ShapeableImageView imgCat;
-    private LinearLayout layoutTimeline, layoutPhotos;
-    private View scrollPhotos, cardNoPhotos;
+    private TextView tvCatName, tvCounts, tvTimelineEmpty, tvMemoriesSubtitle, tvNoPhotosBody;
+    private ShapeableImageView imgCat, imgMemoriesPreview;
+    private LinearLayout layoutTimeline;
+    private View cardMemories, cardNoPhotos;
     private MaterialButton btnAddMemory, btnSwitchCat;
     private MaterialButton[] filterButtons;
 
@@ -115,11 +113,11 @@ public class DiaryActivity extends AppCompatActivity {
         tvCounts = findViewById(R.id.tvDiaryCounts);
         imgCat = findViewById(R.id.imgDiaryCat);
         tvTimelineEmpty = findViewById(R.id.tvTimelineEmpty);
-        tvRecentPhotos = findViewById(R.id.tvRecentPhotos);
+        tvMemoriesSubtitle = findViewById(R.id.tvMemoriesSubtitle);
         tvNoPhotosBody = findViewById(R.id.tvNoPhotosBody);
         layoutTimeline = findViewById(R.id.layoutTimeline);
-        layoutPhotos = findViewById(R.id.layoutDiaryPhotos);
-        scrollPhotos = findViewById(R.id.scrollDiaryPhotos);
+        imgMemoriesPreview = findViewById(R.id.imgMemoriesPreview);
+        cardMemories = findViewById(R.id.cardMemories);
         cardNoPhotos = findViewById(R.id.cardNoPhotos);
         btnAddMemory = findViewById(R.id.btnAddMemory);
         btnSwitchCat = findViewById(R.id.btnDiarySwitchCat);
@@ -128,6 +126,7 @@ public class DiaryActivity extends AppCompatActivity {
         btnAddMemory.setOnClickListener(v -> openEditor(-1L));
         findViewById(R.id.btnAddFirstMemory).setOnClickListener(v -> openEditor(-1L));
         btnSwitchCat.setOnClickListener(v -> CatSwitcher.show(this, allCats, cat -> loadData()));
+        cardMemories.setOnClickListener(v -> openMemories());
 
         filterButtons = new MaterialButton[]{
                 findViewById(R.id.btnFilterAll), findViewById(R.id.btnFilterMemories),
@@ -164,11 +163,28 @@ public class DiaryActivity extends AppCompatActivity {
         BottomNavHelper.openTab(this, R.id.nav_daily);
     }
 
+    /** Tapping an entry reads it first; editing is one tap away on that screen. */
+    private void openDetail(long entryId) {
+        if (currentCat == null) return;
+        Intent intent = new Intent(this, DiaryEntryDetailActivity.class);
+        intent.putExtra(DiaryEntryDetailActivity.EXTRA_CAT_ID, currentCat.getId());
+        intent.putExtra(DiaryEntryDetailActivity.EXTRA_ENTRY_ID, entryId);
+        startActivity(intent);
+    }
+
     private void openEditor(long entryId) {
         if (currentCat == null) return;
         Intent intent = new Intent(this, DiaryEntryEditActivity.class);
         intent.putExtra(DiaryEntryEditActivity.EXTRA_CAT_ID, currentCat.getId());
         intent.putExtra(DiaryEntryEditActivity.EXTRA_ENTRY_ID, entryId);
+        startActivity(intent);
+    }
+
+    /** Opens the full photo collage for the selected cat's memories. */
+    private void openMemories() {
+        if (currentCat == null) return;
+        Intent intent = new Intent(this, DiaryMemoriesActivity.class);
+        intent.putExtra(DiaryMemoriesActivity.EXTRA_CAT_ID, currentCat.getId());
         startActivity(intent);
     }
 
@@ -218,7 +234,7 @@ public class DiaryActivity extends AppCompatActivity {
                 checkInTree = tree;
                 items = loaded;
                 renderHeader();
-                renderPhotoStrip();
+                renderMemoriesCard();
                 renderTimeline();
             });
         });
@@ -248,34 +264,22 @@ public class DiaryActivity extends AppCompatActivity {
                 getResources().getQuantityString(R.plurals.diary_milestone_count, milestones, milestones)));
     }
 
-    private void renderPhotoStrip() {
-        layoutPhotos.removeAllViews();
-        int size = getResources().getDimensionPixelSize(R.dimen.diary_strip_photo_size);
-        int gap = getResources().getDimensionPixelSize(R.dimen.spacing_small);
-        int photos = 0, shown = 0;
+    /** Updates the "Memories" banner: a preview of the latest photo and how many there are. */
+    private void renderMemoriesCard() {
+        DiaryEntry latestWithPhoto = null;
+        int photos = 0;
         for (TimelineItem item : items) {
             if (item.kind != TimelineItem.ENTRY || !item.entry.hasPhoto()) continue;
             photos++;
-            if (shown >= MAX_STRIP_PHOTOS) continue;
-            shown++;
-            final DiaryEntry entry = item.entry;
-            ShapeableImageView photo = (ShapeableImageView) LayoutInflater.from(this)
-                    .inflate(R.layout.item_diary_strip_photo, layoutPhotos, false);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-            params.setMarginEnd(gap);
-            photo.setLayoutParams(params);
-            photo.setContentDescription(getString(R.string.cd_diary_photo, entry.getTitle()));
-            fileStorageHelper.showImageFile(photo, entry.getPhotoPath(), R.drawable.ic_cat_face);
-            photo.setOnClickListener(v -> openEditor(entry.getId()));
-            layoutPhotos.addView(photo);
+            if (latestWithPhoto == null) latestWithPhoto = item.entry; // items is newest-first
         }
         boolean hasPhotos = photos > 0;
-        scrollPhotos.setVisibility(hasPhotos ? View.VISIBLE : View.GONE);
+        cardMemories.setVisibility(hasPhotos ? View.VISIBLE : View.GONE);
         cardNoPhotos.setVisibility(hasPhotos || currentCat == null ? View.GONE : View.VISIBLE);
-        tvRecentPhotos.setText(hasPhotos
-                ? getString(R.string.diary_counts, getString(R.string.diary_recent_photos),
-                getResources().getQuantityString(R.plurals.diary_photo_count, photos, photos))
-                : getString(R.string.diary_recent_photos));
+        if (hasPhotos) {
+            tvMemoriesSubtitle.setText(getResources().getQuantityString(R.plurals.diary_photo_count, photos, photos));
+            fileStorageHelper.showImageFile(imgMemoriesPreview, latestWithPhoto.getPhotoPath(), R.drawable.ic_cat_face);
+        }
         if (currentCat != null) {
             tvNoPhotosBody.setText(getString(R.string.diary_no_photos_body, currentCat.getName()));
         }
@@ -391,7 +395,7 @@ public class DiaryActivity extends AppCompatActivity {
             // Missing or unreadable file: the placeholder stays.
             fileStorageHelper.showImageFile(thumb, entry.getPhotoPath(), R.drawable.ic_cat_face);
         }
-        card.setOnClickListener(v -> openEditor(entry.getId()));
+        card.setOnClickListener(v -> openDetail(entry.getId()));
         return card;
     }
 

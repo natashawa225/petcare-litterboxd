@@ -22,6 +22,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
@@ -42,6 +45,7 @@ import com.litterboxd.app.data.model.DailyCheckin;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.health.HealthAlert;
 import com.litterboxd.app.health.HealthArticle;
+import com.litterboxd.app.health.ReadingCard;
 import com.litterboxd.app.health.HealthContent;
 import com.litterboxd.app.health.HealthRuleEvaluator;
 import com.litterboxd.app.health.WeightPoints;
@@ -49,12 +53,11 @@ import com.litterboxd.app.ui.checkin.CheckInActivity;
 import com.litterboxd.app.ui.checkin.CheckInContent;
 import com.litterboxd.app.ui.checkin.HealthLogActivity;
 import com.litterboxd.app.ui.health.HealthAlertsActivity;
-import com.litterboxd.app.ui.health.HealthCitations;
+import com.litterboxd.app.ui.health.HealthArticleReaderActivity;
 import com.litterboxd.app.reminders.TodayListReminderScheduler;
 import com.litterboxd.app.ui.nav.BottomNavHelper;
 import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
 import com.litterboxd.app.ui.profile.CatProfileActivity;
-import com.litterboxd.app.ui.tasks.CareTasksActivity;
 import com.litterboxd.app.util.AppExecutors;
 import com.litterboxd.app.util.DateFormatUtils;
 
@@ -73,14 +76,20 @@ import java.util.Set;
  */
 public class HomeActivity extends AppCompatActivity {
 
-    private TextView tvWelcomeUser, tvToday, tvMyCatsTitle, tvDailyLogTitle;
+    private TextView tvWelcomeUser, tvToday, tvDailyLogTitle;
     private CatCardRow catCardRow;
     private TextView tvDailyLogStatus, tvTaskSummary, tvHealthAlertsStatus;
-    private MaterialButton btnLogToday, btnOpenHealthLog, btnOpenHealthAlerts;
+    private MaterialButton btnLogToday, btnOpenHealthLog;
+    private View btnOpenHealthAlerts; // a slim tappable row on the flat Daily tab
     private MaterialButton btnTodayReminder;
     private PetTheCatView petTheCatView;
     private PetTheCatPlayer petTheCatPlayer;
-    private LinearLayout layoutDailyLogAnswers, layoutDailyReadings, layoutDailyReadingRows, layoutTodayTasks;
+    private LinearLayout layoutDailyLogAnswers, layoutTodayTasks;
+    private TextView tvReadingCornerTitle;
+    private ReadingCardAdapter readingAdapter;
+    private List<ReadingCard> forYouCards = new ArrayList<>();
+    private List<ReadingCard> catCareCards = new ArrayList<>();
+
     private ProgressBar progressTasks;
 
     private AppPrefs appPrefs;
@@ -113,13 +122,19 @@ public class HomeActivity extends AppCompatActivity {
         petTheCatPlayer = new PetTheCatPlayer(this,
                 findViewById(R.id.texturePetTheCat), findViewById(R.id.imgPetTheCatStill));
         petTheCatView.setOnPetListener(which -> petTheCatPlayer.play(which));
-        tvMyCatsTitle = findViewById(R.id.tvMyCatsTitle);
         tvDailyLogTitle = findViewById(R.id.tvDailyLogTitle);
         catCardRow = new CatCardRow(this, findViewById(R.id.scrollMyCats), findViewById(R.id.layoutMyCats));
         tvDailyLogStatus = findViewById(R.id.tvDailyLogStatus);
         layoutDailyLogAnswers = findViewById(R.id.layoutDailyLogAnswers);
-        layoutDailyReadings = findViewById(R.id.layoutDailyReadings);
-        layoutDailyReadingRows = findViewById(R.id.layoutDailyReadingRows);
+        tvReadingCornerTitle = findViewById(R.id.tvReadingCornerTitle);
+        RecyclerView recyclerReading = findViewById(R.id.recyclerReadingCorner);
+        // Horizontal carousel: any number of articles costs one row of height; snaps per card.
+        recyclerReading.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        new LinearSnapHelper().attachToRecyclerView(recyclerReading);
+        readingAdapter = new ReadingCardAdapter(card ->
+                HealthArticleReaderActivity.start(this, card.getTitle(), card.getUrl()));
+        recyclerReading.setAdapter(readingAdapter);
         btnLogToday = findViewById(R.id.btnLogToday);
         btnOpenHealthLog = findViewById(R.id.btnOpenHealthLog);
         tvHealthAlertsStatus = findViewById(R.id.tvHealthAlertsStatus);
@@ -133,12 +148,6 @@ public class HomeActivity extends AppCompatActivity {
         btnLogToday.setOnClickListener(v -> openCheckIn());
         btnOpenHealthLog.setOnClickListener(v -> openHealthLog());
         btnOpenHealthAlerts.setOnClickListener(v -> openHealthAlerts());
-        findViewById(R.id.btnQuickLog).setOnClickListener(v -> openHealthLog());
-        findViewById(R.id.btnQuickAddTask).setOnClickListener(v -> {
-            Intent intent = BottomNavHelper.intentFor(this, R.id.nav_tasks);
-            intent.putExtra(CareTasksActivity.EXTRA_OPEN_ADD_TASK, true);
-            BottomNavHelper.openTab(this, intent);
-        });
         findViewById(R.id.btnSeeTasks).setOnClickListener(v -> BottomNavHelper.openTab(this, R.id.nav_tasks));
         btnTodayReminder = findViewById(R.id.btnTodayReminder);
         btnTodayReminder.setOnClickListener(v -> onTodayReminderClick());
@@ -277,7 +286,8 @@ public class HomeActivity extends AppCompatActivity {
             List<CareTask> tasks = new ArrayList<>();
             DailyCheckin checkin = null;
             int alertCount = 0;
-            List<HealthArticle> readings = new ArrayList<>();
+            List<ReadingCard> forYou = new ArrayList<>();
+            List<ReadingCard> catCare = loadCatCareCards();
             if (selected != null) {
                 CareTaskSetup.prepareCat(this, careTaskDao, selected.getId());
                 tasks = careTaskDao.getTasksForCat(selected.getId());
@@ -298,8 +308,16 @@ public class HomeActivity extends AppCompatActivity {
                                             .getWeightLogsForCat(selected.getId())));
                     alertCount = alerts.size();
                     if (checkin != null) {
-                        readings = HealthRuleEvaluator.readingsFor(healthContent.getReadings(),
-                                healthContent.getArticlesById(), checkin.getAnswers());
+                        // "For you": today's answers that earn a calm read (ate less, grumpy, ...).
+                        for (HealthArticle article : HealthRuleEvaluator.readingsFor(
+                                healthContent.getReadings(), healthContent.getArticlesById(),
+                                checkin.getAnswers())) {
+                            forYou.add(new ReadingCard(ReadingCard.KIND_FOR_YOU,
+                                    CheckInContent.text(this, article.getTitleKey()),
+                                    CheckInContent.text(this, article.getSourceKey()), 0,
+                                    ReadingCard.emojiForReading(article.getId()), "blush",
+                                    article.getUrl(), article.getImageUrl()));
+                        }
                     }
                 }
             }
@@ -307,7 +325,11 @@ public class HomeActivity extends AppCompatActivity {
             final List<CareTask> finalTasks = tasks;
             final DailyCheckin finalCheckin = checkin;
             final int finalAlertCount = alertCount;
-            final List<HealthArticle> finalReadings = readings;
+            final List<ReadingCard> finalForYou = forYou;
+            final List<ReadingCard> finalCatCare = catCare;
+            final String readingTitle = (ownerName == null || ownerName.trim().isEmpty())
+                    ? getString(R.string.reading_corner_title_plain)
+                    : getString(R.string.reading_corner_title, ownerName.trim());
 
             AppExecutors.getInstance().mainThread().execute(() -> {
                 if (isFinishing() || isDestroyed()) return;
@@ -319,7 +341,10 @@ public class HomeActivity extends AppCompatActivity {
                         DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM"), new Date()));
                 updateCatCard();
                 renderDailyLog(finalCheckin);
-                renderDailyReadings(finalReadings);
+                tvReadingCornerTitle.setText(readingTitle);
+                forYouCards = finalForYou;
+                catCareCards = finalCatCare;
+                showReadingCards();
                 renderHealthAlertsSummary(finalAlertCount);
                 renderTodayTasks(finalTasks);
             });
@@ -328,7 +353,6 @@ public class HomeActivity extends AppCompatActivity {
 
     /** The "My cats" row: switch cat, open the selected cat's profile, or add a cat. */
     private void updateCatCard() {
-        tvMyCatsTitle.setText(getString(R.string.my_cats_title, allCats.size()));
         tvDailyLogTitle.setText(currentCat != null
                 ? getString(R.string.daily_log_title_cat, currentCat.getName())
                 : getString(R.string.daily_log_title));
@@ -356,20 +380,31 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    /** Calm reading links for today's answers. Separate from alerts, which need a repeated pattern. */
-    private void renderDailyReadings(List<HealthArticle> articles) {
-        layoutDailyReadingRows.removeAllViews();
-        layoutDailyReadings.setVisibility(articles.isEmpty() ? View.GONE : View.VISIBLE);
-        LayoutInflater inflater = LayoutInflater.from(this);
-        for (HealthArticle article : articles) {
-            TextView row = (TextView) inflater.inflate(
-                    R.layout.item_daily_reading, layoutDailyReadingRows, false);
-            row.setText(getString(R.string.daily_reading_row,
-                    CheckInContent.text(this, article.getTitleKey()),
-                    CheckInContent.text(this, article.getSourceKey())));
-            row.setOnClickListener(v -> HealthCitations.open(this, article));
-            layoutDailyReadingRows.addView(row);
+    /** Cat-care reading list (res/raw/cat_care_articles.json), parsed once per app run. */
+    private static List<ReadingCard> cachedCatCare;
+
+    /** Background thread. */
+    private List<ReadingCard> loadCatCareCards() {
+        if (cachedCatCare != null) return cachedCatCare;
+        try (java.io.InputStream in = getResources().openRawResource(R.raw.cat_care_articles)) {
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            byte[] buffer = new byte[4096];
+            int n;
+            while ((n = in.read(buffer)) != -1) out.write(buffer, 0, n);
+            cachedCatCare = java.util.Collections.unmodifiableList(
+                    ReadingCard.parseCatCare(out.toString("UTF-8")));
+        } catch (java.io.IOException | org.json.JSONException e) {
+            android.util.Log.w("HomeActivity", "Could not load cat care articles", e);
+            cachedCatCare = java.util.Collections.emptyList();
         }
+        return cachedCatCare;
+    }
+
+    /** Reading Corner carousel: "For you" cards (from today's log) first, then all cat-care reading. */
+    private void showReadingCards() {
+        List<ReadingCard> shown = new ArrayList<>(forYouCards);
+        shown.addAll(catCareCards);
+        readingAdapter.submit(shown);
     }
 
     /** Today's saved answers as "Appetite: Ate normally" rows, or the friendly empty state. */

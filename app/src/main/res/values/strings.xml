@@ -79,8 +79,6 @@
     <string name="title_cat_switcher">Select Cat</string>
     <string name="add_another_cat">+ Add another cat</string>
     <string name="add_cat">Add cat</string>
-    <string name="my_cats_title">My cats (%d)</string>
-    <string name="my_cats_hint">Tap a cat to switch. Double tap for their profile.</string>
     <string name="cd_cat_card">%s. Tap to switch to this cat.</string>
     <string name="cd_cat_card_selected">%s, selected. Tap to open profile.</string>
     <string name="card_daily_checkin_title">Daily Check-in</string>
@@ -281,8 +279,6 @@
     <string name="daily_log_answer_row">%1$s: %2$s</string>
     <string name="btn_log_today">Log today</string>
     <string name="btn_update_log">Update today\'s log</string>
-    <string name="btn_open_health_log">Open health calendar</string>
-    <string name="quick_actions_title">Quick actions</string>
 
     <!-- Feature A: Flo-style health log calendar -->
     <string name="health_log_title">Health log</string>
@@ -314,14 +310,20 @@
     <string name="health_alert_dismissed">Alert dismissed for now.</string>
     <string name="checkin_urgent_view">View alert</string>
     <string name="checkin_urgent_later">Not now</string>
-    <string name="btn_open_health_alerts">Health alerts</string>
     <string name="btn_suggested_reading">More info</string>
     <string name="btn_dismiss_alert">Dismiss</string>
     <string name="alert_severity_watch">Worth watching</string>
     <string name="alert_severity_vet_visit">Worth a vet visit</string>
     <string name="alert_severity_urgent">Urgent — contact a vet now</string>
-    <string name="daily_readings_title">Worth a read</string>
-    <string name="daily_reading_row">%1$s, %2$s</string>
+    <!-- Daily Reading Corner (ReadingCardAdapter) -->
+    <string name="reading_corner_title">%s\'s Reading Corner</string>
+    <string name="reading_corner_title_plain">Worth a read</string>
+    <string name="reading_label_for_you">For you</string>
+    <string name="reading_label_cat_care">Cat care</string>
+    <string name="reading_meta_minutes">%1$s · %2$d min read</string>
+    <string name="daily_link_calendar">Calendar</string>
+    <string name="daily_link_all_tasks">All tasks</string>
+    <string name="cd_reading_card">%1$s: %2$s, from %3$s. Opens the article.</string>
     <string name="daily_alerts_none">No new patterns from recent logs.</string>
     <string name="daily_alerts_count">%1$d health alert(s) to review</string>
 
@@ -389,7 +391,6 @@
     <string name="health_article_load_failed">Couldn\'t load this article. Check your connection and try again.</string>
     <string name="btn_reader_close">Close</string>
     <string name="btn_reader_retry">Try again</string>
-    <string name="btn_quick_add_task">Add a task</string>
     <string name="daily_tasks_title">Today\'s care tasks</string>
     <string name="daily_remind_button_off">Remind me</string>
     <string name="daily_remind_dialog_title">Today\'s tasks</string>
@@ -399,7 +400,6 @@
     <string name="cd_today_reminder_on">Reminder at %1$s. Tap to change.</string>
     <string name="daily_tasks_summary">%1$d of %2$d tasks done</string>
     <string name="daily_tasks_all_done">%1$d of %2$d tasks done · Purr-fect! 🐱</string>
-    <string name="btn_see_tasks">See tasks</string>
 
     <!-- Care Tasks tab -->
     <string name="tasks_title">Care tasks</string>
@@ -456,10 +456,14 @@
     </plurals>
     <string name="diary_counts">%1$s · %2$s</string>
     <string name="btn_add_memory">Add a memory</string>
-    <string name="diary_recent_photos">Recent snaps</string>
     <string name="diary_no_photos_title">No photos yet</string>
     <string name="diary_no_photos_body">Catch %1$s being wonderfully themselves and keep it here.</string>
     <string name="btn_add_first_memory">Add the first memory</string>
+    <!-- Memories photo collage -->
+    <string name="diary_memories_title">Memories</string>
+    <string name="diary_memories_screen_title">%1$s\'s memories</string>
+    <string name="diary_memories_empty">No photos yet. Memories with photos will show up here.</string>
+    <string name="cd_open_memories">See %1$s\'s memory photos</string>
     <string name="diary_filter_all">All</string>
     <string name="diary_filter_memories">Memories</string>
     <string name="diary_filter_milestones">Milestones</string>
@@ -484,6 +488,12 @@
     <!-- Cat Diary: add / edit entry -->
     <string name="diary_new_title">New memory</string>
     <string name="diary_edit_title">Edit entry</string>
+    <!-- Diary entry detail (read-only view) -->
+    <string name="diary_detail_of_cat">%s\'s diary</string>
+    <string name="diary_detail_date_time">%1$s · %2$s</string>
+    <string name="diary_detail_photo_hint">Tap the photo to see all of it</string>
+    <string name="cd_diary_detail_photo">Diary photo</string>
+    <string name="cd_back">Back</string>
     <string name="diary_for_cat">For %1$s</string>
     <string name="diary_title_hint">Title</string>
     <string name="diary_caption_hint">Caption (optional)</string>

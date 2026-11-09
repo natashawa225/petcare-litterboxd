@@ -34,9 +34,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Portrait only: the full-screen cat animation is framed for a tall screen and gets
+             cropped in landscape. -->
         <activity
             android:name=".ui.auth.WelcomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
 
         <activity
             android:name=".ui.onboarding.OwnerNameActivity"
@@ -69,9 +73,17 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.diary.DiaryEntryDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.diary.DiaryEntryEditActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.diary.DiaryMemoriesActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.profile.OwnerProfileActivity"

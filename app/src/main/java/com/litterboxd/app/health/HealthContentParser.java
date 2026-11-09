@@ -26,7 +26,8 @@ public final class HealthContentParser {
                     o.getString("id"),
                     o.getString("titleKey"),
                     o.getString("sourceKey"),
-                    o.getString("url"));
+                    o.getString("url"),
+                    httpsOrEmpty(o.optString("image", "")));
             if (map.put(article.getId(), article) != null) {
                 throw new IllegalArgumentException("Duplicate article id: " + article.getId());
             }
@@ -167,5 +168,10 @@ public final class HealthContentParser {
             list.add(array.getString(i));
         }
         return list;
+    }
+
+    /** Teaser images are loaded over the network, so only https links are kept. */
+    static String httpsOrEmpty(String url) {
+        return url != null && url.startsWith("https://") ? url : "";
     }
 }
