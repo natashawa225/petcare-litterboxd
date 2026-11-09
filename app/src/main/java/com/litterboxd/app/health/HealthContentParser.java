@@ -34,6 +34,22 @@ public final class HealthContentParser {
         return map;
     }
 
+    public static List<HealthReading> parseReadings(String json, Map<String, HealthArticle> articles)
+            throws JSONException {
+        JSONArray array = new JSONObject(json).getJSONArray("readings");
+        List<HealthReading> readings = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject o = array.getJSONObject(i);
+            String articleId = o.getString("articleId");
+            if (!articles.containsKey(articleId)) {
+                throw new IllegalArgumentException("Reading references missing article '"
+                        + articleId + "'");
+            }
+            readings.add(new HealthReading(o.getString("questionId"), o.getString("value"), articleId));
+        }
+        return readings;
+    }
+
     public static List<HealthRule> parseRules(String json, Map<String, HealthArticle> articles)
             throws JSONException {
         JSONObject root = new JSONObject(json);

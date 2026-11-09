@@ -22,10 +22,13 @@ public final class HealthContent {
 
     private final Map<String, HealthArticle> articlesById;
     private final List<HealthRule> rules;
+    private final List<HealthReading> readings;
 
-    private HealthContent(Map<String, HealthArticle> articlesById, List<HealthRule> rules) {
+    private HealthContent(Map<String, HealthArticle> articlesById, List<HealthRule> rules,
+                          List<HealthReading> readings) {
         this.articlesById = articlesById;
         this.rules = rules;
+        this.readings = readings;
     }
 
     public Map<String, HealthArticle> getArticlesById() {
@@ -34,6 +37,10 @@ public final class HealthContent {
 
     public List<HealthRule> getRules() {
         return rules;
+    }
+
+    public List<HealthReading> getReadings() {
+        return readings;
     }
 
     public HealthArticle getArticle(String id) {
@@ -46,7 +53,9 @@ public final class HealthContent {
             String rulesJson = readRaw(context, R.raw.health_rules);
             Map<String, HealthArticle> articles = HealthContentParser.parseArticles(rulesJson);
             List<HealthRule> rules = HealthContentParser.parseRules(rulesJson, articles);
-            return new HealthContent(articles, Collections.unmodifiableList(rules));
+            List<HealthReading> readings = HealthContentParser.parseReadings(rulesJson, articles);
+            return new HealthContent(articles, Collections.unmodifiableList(rules),
+                    Collections.unmodifiableList(readings));
         } catch (IOException | JSONException | IllegalArgumentException e) {
             Log.e(TAG, "Could not load health content", e);
             return null;
