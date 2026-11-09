@@ -3,6 +3,7 @@ package com.litterboxd.app;
 import com.litterboxd.app.health.HealthAlert;
 import com.litterboxd.app.health.HealthArticle;
 import com.litterboxd.app.health.HealthContentParser;
+import com.litterboxd.app.health.HealthReading;
 import com.litterboxd.app.health.HealthRule;
 import com.litterboxd.app.health.HealthRuleEvaluator;
 import com.litterboxd.app.health.WeightTrend;
@@ -60,6 +61,73 @@ public class HealthRuleEvaluatorTest {
                 Paths.get("src/main/res/values/strings.xml")), StandardCharsets.UTF_8);
         assertEquals(2, strings.split("does not diagnose", -1).length);
         assertFalse(strings.contains("Possible urinary blockage"));
+    }
+
+    private static Map<String, Map<String, List<String>>> days(LocalDate asOf, String question,
+                                                               String value, int... daysAgo) {
+        Map<String, Map<String, List<String>>> byDate = new HashMap<>();
+        for (int ago : daysAgo) {
+            byDate.put(asOf.minusDays(ago).toString(), ans(question, value));
+        }
+        return byDate;
+    }
+
+    private static List<HealthAlert> alertsFor(LocalDate asOf,
+                                               Map<String, Map<String, List<String>>> byDate) {
+        return HealthRuleEvaluator.evaluate(rules, articles, byDate, asOf, Collections.emptySet());
+    }
+
+    @Test
+    public void oneDayOfEachSignGivesNoAlert() {
+        LocalDate asOf = LocalDate.of(2026, 11, 9);
+        Map<String, List<String>> today = merge(merge(ans("appetite", "less"), ans("water", "less")),
+                merge(merge(ans("litter", "less"), ans("energy", "low")), ans("mood", "grumpy")));
+        Map<String, Map<String, List<String>>> byDate = new HashMap<>();
+        byDate.put(asOf.toString(), today);
+        assertTrue(alertsFor(asOf, byDate).isEmpty());
+    }
+
+    @Test
+    public void repeatedSignsFireTheirAlerts() {
+        LocalDate asOf = LocalDate.of(2026, 11, 9);
+        assertTrue(hasRule(alertsFor(asOf, days(asOf, "appetite", "less", 0, 1, 2)), "appetite_less_repeat"));
+        assertFalse(hasRule(alertsFor(asOf, days(asOf, "appetite", "less", 0, 1)), "appetite_less_repeat"));
+        assertTrue(hasRule(alertsFor(asOf, days(asOf, "water", "less", 0, 1, 2)), "water_less_repeat"));
+        assertTrue(hasRule(alertsFor(asOf, days(asOf, "litter", "less", 0, 2)), "litter_less_repeat"));
+        assertTrue(hasRule(alertsFor(asOf, days(asOf, "energy", "low", 0, 1)), "energy_low_repeat"));
+    }
+
+    @Test
+    public void grumpyStaysReadingOnlyEvenWhenRepeated() {
+        LocalDate asOf = LocalDate.of(2026, 11, 9);
+        assertTrue(alertsFor(asOf, days(asOf, "mood", "grumpy", 0, 1, 2, 3, 4, 5, 6)).isEmpty());
+    }
+
+    @Test
+    public void vomitingAlertReplacesThePlainEatingLessAlert() {
+        LocalDate asOf = LocalDate.of(2026, 11, 9);
+        Map<String, Map<String, List<String>>> byDate = days(asOf, "appetite", "less", 0, 1, 2);
+        byDate.put(asOf.toString(), merge(ans("appetite", "less"), ans("vomiting", "repeated")));
+        List<HealthAlert> alerts = alertsFor(asOf, byDate);
+        assertTrue(hasRule(alerts, "low_appetite_vomiting"));
+        assertFalse(hasRule(alerts, "appetite_less_repeat"));
+    }
+
+    @Test
+    public void readingsFollowTodaysAnswersAndStayShort() throws IOException, JSONException {
+        String rulesJson = new String(Files.readAllBytes(
+                Paths.get("src/main/res/raw/health_rules.json")), StandardCharsets.UTF_8);
+        List<HealthReading> readings = HealthContentParser.parseReadings(rulesJson, articles);
+
+        List<HealthArticle> one = HealthRuleEvaluator.readingsFor(readings, articles, ans("mood", "grumpy"));
+        assertEquals(1, one.size());
+        assertEquals("source_stress", one.get(0).getId());
+
+        assertTrue(HealthRuleEvaluator.readingsFor(readings, articles, ans("mood", "normal")).isEmpty());
+
+        Map<String, List<String>> all = merge(merge(ans("appetite", "less"), ans("water", "less")),
+                merge(merge(ans("litter", "less"), ans("energy", "low")), ans("mood", "grumpy")));
+        assertEquals(3, HealthRuleEvaluator.readingsFor(readings, articles, all).size());
     }
 
     private static Map<String, List<String>> ans(String questionId, String value) {
@@ -221,7 +289,7 @@ public class HealthRuleEvaluatorTest {
 
     @Test
     public void rulesFileParses() {
-        assertEquals(8, rules.size());
+        assertEquals(12, rules.size());
     }
 
     private static Map<String, List<String>> merge(Map<String, List<String>> a,

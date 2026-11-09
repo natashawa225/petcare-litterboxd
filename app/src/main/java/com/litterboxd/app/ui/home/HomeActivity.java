@@ -41,6 +41,7 @@ import com.litterboxd.app.data.model.Cat;
 import com.litterboxd.app.data.model.DailyCheckin;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.health.HealthAlert;
+import com.litterboxd.app.health.HealthArticle;
 import com.litterboxd.app.health.HealthContent;
 import com.litterboxd.app.health.HealthRuleEvaluator;
 import com.litterboxd.app.health.WeightPoints;
@@ -48,6 +49,7 @@ import com.litterboxd.app.ui.checkin.CheckInActivity;
 import com.litterboxd.app.ui.checkin.CheckInContent;
 import com.litterboxd.app.ui.checkin.HealthLogActivity;
 import com.litterboxd.app.ui.health.HealthAlertsActivity;
+import com.litterboxd.app.ui.health.HealthCitations;
 import com.litterboxd.app.reminders.TodayListReminderScheduler;
 import com.litterboxd.app.ui.nav.BottomNavHelper;
 import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
@@ -78,7 +80,7 @@ public class HomeActivity extends AppCompatActivity {
     private MaterialButton btnTodayReminder;
     private PetTheCatView petTheCatView;
     private PetTheCatPlayer petTheCatPlayer;
-    private LinearLayout layoutDailyLogAnswers, layoutTodayTasks;
+    private LinearLayout layoutDailyLogAnswers, layoutDailyReadings, layoutDailyReadingRows, layoutTodayTasks;
     private ProgressBar progressTasks;
 
     private AppPrefs appPrefs;
@@ -116,6 +118,8 @@ public class HomeActivity extends AppCompatActivity {
         catCardRow = new CatCardRow(this, findViewById(R.id.scrollMyCats), findViewById(R.id.layoutMyCats));
         tvDailyLogStatus = findViewById(R.id.tvDailyLogStatus);
         layoutDailyLogAnswers = findViewById(R.id.layoutDailyLogAnswers);
+        layoutDailyReadings = findViewById(R.id.layoutDailyReadings);
+        layoutDailyReadingRows = findViewById(R.id.layoutDailyReadingRows);
         btnLogToday = findViewById(R.id.btnLogToday);
         btnOpenHealthLog = findViewById(R.id.btnOpenHealthLog);
         tvHealthAlertsStatus = findViewById(R.id.tvHealthAlertsStatus);
@@ -273,6 +277,7 @@ public class HomeActivity extends AppCompatActivity {
             List<CareTask> tasks = new ArrayList<>();
             DailyCheckin checkin = null;
             int alertCount = 0;
+            List<HealthArticle> readings = new ArrayList<>();
             if (selected != null) {
                 CareTaskSetup.prepareCat(this, careTaskDao, selected.getId());
                 tasks = careTaskDao.getTasksForCat(selected.getId());
@@ -292,12 +297,17 @@ public class HomeActivity extends AppCompatActivity {
                                     new WeightLogDao(LitterboxdDbHelper.getInstance(this))
                                             .getWeightLogsForCat(selected.getId())));
                     alertCount = alerts.size();
+                    if (checkin != null) {
+                        readings = HealthRuleEvaluator.readingsFor(healthContent.getReadings(),
+                                healthContent.getArticlesById(), checkin.getAnswers());
+                    }
                 }
             }
             final Cat finalSelected = selected;
             final List<CareTask> finalTasks = tasks;
             final DailyCheckin finalCheckin = checkin;
             final int finalAlertCount = alertCount;
+            final List<HealthArticle> finalReadings = readings;
 
             AppExecutors.getInstance().mainThread().execute(() -> {
                 if (isFinishing() || isDestroyed()) return;
@@ -309,6 +319,7 @@ public class HomeActivity extends AppCompatActivity {
                         DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM"), new Date()));
                 updateCatCard();
                 renderDailyLog(finalCheckin);
+                renderDailyReadings(finalReadings);
                 renderHealthAlertsSummary(finalAlertCount);
                 renderTodayTasks(finalTasks);
             });
@@ -343,6 +354,22 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    /** Calm reading links for today's answers. Separate from alerts, which need a repeated pattern. */
+    private void renderDailyReadings(List<HealthArticle> articles) {
+        layoutDailyReadingRows.removeAllViews();
+        layoutDailyReadings.setVisibility(articles.isEmpty() ? View.GONE : View.VISIBLE);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        for (HealthArticle article : articles) {
+            TextView row = (TextView) inflater.inflate(
+                    R.layout.item_daily_reading, layoutDailyReadingRows, false);
+            row.setText(getString(R.string.daily_reading_row,
+                    CheckInContent.text(this, article.getTitleKey()),
+                    CheckInContent.text(this, article.getSourceKey())));
+            row.setOnClickListener(v -> HealthCitations.open(this, article));
+            layoutDailyReadingRows.addView(row);
+        }
     }
 
     /** Today's saved answers as "Appetite: Ate normally" rows, or the friendly empty state. */

@@ -181,6 +181,29 @@
                         android:layout_marginTop="@dimen/spacing_small"
                         android:orientation="vertical" />
 
+                    <LinearLayout
+                        android:id="@+id/layoutDailyReadings"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/daily_readings_title"
+                            android:textColor="@color/text_dark_gray"
+                            android:textSize="@dimen/text_size_small"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:id="@+id/layoutDailyReadingRows"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical" />
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogToday"
                         android:layout_width="match_parent"
