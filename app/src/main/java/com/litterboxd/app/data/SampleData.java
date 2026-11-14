@@ -329,6 +329,21 @@ public final class SampleData {
                 "I caught him soaking up the bright sunshine on the pavement, looking absolutely blissful. "
                         + "That little squinty smile is all the serotonin I need, so I'm logging his mood as a perfect ten out of ten today.",
                 R.raw.sample_pip_closeup, "closeup", 3, now, "everyday", "cuddles");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "The window inspector.",
+                "I heard a strange rustling sound and found him trying to squeeze his head through the closed blinds to get a better look outside. "
+                        + "The immediate look of guilt and airplane ears when I caught him in the act was absolutely priceless. "
+                        + "I'm just glad he didn't break the plastic slats this time.",
+                R.raw.sample_pip_windowcat, "windowcat", 15, now, "funny", "everyday");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "No paparazzi, please.",
+                "He marched right up to me while I was taking pictures and stretched his paw out directly toward the camera lens. "
+                        + "With those big, wide eyes, I think he is officially demanding that I put the phone down. "
+                        + "It is definitely time to stop working and give him some undivided attention.",
+                R.raw.sample_pip_scratch, "scratch", 10, now, "funny", "play");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Turn off the lights.",
+                "After a long morning of causing chaos, he finally crashed hard on the fuzzy grey blanket. "
+                        + "He even threw his little paws completely over his face to block out the light while he snoozed. "
+                        + "Seeing him curled up so peacefully like a little ginger shrimp is definitely the highlight of my day.",
+                R.raw.sample_pip_silau, "silau", 4, now, "cuddles", "everyday");
     }
 
     /** One diary page with a bundled photo, dated {@code daysAgo} days back at 5 pm. */
