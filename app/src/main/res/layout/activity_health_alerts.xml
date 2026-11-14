@@ -43,14 +43,80 @@
             android:paddingEnd="@dimen/margin_horizontal"
             android:paddingBottom="@dimen/spacing_large">
 
-            <TextView
-                android:id="@+id/tvHealthAlertsEmpty"
+            <!-- No alerts: an "all clear" card with this week's logging, or a nudge to log more. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAllClear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_medium"
-                android:text="@string/health_alerts_empty"
-                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/pastel_sage">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:id="@+id/tvAllClearEmoji"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/all_clear_emoji" />
+
+                    <TextView
+                        android:id="@+id/tvAllClearTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+                    <TextView
+                        android:id="@+id/tvAllClearBody"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_tiny"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutWeekDots"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_card"
+                        android:orientation="horizontal" />
+
+                    <TextView
+                        android:id="@+id/tvWeekCount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:gravity="center_horizontal"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_card"
+                        android:text="@string/all_clear_watching_title"
+                        android:textColor="@color/text_dark_gray"
+                        android:textSize="@dimen/text_size_small"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_tiny"
+                        android:text="@string/all_clear_watching"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAllClearLog"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/spacing_card"
+                        app:backgroundTint="@color/sage_primary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
                 android:id="@+id/layoutHealthAlerts"
@@ -58,6 +124,66 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_medium"
                 android:orientation="vertical" />
+
+            <!-- Nearby vets: only shown while there is at least one alert. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardNearbyVets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/blush_pink">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vets_title"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_tiny"
+                        android:text="@string/vets_intro"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+                    <ProgressBar
+                        android:id="@+id/progressNearbyVets"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tvNearbyVetsStatus"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_small"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutNearbyVets"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnFindVets"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="@dimen/spacing_card"
+                        android:text="@string/btn_find_vets"
+                        app:backgroundTint="@color/sage_primary" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:layout_width="match_parent"
