@@ -1,5 +1,15 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
+}
+
+// AMap (Gaode) Web Service key for the nearby-vets search. Kept out of git: put AMAP_KEY=... in
+// local.properties (or pass -PAMAP_KEY=...). Without one, the app says vet search isn't set up.
+val amapKey: String = (project.findProperty("AMAP_KEY") as String?) ?: Properties().let { props ->
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { props.load(it) }
+    props.getProperty("AMAP_KEY", "")
 }
 
 android {
@@ -15,6 +25,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "AMAP_KEY", "\"$amapKey\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
