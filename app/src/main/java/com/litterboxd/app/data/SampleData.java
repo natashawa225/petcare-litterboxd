@@ -1,6 +1,7 @@
 package com.litterboxd.app.data;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.litterboxd.app.R;
 import com.litterboxd.app.data.dao.CareTaskDao;
@@ -20,8 +21,15 @@ import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.reminders.CareReminderScheduler;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -59,10 +67,12 @@ public final class SampleData {
         LitterboxdDbHelper db = LitterboxdDbHelper.getInstance(context);
         CatDao catDao = new CatDao(db);
         Set<String> existing = new HashSet<>();
+        Cat existingMochi = null;
         Cat existingPip = null;
         Cat existingBiscuit = null;
         for (Cat c : catDao.getAllCats()) {
             existing.add(c.getName());
+            if ("Mochi".equals(c.getName()) && existingMochi == null) existingMochi = c;
             if ("Pip".equals(c.getName()) && existingPip == null) existingPip = c;
             if ("Biscuit".equals(c.getName()) && existingBiscuit == null) existingBiscuit = c;
         }
@@ -75,6 +85,9 @@ public final class SampleData {
         if (!existing.contains("Mochi")) {
             long id = addMochi(context, db, now);
             if (firstAdded < 0) firstAdded = id;
+            added++;
+        } else if (new DiaryDao(db).getEntriesForCat(existingMochi.getId()).isEmpty()) {
+            seedMochiPhotos(context, db, existingMochi.getId(), now);
             added++;
         }
         if (!existing.contains("Biscuit")) {
@@ -119,6 +132,9 @@ public final class SampleData {
                 .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         ownerTask(context, tasks, id, "Booster vaccination", "Booked at Willow Lane Vets (sample)",
                 TaskFrequency.ONCE, 10, 30, due, now);
+        long overdueDue = now - 3 * 86_400_000L; // 3 days ago
+        ownerTask(context, tasks, id, "Microchip check", "Overdue initial check",
+                TaskFrequency.ONCE, 10, 0, overdueDue, now);
 
         // A calm week: everything normal on 6 of the last 7 days.
         DailyCheckinDao checkins = new DailyCheckinDao(db);
@@ -126,7 +142,46 @@ public final class SampleData {
             checkins.saveCheckin(id, LocalDate.now().minusDays(i + 1).toString(),
                     answers("appetite", "normal", "water", "normal", "litter", "normal"));
         }
+        seedMochiPhotos(context, db, id, now);
         return id;
+    }
+
+    /**
+     * Mochi's photos (bundled in res/raw) become her profile picture and her first diary pages.
+     */
+    private static void seedMochiPhotos(Context context, LitterboxdDbHelper db, long id, long now) {
+        setProfilePhotoIfMissing(context, db, id, R.raw.sample_mochi_profile, "sample_mochi_profile.jpg");
+        DiaryDao diary = new DiaryDao(db);
+        diaryEntry(context, diary, id, DiaryEntry.Type.MILESTONE, "Eyes on the prize.",
+                "She figured out exactly where the treat drawer is on her very first afternoon here. "
+                        + "Those big amber eyes staring up at me from the floorboards are going to be absolutely impossible to say no to.",
+                R.raw.sample_mochi_prize, "sample_mochi_", "prize", 6, now, "everyday", "treat");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "The inspection phase.",
+                "I had to scoop her up before she could dart behind the boxes in the hallway. "
+                        + "She just dangled there looking incredibly unimpressed with her new living arrangements, "
+                        + "but at least we avoided a stressful game of hide-and-seek on day one.",
+                R.raw.sample_mochi_inspection, "sample_mochi_", "inspection", 5, now, "funny", "everyday");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Airplane ears engaged.",
+                "It's our first night together and she's already claimed my bed, "
+                        + "though she still looks a little unsure about the new noises in the house. "
+                        + "I'm hoping she settles down soon so we can both get some rest before her morning check-in.",
+                R.raw.sample_mochi_cute, "sample_mochi_", "cute", 4, now, "cuddles", "everyday");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Tucked in.",
+                "After a long first day of exploring her new territory, she finally crashed hard. "
+                        + "Finding her curled up into a tiny calico bean on the softest blanket in the house absolutely melted my heart.",
+                R.raw.sample_mochi_tiny, "sample_mochi_", "tiny", 3, now, "cuddles", "first_time");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Having a lot to say.",
+                "She has only been here for a few hours, but she is already loudly demanding her dinner. "
+                        + "I love that she's getting comfortable enough to march right up to the camera and shout at me like she owns the place.",
+                R.raw.sample_mochi_yap, "sample_mochi_", "yap", 2, now, "funny", "everyday");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "First day blep.",
+                "I looked over and caught her making this incredibly silly sleepy face with her tiny tongue sticking out. "
+                        + "It seems like all the excitement and stress of moving in today has her completely exhausted.",
+                R.raw.sample_mochi_blep, "sample_mochi_", "blep", 1, now, "funny", "everyday");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Officially settled.",
+                "She finally curled her paws up on the polka-dot bedsheets for a proper nap to end her first day with me. "
+                        + "Seeing her sleep so peacefully makes me think she is already feeling perfectly safe and right at home.",
+                R.raw.sample_mochi_nap, "sample_mochi_", "nap", 0, now, "cuddles", "everyday");
     }
 
     private static long addBiscuit(Context context, LitterboxdDbHelper db, long now) {
@@ -199,6 +254,10 @@ public final class SampleData {
                 "First sunny morning in weeks. He sat by the window with his eyes squeezed shut, "
                         + "soaking up every bit of warmth.",
                 R.raw.sample_biscuit_sun, "biscuit_sun", 2, now, "everyday", "cuddles");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Is the ground lava?",
+                "She absolutely refuses to step on the dry autumn leaves, claiming this single stone square as her designated safe zone. "
+                        + "I guess our backyard patrol is officially paused until the walkway is clear.",
+                R.raw.sample_biscuit_outing, "biscuit_outing", 15, now, "funny", "everyday");
     }
 
     /** Copies a bundled photo as the cat's profile picture, unless the cat already has one. */
@@ -221,6 +280,18 @@ public final class SampleData {
         meals(db, id, new String[][]{{"Breakfast", "07:00", "25"}, {"Lunch", "12:30", "25"},
                 {"Supper", "18:30", "25"}});
         finishTasks(context, id);
+
+        DailyCheckinDao checkins = new DailyCheckinDao(db);
+        for (int i = 0; i < 3; i++) {
+            checkins.saveCheckin(id, LocalDate.now().minusDays(i + 1).toString(),
+                    answers("appetite", "normal", "water", "normal", "litter", "normal", "energy", "high"));
+        }
+
+        CareTaskDao tasks = new CareTaskDao(db);
+        long overdueDue = now - 2 * 86_400_000L; // 2 days ago
+        ownerTask(context, tasks, id, "Kitten flea treatment", "Sample overdue treatment",
+                TaskFrequency.ONCE, 10, 0, overdueDue, now);
+
         seedPipPhotos(context, db, id, now);
         return id;
     }
@@ -249,11 +320,26 @@ public final class SampleData {
                 "Woke up from her afternoon nap with the biggest yawn I have ever seen. "
                         + "All teeth, eyes squeezed shut, zero shame.",
                 R.raw.sample_pip_yawn, "yawn", 2, now, "funny", "everyday");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Why are you like this?",
+                "I found him aggressively resting his forehead against the metal table leg today. "
+                        + "I can't tell if he's deep in thought or just actively ignoring me, "
+                        + "but this goofy posture is definitely going into today's photo diary check-in.",
+                R.raw.sample_pip_weird, "weird", 5, now, "funny", "everyday");
+        diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Pure sunshine.",
+                "I caught him soaking up the bright sunshine on the pavement, looking absolutely blissful. "
+                        + "That little squinty smile is all the serotonin I need, so I'm logging his mood as a perfect ten out of ten today.",
+                R.raw.sample_pip_closeup, "closeup", 3, now, "everyday", "cuddles");
     }
 
     /** One diary page with a bundled photo, dated {@code daysAgo} days back at 5 pm. */
     private static void diaryEntry(Context context, DiaryDao dao, long catId, DiaryEntry.Type type,
                                    String title, String text, int photoRes, String photoKey,
+                                   int daysAgo, long now, String... tagKeys) {
+        diaryEntry(context, dao, catId, type, title, text, photoRes, "sample_pip_", photoKey, daysAgo, now, tagKeys);
+    }
+
+    private static void diaryEntry(Context context, DiaryDao dao, long catId, DiaryEntry.Type type,
+                                   String title, String text, int photoRes, String prefix, String photoKey,
                                    int daysAgo, long now, String... tagKeys) {
         DiaryEntry entry = new DiaryEntry();
         entry.setCatId(catId);
@@ -263,8 +349,8 @@ public final class SampleData {
         entry.setEntryAt(LocalDate.now().minusDays(daysAgo).atTime(17, 0)
                 .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
         entry.setPhotoPath(copyPhoto(context, photoRes,
-                FileStorageHelper.DIARY_PHOTO_PREFIX + "sample_pip_" + photoKey + ".jpg"));
-        entry.setTags(new java.util.ArrayList<>(java.util.Arrays.asList(tagKeys)));
+                FileStorageHelper.DIARY_PHOTO_PREFIX + prefix + photoKey + ".jpg"));
+        entry.setTags(new ArrayList<>(Arrays.asList(tagKeys)));
         entry.setCreatedAt(now);
         entry.setUpdatedAt(now);
         dao.insertEntry(entry);
@@ -275,15 +361,15 @@ public final class SampleData {
      * photo lives, and returns its file name (null if the copy failed: the entry keeps no photo).
      */
     private static String copyPhoto(Context context, int rawRes, String fileName) {
-        java.io.File out = new FileStorageHelper(context).getInternalImageFile(fileName);
-        try (java.io.InputStream in = context.getResources().openRawResource(rawRes);
-             java.io.OutputStream os = new java.io.FileOutputStream(out)) {
+        File out = new FileStorageHelper(context).getInternalImageFile(fileName);
+        try (InputStream in = context.getResources().openRawResource(rawRes);
+             OutputStream os = new FileOutputStream(out)) {
             byte[] buffer = new byte[8192];
             int n;
             while ((n = in.read(buffer)) != -1) os.write(buffer, 0, n);
             return fileName;
-        } catch (java.io.IOException e) {
-            android.util.Log.w("SampleData", "Could not copy sample photo " + fileName, e);
+        } catch (IOException e) {
+            Log.w("SampleData", "Could not copy sample photo " + fileName, e);
             return null;
         }
     }

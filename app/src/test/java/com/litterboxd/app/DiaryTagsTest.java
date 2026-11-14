@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class DiaryTagsTest {
+public class      DiaryTagsTest {
 
     @Test
     public void roundTripKeepsOrder() {
