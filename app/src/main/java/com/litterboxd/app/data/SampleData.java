@@ -40,15 +40,21 @@ import java.util.Set;
 /**
  * Fictional demo cats that show the data really is per cat. Each cat differs in every table:
  *
- *  - Mochi  (adult, indoor): two meals, litter scoop done today, a booked booster vaccination
- *           coming up, a calm week of check-ins -> "All looks normal".
+ *  - Mochi  (calico, home for a week, just turned 2 by her exact birthday): two meals; one-off tasks
+ *           in every state (overdue microchip check, done blood test, booked booster, kibble with
+ *           no date or reminder); weight drifting down from her shelter records; eating less with
+ *           repeated vomiting -> a "Worth a vet visit" alert (+ nearby vets) and an inappetence
+ *           "For you" card; a calendar with normal and noted days; seven photo diary pages and
+ *           two text-only ones.
  *  - Biscuit (brown tabby Maine Coon, indoor/outdoor): two different meal times plus a full care
  *           routine (some done, some to do), weight drifting down, drinking more for 5 days -> a
  *           "Worth watching" alert; grumpy and tired today -> two "For you" reading cards; a
  *           profile photo and five photo diary pages.
- *  - Pip    (ginger kitten): three small meals and nothing else yet -> only feeding reminders,
- *           plus the Tasks tab's suggestions; no check-ins -> "No check-ins yet". She is the only
- *           cat with a profile photo and diary pages (four photo memories from her first weeks).
+ *  - Pip    (ginger kitten): three small meals, an overdue flea treatment, three lively
+ *           check-ins, a profile photo and nine photo diary pages from her first weeks.
+ *
+ *
+ * Seeded check-ins are timestamped on their own day (see checkin()), so history reads naturally.
  *
  * Feeding reminders are not written here: they are generated from each cat's schedule by
  * CareTaskSetup, exactly as for a real cat. Cats already present (by name) are skipped.
@@ -119,12 +125,25 @@ public final class SampleData {
     // ---- The cats ----
 
     private static long addMochi(Context context, LitterboxdDbHelper db, long now) {
-        long id = insertCat(db, "Mochi", 2, 4, "Domestic Shorthair", "Female", true,
-                "Calico", "Indoor only", now - 120 * DAY);
-        weights(db, id, new double[]{4.0, 4.1}, new int[]{45, 15}, "Vet weigh-in", "Home scales");
+        // Her diary is her first week home, so she arrived 7 days ago. Her 2nd birthday fell
+        // during that week: an exact birthday (not an approximate age) gives "2 years" exactly.
+        long id = insertCat(db, "Mochi", 2, 0, "Domestic Shorthair", "Female", true,
+                "Calico", "Indoor only", now - 7 * DAY);
+        CatDao catDao = new CatDao(db);
+        Cat mochi = catDao.getCatById(id);
+        if (mochi != null) {
+            mochi.setBirthday(LocalDate.now().minusYears(2).plusDays(-3)
+                    .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli());
+            catDao.updateCat(mochi);
+        }
+        // A steady loss over two months (the trend pill and chart going down). The first two
+        // readings are from the shelter's records, before she came home.
+        weights(db, id, new double[]{4.6, 4.5, 4.3, 4.2}, new int[]{60, 30, 6, 1},
+                "Shelter record", "Shelter record", "Vet weigh-in on arrival", "A little lighter again");
         meals(db, id, new String[][]{{"Breakfast", "08:00", "45"}, {"Dinner", "18:00", "45"}});
         finishTasks(context, id);
 
+        // One-off tasks in every state: overdue, done, coming up, and no date or reminder at all.
         CareTaskDao tasks = new CareTaskDao(db);
         long litter = ownerTask(context, tasks, id, "Litter scoop", null, TaskFrequency.DAILY, 9, 0, null, now);
         complete(tasks, litter, now - 2 * 3_600_000L); // done earlier today
@@ -135,13 +154,38 @@ public final class SampleData {
         long overdueDue = now - 3 * 86_400_000L; // 3 days ago
         ownerTask(context, tasks, id, "Microchip check", "Overdue initial check",
                 TaskFrequency.ONCE, 10, 0, overdueDue, now);
+        long bloodTest = ownerTask(context, tasks, id, "Kidney blood test", "New-cat health check (sample)",
+                TaskFrequency.ONCE, 9, 30, now - 6 * DAY, now);
+        complete(tasks, bloodTest, now - 5 * DAY); // a one-off in the Done list
+        ownerTaskWithoutReminder(tasks, id, "Buy new kibble", "No date, no reminder", now);
 
-        // A calm week: everything normal on 6 of the last 7 days.
+        // Settling in well for four days, then eating less for 3 days with repeated vomiting
+        // yesterday -> low_appetite_vomiting ("Worth a vet visit", which supersedes
+        // appetite_less_repeat, so one card), the "vets near you" card, and today's "ate less"
+        // -> the inappetence "For you" reading. Her calendar gets normal and noted days.
         DailyCheckinDao checkins = new DailyCheckinDao(db);
-        for (int i = 0; i < 6; i++) {
-            checkins.saveCheckin(id, LocalDate.now().minusDays(i + 1).toString(),
-                    answers("appetite", "normal", "water", "normal", "litter", "normal"));
+        for (int i = 6; i >= 3; i--) {
+            checkin(checkins, id, i, answers("appetite", "normal", "water", "normal",
+                    "litter", "normal", "energy", "normal", "mood", "normal"));
         }
+        checkin(checkins, id, 2, answers("appetite", "less", "water", "normal",
+                "litter", "normal", "vomiting", "once", "energy", "normal"));
+        checkin(checkins, id, 1, answers("appetite", "less", "water", "normal",
+                "litter", "normal", "vomiting", "repeated", "energy", "normal"));
+        checkin(checkins, id, 0, answers("appetite", "less", "water", "normal",
+                "litter", "normal", "vomiting", "none", "energy", "normal"));
+
+        // Text-only diary pages (no photo): a milestone with tags and a memory with none.
+        DiaryDao diary = new DiaryDao(db);
+        textEntry(diary, id, DiaryEntry.Type.MILESTONE, "Two years young",
+                "Mochi's 2nd birthday, and her first one with us. Celebrated with a sardine and "
+                        + "an extra long nap in the sun.",
+                3, now, "snack", "cuddles");
+        textEntry(diary, id, DiaryEntry.Type.MEMORY, "Off her food",
+                "Left most of her breakfast again and was sick on the rug. Booking a vet visit "
+                        + "if she still isn't eating properly tomorrow.",
+                1, now);
+
         seedMochiPhotos(context, db, id, now);
         return id;
     }
@@ -155,7 +199,7 @@ public final class SampleData {
         diaryEntry(context, diary, id, DiaryEntry.Type.MILESTONE, "Eyes on the prize.",
                 "She figured out exactly where the treat drawer is on her very first afternoon here. "
                         + "Those big amber eyes staring up at me from the floorboards are going to be absolutely impossible to say no to.",
-                R.raw.sample_mochi_prize, "sample_mochi_", "prize", 6, now, "everyday", "treat");
+                R.raw.sample_mochi_prize, "sample_mochi_", "prize", 6, now, "everyday", "snack");
         diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "The inspection phase.",
                 "I had to scoop her up before she could dart behind the boxes in the hallway. "
                         + "She just dangled there looking incredibly unimpressed with her new living arrangements, "
@@ -216,10 +260,10 @@ public final class SampleData {
         // (stress and lethargy), picked by the same check-in rules a real log uses.
         DailyCheckinDao checkins = new DailyCheckinDao(db);
         for (int i = 1; i < 5; i++) {
-            checkins.saveCheckin(id, LocalDate.now().minusDays(i).toString(),
+            checkin(checkins, id, i,
                     answers("appetite", "normal", "water", "more", "urination_more", "no", "litter", "normal"));
         }
-        checkins.saveCheckin(id, LocalDate.now().toString(),
+        checkin(checkins, id, 0,
                 answers("appetite", "normal", "water", "more", "urination_more", "no", "litter", "normal",
                         "energy", "low", "mood", "grumpy"));
 
@@ -255,7 +299,7 @@ public final class SampleData {
                         + "soaking up every bit of warmth.",
                 R.raw.sample_biscuit_sun, "biscuit_sun", 2, now, "everyday", "cuddles");
         diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Is the ground lava?",
-                "She absolutely refuses to step on the dry autumn leaves, claiming this single stone square as her designated safe zone. "
+                "He absolutely refuses to step on the dry autumn leaves, claiming this single stone square as his designated safe zone. "
                         + "I guess our backyard patrol is officially paused until the walkway is clear.",
                 R.raw.sample_biscuit_outing, "biscuit_outing", 15, now, "funny", "everyday");
     }
@@ -283,7 +327,7 @@ public final class SampleData {
 
         DailyCheckinDao checkins = new DailyCheckinDao(db);
         for (int i = 0; i < 3; i++) {
-            checkins.saveCheckin(id, LocalDate.now().minusDays(i + 1).toString(),
+            checkin(checkins, id, i + 1,
                     answers("appetite", "normal", "water", "normal", "litter", "normal", "energy", "high"));
         }
 
@@ -321,29 +365,45 @@ public final class SampleData {
                         + "All teeth, eyes squeezed shut, zero shame.",
                 R.raw.sample_pip_yawn, "yawn", 2, now, "funny", "everyday");
         diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Why are you like this?",
-                "I found him aggressively resting his forehead against the metal table leg today. "
-                        + "I can't tell if he's deep in thought or just actively ignoring me, "
+                "I found her aggressively resting her forehead against the metal table leg today. "
+                        + "I can't tell if she's deep in thought or just actively ignoring me, "
                         + "but this goofy posture is definitely going into today's photo diary check-in.",
                 R.raw.sample_pip_weird, "weird", 5, now, "funny", "everyday");
         diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Pure sunshine.",
-                "I caught him soaking up the bright sunshine on the pavement, looking absolutely blissful. "
-                        + "That little squinty smile is all the serotonin I need, so I'm logging his mood as a perfect ten out of ten today.",
+                "I caught her soaking up the bright sunshine on the pavement, looking absolutely blissful. "
+                        + "That little squinty smile is all the serotonin I need, so I'm logging her mood as a perfect ten out of ten today.",
                 R.raw.sample_pip_closeup, "closeup", 3, now, "everyday", "cuddles");
         diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "The window inspector.",
-                "I heard a strange rustling sound and found him trying to squeeze his head through the closed blinds to get a better look outside. "
-                        + "The immediate look of guilt and airplane ears when I caught him in the act was absolutely priceless. "
-                        + "I'm just glad he didn't break the plastic slats this time.",
+                "I heard a strange rustling sound and found her trying to squeeze her head through the closed blinds to get a better look outside. "
+                        + "The immediate look of guilt and airplane ears when I caught her in the act was absolutely priceless. "
+                        + "I'm just glad she didn't break the plastic slats this time.",
                 R.raw.sample_pip_windowcat, "windowcat", 15, now, "funny", "everyday");
         diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "No paparazzi, please.",
-                "He marched right up to me while I was taking pictures and stretched his paw out directly toward the camera lens. "
-                        + "With those big, wide eyes, I think he is officially demanding that I put the phone down. "
-                        + "It is definitely time to stop working and give him some undivided attention.",
+                "She marched right up to me while I was taking pictures and stretched her paw out directly toward the camera lens. "
+                        + "With those big, wide eyes, I think she is officially demanding that I put the phone down. "
+                        + "It is definitely time to stop working and give her some undivided attention.",
                 R.raw.sample_pip_scratch, "scratch", 10, now, "funny", "play");
         diaryEntry(context, diary, id, DiaryEntry.Type.MEMORY, "Turn off the lights.",
-                "After a long morning of causing chaos, he finally crashed hard on the fuzzy grey blanket. "
-                        + "He even threw his little paws completely over his face to block out the light while he snoozed. "
-                        + "Seeing him curled up so peacefully like a little ginger shrimp is definitely the highlight of my day.",
+                "After a long morning of causing chaos, she finally crashed hard on the fuzzy grey blanket. "
+                        + "She even threw her little paws completely over her face to block out the light while she snoozed. "
+                        + "Seeing her curled up so peacefully like a little ginger shrimp is definitely the highlight of my day.",
                 R.raw.sample_pip_silau, "silau", 4, now, "cuddles", "everyday");
+    }
+
+    /** A diary page with no photo (a text-only memory or milestone), dated {@code daysAgo} at 5 pm. */
+    private static void textEntry(DiaryDao dao, long catId, DiaryEntry.Type type, String title,
+                                  String text, int daysAgo, long now, String... tagKeys) {
+        DiaryEntry entry = new DiaryEntry();
+        entry.setCatId(catId);
+        entry.setType(type);
+        entry.setTitle(title);
+        entry.setDescription(text);
+        entry.setEntryAt(LocalDate.now().minusDays(daysAgo).atTime(17, 0)
+                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
+        entry.setTags(new ArrayList<>(Arrays.asList(tagKeys)));
+        entry.setCreatedAt(now);
+        entry.setUpdatedAt(now);
+        dao.insertEntry(entry);
     }
 
     /** One diary page with a bundled photo, dated {@code daysAgo} days back at 5 pm. */
@@ -464,6 +524,33 @@ public final class SampleData {
         task.setId(dao.insertTask(task));
         CareReminderScheduler.schedule(context, task);
         return task.getId();
+    }
+
+    /** A one-off task with no due date and no reminder (nothing is scheduled for it). */
+    private static long ownerTaskWithoutReminder(CareTaskDao dao, long catId, String name,
+                                                 String description, long now) {
+        CareTask task = new CareTask();
+        task.setCatId(catId);
+        task.setName(name);
+        task.setDescription(description);
+        task.setFrequency(TaskFrequency.ONCE);
+        task.setCreatedAt(now);
+        task.setId(dao.insertTask(task));
+        return task.getId();
+    }
+
+    /**
+     * Saves a check-in for {@code daysAgo} days back, logged that evening at 8:30 pm (today's:
+     * half an hour ago), so the Diary's care history spreads them over their own days.
+     */
+    private static void checkin(DailyCheckinDao dao, long catId, int daysAgo,
+                                Map<String, List<String>> answers) {
+        long checkinId = dao.saveCheckin(catId, LocalDate.now().minusDays(daysAgo).toString(), answers);
+        long loggedAt = daysAgo == 0
+                ? System.currentTimeMillis() - 30 * 60_000L
+                : LocalDate.now().minusDays(daysAgo).atTime(20, 30)
+                        .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        dao.setLoggedAt(checkinId, loggedAt);
     }
 
     private static void complete(CareTaskDao dao, long taskId, long at) {
