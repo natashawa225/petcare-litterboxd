@@ -73,6 +73,19 @@ public class DailyCheckinDao {
     }
 
     /**
+     * Sets when a check-in was logged (its created/updated time). Used by the sample data so a
+     * week of backfilled check-ins reads as logged on its own evening, not all at load time.
+     */
+    public void setLoggedAt(long checkinId, long loggedAtMillis) {
+        ContentValues values = new ContentValues();
+        values.put(LitterboxdContract.DailyCheckinEntry.COLUMN_CREATED_AT, loggedAtMillis);
+        values.put(LitterboxdContract.DailyCheckinEntry.COLUMN_UPDATED_AT, loggedAtMillis);
+        dbHelper.getWritableDatabase().update(LitterboxdContract.DailyCheckinEntry.TABLE_NAME, values,
+                LitterboxdContract.DailyCheckinEntry.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(checkinId)});
+    }
+
+    /**
      * Saves today's answers, then drops this cat's check-ins older than {@link #RETENTION_DAYS}.
      * @return the id of the saved check-in row
      */
