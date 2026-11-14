@@ -82,4 +82,7 @@
     <dimen name="cat_card_name_size">17sp</dimen>
     <!-- Negative margin so the row scrolls edge to edge past the page padding. -->
     <dimen name="my_cats_bleed">-16dp</dimen>
+    <!-- Health alerts "all clear" card -->
+    <dimen name="all_clear_emoji">36sp</dimen>
+    <dimen name="week_dot">12dp</dimen>
 </resources>
