@@ -58,9 +58,12 @@ public class LocationHelper {
 
         Location bestLocation = null;
         long fiveMinutesAgo = System.currentTimeMillis() - 300000L;
+        // With only "approximate" location allowed, GPS is off limits and only Network can be used.
+        final boolean hasFine = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
 
         try {
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (hasFine && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 Location gpsLast = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 if (gpsLast != null && gpsLast.getTime() > fiveMinutesAgo) {
                     bestLocation = gpsLast;
@@ -83,7 +86,7 @@ public class LocationHelper {
         }
 
         // Fallback: Request single fresh update
-        final String provider = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ?
+        final String provider = hasFine && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ?
                 LocationManager.GPS_PROVIDER :
                 (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ? LocationManager.NETWORK_PROVIDER : null);
 
