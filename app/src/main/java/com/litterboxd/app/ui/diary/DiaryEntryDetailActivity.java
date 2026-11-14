@@ -39,7 +39,7 @@ public class DiaryEntryDetailActivity extends AppCompatActivity {
     private long entryId;
     private View layoutPhoto;
     private ImageView imgPhoto;
-    private TextView tvPhotoHint, tvCat, tvType, tvDate, tvTitle, tvText, tvTags;
+    private TextView tvCat, tvType, tvDate, tvTitle, tvText, tvTags;
     /** false = centerCrop (fills the frame), true = fitCenter (whole photo). */
     private boolean showWholePhoto;
 
@@ -57,7 +57,6 @@ public class DiaryEntryDetailActivity extends AppCompatActivity {
 
         layoutPhoto = findViewById(R.id.layoutDiaryDetailPhoto);
         imgPhoto = findViewById(R.id.imgDiaryDetailPhoto);
-        tvPhotoHint = findViewById(R.id.tvDiaryDetailPhotoHint);
         tvCat = findViewById(R.id.tvDiaryDetailCat);
         tvType = findViewById(R.id.tvDiaryDetailType);
         tvDate = findViewById(R.id.tvDiaryDetailDate);
@@ -127,7 +126,6 @@ public class DiaryEntryDetailActivity extends AppCompatActivity {
                 ? new FileStorageHelper(this).getInternalImageFile(entry.getPhotoPath()) : null;
         boolean hasPhoto = photo != null && photo.exists();
         layoutPhoto.setVisibility(hasPhoto ? View.VISIBLE : View.GONE);
-        tvPhotoHint.setVisibility(hasPhoto ? View.VISIBLE : View.GONE);
         if (hasPhoto) {
             imgPhoto.setContentDescription(getString(R.string.cd_diary_photo, entry.getTitle()));
             // Glide decodes the file at the frame's real size (sharp, not the 256px preview) and

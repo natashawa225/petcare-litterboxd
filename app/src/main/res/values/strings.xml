@@ -520,7 +520,6 @@
     <!-- Diary entry detail (read-only view) -->
     <string name="diary_detail_of_cat">%s\'s diary</string>
     <string name="diary_detail_date_time">%1$s · %2$s</string>
-    <string name="diary_detail_photo_hint">Tap the photo to see all of it</string>
     <string name="cd_diary_detail_photo">Diary photo</string>
     <string name="cd_back">Back</string>
     <string name="diary_for_cat">For %1$s</string>

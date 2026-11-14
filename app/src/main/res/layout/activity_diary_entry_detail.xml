@@ -92,17 +92,6 @@
                 </com.google.android.material.card.MaterialCardView>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/tvDiaryDetailPhotoHint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_tiny"
-                android:gravity="center"
-                android:text="@string/diary_detail_photo_hint"
-                android:textColor="@color/text_dark_gray"
-                android:textSize="@dimen/text_size_caption"
-                android:visibility="gone" />
-
             <!-- Type chip + date -->
             <LinearLayout
                 android:layout_width="match_parent"
