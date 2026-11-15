@@ -4,13 +4,19 @@ plugins {
     id("com.android.application")
 }
 
-// AMap (Gaode) Web Service key for the nearby-vets search. Kept out of git: put AMAP_KEY=... in
-// local.properties (or pass -PAMAP_KEY=...). Without one, the app says vet search isn't set up.
-val amapKey: String = (project.findProperty("AMAP_KEY") as String?) ?: Properties().let { props ->
-    val file = rootProject.file("local.properties")
-    if (file.exists()) file.inputStream().use { props.load(it) }
-    props.getProperty("AMAP_KEY", "")
+// AMap (Gaode) Web Service key for the nearby-vets search. The shared key is in amap.properties
+// (committed so every build works). A key in local.properties or -PAMAP_KEY=... takes priority.
+fun amapKeyFrom(fileName: String): String? {
+    val file = rootProject.file(fileName)
+    if (!file.exists()) return null
+    val props = Properties()
+    file.inputStream().use { props.load(it) }
+    return props.getProperty("AMAP_KEY")?.trim()?.takeIf { it.isNotEmpty() }
 }
+val amapKey: String = (project.findProperty("AMAP_KEY") as String?)
+    ?: amapKeyFrom("local.properties")
+    ?: amapKeyFrom("amap.properties")
+    ?: ""
 
 android {
     namespace = "com.litterboxd.app"
