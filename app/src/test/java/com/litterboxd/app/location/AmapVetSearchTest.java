@@ -16,6 +16,7 @@ public class AmapVetSearchTest {
             + "{\"name\":\"Far Clinic\",\"address\":\"3 Far Road\",\"distance\":\"2500\","
             + "\"typecode\":\"090701\",\"business\":{\"tel\":\"0512-1111;0512-2222\"}},"
             + "{\"name\":\"Near Clinic\",\"address\":\"1 Near Road\",\"distance\":\"350\","
+            + "\"id\":\"B0FFTEST01\",\"location\":\"120.742957,31.272566\","
             + "\"typecode\":\"090701\",\"business\":{\"tel\":[]}},"
             + "{\"name\":\"Middle Hospital\",\"address\":[],\"distance\":\"1200\","
             + "\"typecode\":\"090700\"},"
@@ -33,6 +34,33 @@ public class AmapVetSearchTest {
         assertEquals("", clinics.get(1).getAddress());
         assertEquals("Far Clinic", clinics.get(2).getName());
         assertEquals("0512-1111", clinics.get(2).getPhone());
+    }
+
+    @Test
+    public void clinicKeepsItsAmapIdAndPosition() throws Exception {
+        VetClinic near = AmapVetSearch.parseAround(AROUND_JSON).get(0);
+        assertEquals("B0FFTEST01", near.getPoiId());
+        assertEquals(120.742957, near.getLongitude(), 1e-9);
+        assertEquals(31.272566, near.getLatitude(), 1e-9);
+        assertTrue(near.hasPosition());
+        assertEquals(false, AmapVetSearch.parseAround(AROUND_JSON).get(1).hasPosition());
+    }
+
+    @Test
+    public void directionsLinksFollowAmapFormats() {
+        VetClinic clinic = new VetClinic("安安宠医(林泉路分院)", "", 315, "", "B0FFTEST01",
+                120.742957, 31.272566);
+        String app = AmapDirections.appUri(clinic);
+        assertTrue(app.startsWith("amapuri://route/plan/?sourceApplication=Litterboxd"));
+        assertTrue(app.contains("&did=B0FFTEST01"));
+        assertTrue(app.contains("&dlat=31.272566&dlon=120.742957"));
+        assertTrue(app.contains("&dev=0&t=0"));
+        assertTrue(app.contains("&dname=%E5%AE%89"));
+
+        String web = AmapDirections.webUri(new VetClinic("Cats, Dogs Clinic", "", 1, "", "",
+                120.742957, 31.272566));
+        assertTrue(web.startsWith("https://uri.amap.com/navigation?to=120.742957,31.272566,Cats%20%20Dogs%20Clinic"));
+        assertTrue(web.contains("&mode=car") && web.contains("&callnative=0"));
     }
 
     @Test

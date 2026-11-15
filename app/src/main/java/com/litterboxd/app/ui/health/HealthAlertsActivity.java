@@ -1,6 +1,7 @@
 package com.litterboxd.app.ui.health;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -38,6 +40,7 @@ import com.litterboxd.app.health.HealthRuleEvaluator;
 import com.litterboxd.app.health.RecentLogs;
 import com.litterboxd.app.health.WeightPoints;
 import com.litterboxd.app.health.WeightTrend;
+import com.litterboxd.app.location.AmapDirections;
 import com.litterboxd.app.location.AmapVetSearch;
 import com.litterboxd.app.location.LocationHelper;
 import com.litterboxd.app.location.VetClinic;
@@ -497,7 +500,61 @@ public class HealthAlertsActivity extends AppCompatActivity {
             setOptional(row.findViewById(R.id.tvVetAddress), vet.getAddress());
             setOptional(row.findViewById(R.id.tvVetPhone), vet.getPhone().isEmpty()
                     ? "" : getString(R.string.vets_phone, vet.getPhone()));
+            int hint = actionHint(vet);
+            setOptional(row.findViewById(R.id.tvVetHint), hint == 0 ? "" : getString(hint));
+            if (hint != 0) row.setOnClickListener(v -> showVetActions(vet));
             layoutVets.addView(row);
+        }
+    }
+
+    private static int actionHint(VetClinic vet) {
+        boolean directions = vet.hasPosition();
+        boolean call = !vet.getPhone().isEmpty();
+        if (directions && call) return R.string.vets_hint_directions_call;
+        if (directions) return R.string.vets_hint_directions;
+        if (call) return R.string.vets_hint_call;
+        return 0;
+    }
+
+    /** Directions and Call both leave Litterboxd, so they only happen when the owner taps them. */
+    private void showVetActions(VetClinic vet) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this)
+                .setTitle(vet.getName())
+                .setNegativeButton(R.string.btn_vet_cancel, null);
+        if (!vet.getAddress().isEmpty()) dialog.setMessage(vet.getAddress());
+        if (vet.hasPosition()) {
+            dialog.setPositiveButton(R.string.btn_vet_directions, (d, w) -> openDirections(vet));
+        }
+        if (!vet.getPhone().isEmpty()) {
+            dialog.setNeutralButton(R.string.btn_vet_call, (d, w) -> callVet(vet));
+        }
+        dialog.show();
+    }
+
+    /** The AMap app if installed, otherwise AMap's route page in the browser. */
+    private void openDirections(VetClinic vet) {
+        Intent app = new Intent(Intent.ACTION_VIEW, Uri.parse(AmapDirections.appUri(vet)))
+                .addCategory(Intent.CATEGORY_DEFAULT)
+                .setPackage(AmapDirections.AMAP_PACKAGE);
+        try {
+            startActivity(app);
+            return;
+        } catch (ActivityNotFoundException e) {
+            Log.i(TAG, "AMap app not installed; opening AMap on the web");
+        }
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(AmapDirections.webUri(vet))));
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.vets_directions_failed, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /** Opens the dialer with the number filled in; the owner presses call (no permission needed). */
+    private void callVet(VetClinic vet) {
+        try {
+            startActivity(new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", vet.getPhone(), null)));
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.vets_call_failed, Toast.LENGTH_LONG).show();
         }
     }
 
