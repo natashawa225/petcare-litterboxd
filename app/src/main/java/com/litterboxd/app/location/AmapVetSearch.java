@@ -104,9 +104,11 @@ public final class AmapVetSearch {
                 String name = text(poi, "name");
                 if (name.isEmpty()) continue;
                 JSONObject business = poi.optJSONObject("business");
+                double[] position = position(text(poi, "location"));
                 clinics.add(new VetClinic(name, text(poi, "address"),
                         distance(text(poi, "distance")),
-                        business == null ? "" : firstPhone(text(business, "tel"))));
+                        business == null ? "" : firstPhone(text(business, "tel")),
+                        text(poi, "id"), position[0], position[1]));
             }
         } catch (JSONException e) {
             throw new ServiceException("Unreadable search reply");
@@ -135,6 +137,19 @@ public final class AmapVetSearch {
         } catch (NumberFormatException e) {
             return VetClinic.UNKNOWN_DISTANCE;
         }
+    }
+
+    /** "longitude,latitude" to {longitude, latitude}; NaN when missing or unreadable. */
+    static double[] position(String lngLat) {
+        String[] parts = lngLat == null ? new String[0] : lngLat.split(",");
+        try {
+            if (parts.length == 2) {
+                return new double[]{Double.parseDouble(parts[0]), Double.parseDouble(parts[1])};
+            }
+        } catch (NumberFormatException ignored) {
+            // falls through to "no position"
+        }
+        return new double[]{Double.NaN, Double.NaN};
     }
 
     /** Several numbers come back separated by ";", so only the first is kept. */
