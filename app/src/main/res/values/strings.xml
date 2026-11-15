@@ -335,6 +335,14 @@
     <string name="vets_distance_m">%1$d m away</string>
     <string name="vets_distance_km">%1$.1f km away</string>
     <string name="vets_phone">Tel: %1$s</string>
+    <string name="vets_hint_directions">Tap for directions ›</string>
+    <string name="vets_hint_directions_call">Tap for directions or to call ›</string>
+    <string name="vets_hint_call">Tap to call ›</string>
+    <string name="btn_vet_directions">Directions in AMap</string>
+    <string name="btn_vet_call">Call</string>
+    <string name="btn_vet_cancel">Cancel</string>
+    <string name="vets_directions_failed">Couldn\'t open directions on this phone.</string>
+    <string name="vets_call_failed">Couldn\'t open the phone app.</string>
     <string name="health_alerts_disclaimer">Litterboxd does not diagnose. If you\'re worried, contact a vet.</string>
     <string name="health_alert_dismissed">Alert dismissed for now.</string>
     <string name="checkin_urgent_view">View alert</string>
