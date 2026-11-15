@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -58,9 +59,12 @@ public class LocationHelper {
 
         Location bestLocation = null;
         long fiveMinutesAgo = System.currentTimeMillis() - 300000L;
-        // With only "approximate" location allowed, GPS is off limits and only Network can be used.
+        // Before Android 12, GPS needs "precise" permission. From Android 12 the system lets an app
+        // with only "approximate" permission use GPS and blurs the result itself, which matters on
+        // phones in China whose Network provider is missing or off without Google services.
         final boolean hasFine = ContextCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
 
         try {
             if (hasFine && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
