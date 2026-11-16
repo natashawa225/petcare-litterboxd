@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -105,5 +106,13 @@ public class AmapVetSearchTest {
         assertEquals(false, new AmapVetSearch("").hasKey());
         assertEquals(false, new AmapVetSearch("  ").hasKey());
         assertEquals(true, new AmapVetSearch("abc").hasKey());
+    }
+
+    @Test
+    public void chinaBoxCoversSuzhouButNotTheEmulatorDefault() {
+        assertTrue(AmapVetSearch.mayBeInChina(31.2726, 120.7434));      // XJTLU, Suzhou
+        assertTrue(AmapVetSearch.mayBeInChina(39.9042, 116.4074));      // Beijing
+        assertFalse(AmapVetSearch.mayBeInChina(37.4220, -122.0840));    // emulator default, California
+        assertFalse(AmapVetSearch.mayBeInChina(51.5074, -0.1278));      // London
     }
 }
