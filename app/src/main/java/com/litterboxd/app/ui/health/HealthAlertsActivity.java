@@ -73,7 +73,7 @@ public class HealthAlertsActivity extends AppCompatActivity {
 
     private TextView tvSubtitle;
     private View cardAllClear;
-    private TextView tvAllClearEmoji, tvAllClearTitle, tvAllClearBody, tvWeekCount;
+    private TextView tvAllClearTitle, tvAllClearBody, tvWeekCount;
     private LinearLayout layoutWeekDots;
     private MaterialButton btnAllClearLog;
     private boolean[] recentDays = new boolean[RecentLogs.WEEK];
@@ -108,7 +108,6 @@ public class HealthAlertsActivity extends AppCompatActivity {
         appPrefs = new AppPrefs(this);
         tvSubtitle = findViewById(R.id.tvHealthAlertsSubtitle);
         cardAllClear = findViewById(R.id.cardAllClear);
-        tvAllClearEmoji = findViewById(R.id.tvAllClearEmoji);
         tvAllClearTitle = findViewById(R.id.tvAllClearTitle);
         tvAllClearBody = findViewById(R.id.tvAllClearBody);
         tvWeekCount = findViewById(R.id.tvWeekCount);
@@ -273,7 +272,6 @@ public class HealthAlertsActivity extends AppCompatActivity {
         cardAllClear.setVisibility(View.VISIBLE);
         int logged = RecentLogs.count(recentDays);
         boolean enough = logged >= RecentLogs.ENOUGH_FOR_ALL_CLEAR;
-        tvAllClearEmoji.setText(enough ? R.string.all_clear_emoji : R.string.all_clear_few_emoji);
         tvAllClearTitle.setText(enough
                 ? getString(R.string.all_clear_title, catName)
                 : getString(R.string.all_clear_few_title));

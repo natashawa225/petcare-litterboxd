@@ -146,10 +146,10 @@
     <string name="cd_profile_menu">More options</string>
     <string name="profile_menu_edit">Edit profile</string>
     <string name="profile_menu_delete">Delete cat</string>
-    <string name="profile_age_pill">🎂 %1$s · %2$s</string>
-    <string name="profile_stat_weight">⚖️ Weight</string>
-    <string name="profile_stat_logged">📝 This week</string>
-    <string name="profile_stat_lifestyle">🏡 Lifestyle</string>
+    <string name="profile_age_pill">%1$s · %2$s</string>
+    <string name="profile_stat_weight">Weight</string>
+    <string name="profile_stat_logged">This week</string>
+    <string name="profile_stat_lifestyle">Lifestyle</string>
     <string name="profile_weight_value">%s kg</string>
     <string name="profile_weight_steady">Steady</string>
     <string name="profile_weight_down">↓ %s kg</string>
@@ -205,12 +205,12 @@
     <string name="checkin_category_appetite_water">Appetite &amp; water</string>
     <string name="checkin_group_appetite">Appetite</string>
     <string name="checkin_group_water">Water</string>
-    <string name="chip_appetite_less">🍽️ Ate less</string>
-    <string name="chip_appetite_normal">😋 Ate normally</string>
-    <string name="chip_appetite_more">🍗 Ate more</string>
-    <string name="chip_water_less">🏜️ Drank less</string>
-    <string name="chip_water_normal">🚰 Drank normally</string>
-    <string name="chip_water_more">🌊 Drank more</string>
+    <string name="chip_appetite_less">Ate less</string>
+    <string name="chip_appetite_normal">Ate normally</string>
+    <string name="chip_appetite_more">Ate more</string>
+    <string name="chip_water_less">Drank less</string>
+    <string name="chip_water_normal">Drank normally</string>
+    <string name="chip_water_more">Drank more</string>
     <string name="q_vomiting">Has %1$s vomited today?</string>
     <string name="q_hiding">Is %1$s hiding more than usual?</string>
     <string name="q_hiding_since">For how long has %1$s been hiding more?</string>
@@ -221,23 +221,23 @@
     <string name="q_drinking_more">Is %1$s also drinking more than usual?</string>
     <string name="checkin_category_litter">Litter box</string>
     <string name="checkin_group_litter">Litter visits</string>
-    <string name="chip_litter_less">📉 Fewer visits</string>
-    <string name="chip_litter_normal">🧻 Usual visits</string>
-    <string name="chip_litter_more">📈 More visits</string>
-    <string name="chip_litter_straining">⚠️ Straining</string>
+    <string name="chip_litter_less">Fewer visits</string>
+    <string name="chip_litter_normal">Usual visits</string>
+    <string name="chip_litter_more">More visits</string>
+    <string name="chip_litter_straining">Straining</string>
     <string name="q_urine_output">How much urine did %1$s pass?</string>
     <string name="opt_urine_little_or_none">Little or none</string>
     <string name="opt_urine_some">Some urine</string>
     <string name="opt_urine_not_sure">Not sure</string>
     <string name="checkin_category_energy_mood">Energy &amp; mood</string>
     <string name="checkin_group_energy">Energy</string>
-    <string name="chip_energy_low">😴 Low energy</string>
-    <string name="chip_energy_normal">🐾 Usual energy</string>
-    <string name="chip_energy_high">⚡ Extra playful</string>
+    <string name="chip_energy_low">Low energy</string>
+    <string name="chip_energy_normal">Usual energy</string>
+    <string name="chip_energy_high">Extra playful</string>
     <string name="checkin_group_mood">Mood</string>
-    <string name="chip_mood_grumpy">😾 Grumpy</string>
-    <string name="chip_mood_normal">😺 Usual self</string>
-    <string name="chip_mood_clingy">🥰 Extra cuddly</string>
+    <string name="chip_mood_grumpy">Grumpy</string>
+    <string name="chip_mood_normal">Usual self</string>
+    <string name="chip_mood_clingy">Extra cuddly</string>
     <string name="opt_vomit_none">No</string>
     <string name="opt_vomit_once">Once</string>
     <string name="opt_vomit_repeated">More than once</string>
@@ -264,7 +264,7 @@
     <string name="nav_profile">Profile</string>
 
     <!-- Daily tab -->
-    <string name="daily_greeting">For every chapter of their nine lives🐈</string>
+    <string name="daily_greeting">For every chapter of their nine lives</string>
     <string name="daily_hello">Hi, %s!</string>
     <string name="cd_pet_the_cat">Your cats. Tap a cat to pet it, or touch both cats with two fingers.</string>
     <string name="daily_no_cat">Add a cat to start logging.</string>
@@ -304,10 +304,8 @@
     <!-- Feature A: health alerts. Reading is searched when the owner asks for more info. -->
     <string name="health_alerts_title">Health alerts</string>
     <string name="health_alerts_subtitle">Patterns from %1$s\'s recent logs.</string>
-    <string name="all_clear_emoji">😺</string>
     <string name="all_clear_title">All clear for %1$s</string>
     <string name="all_clear_body">No unusual patterns in %1$s\'s last 7 days of logs.</string>
-    <string name="all_clear_few_emoji">📝</string>
     <string name="all_clear_few_title">Not enough logs yet</string>
     <string name="all_clear_few_body">Log %1$s on a few more days so Litterboxd can spot changes.</string>
     <string name="all_clear_week_count">Logged %1$d of the last 7 days</string>
@@ -440,7 +438,7 @@
     <string name="cd_today_reminder_off">Turn on a reminder for unfinished tasks</string>
     <string name="cd_today_reminder_on">Reminder at %1$s. Tap to change.</string>
     <string name="daily_tasks_summary">%1$d of %2$d tasks done</string>
-    <string name="daily_tasks_all_done">%1$d of %2$d tasks done · Purr-fect! 🐱</string>
+    <string name="daily_tasks_all_done">%1$d of %2$d tasks done · Purr-fect!</string>
 
     <!-- Care Tasks tab -->
     <string name="tasks_title">Care tasks</string>
@@ -517,9 +515,9 @@
     <string name="diary_yesterday">Yesterday</string>
     <string name="diary_type_memory">Memory</string>
     <string name="diary_type_milestone">Milestone</string>
-    <string name="diary_history_weight">⚖️ Weight logged: %1$s kg</string>
-    <string name="diary_history_weight_note">⚖️ Weight logged: %1$s kg · %2$s</string>
-    <string name="diary_history_checkin">📋 Daily check-in: %1$s</string>
+    <string name="diary_history_weight">Weight logged: %1$s kg</string>
+    <string name="diary_history_weight_note">Weight logged: %1$s kg · %2$s</string>
+    <string name="diary_history_checkin">Daily check-in: %1$s</string>
     <string name="diary_history_all_normal">all as usual</string>
     <string name="diary_history_observation">Logged observation</string>
     <string name="diary_meta_tags">%1$s · %2$s</string>
@@ -544,7 +542,7 @@
     <string name="btn_remove_photo">Remove photo</string>
     <string name="btn_delete_entry">Delete entry</string>
     <string name="error_diary_title_required">Give this moment a short title.</string>
-    <string name="msg_diary_saved">Saved to %1$s\'s diary 🐾</string>
+    <string name="msg_diary_saved">Saved to %1$s\'s diary</string>
     <string name="msg_diary_deleted">Entry deleted</string>
     <string name="msg_delete_diary_title">Delete this entry?</string>
     <string name="msg_delete_diary_message">\"%1$s\" and its photo will be removed from the diary.</string>

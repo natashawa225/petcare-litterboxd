@@ -64,11 +64,10 @@ final class ReadingCardAdapter extends RecyclerView.Adapter<ReadingCardAdapter.H
         holder.meta.setText(card.getMinutes() > 0
                 ? context.getString(R.string.reading_meta_minutes, card.getSource(), card.getMinutes())
                 : card.getSource());
-        holder.thumb.setText(card.getEmoji());
         holder.thumbCard.setCardBackgroundColor(ContextCompat.getColor(context, tintColour(card.getTint())));
-        // Teaser image over the emoji tile. Glide downsizes it to the 84dp tile, caches it on disk
+        // Teaser image over the tinted tile. Glide downsizes it to the 84dp tile, caches it on disk
         // (so it isn't re-downloaded on every visit) and cancels the load if this row is recycled.
-        // On failure the image stays empty and the emoji tile underneath shows through.
+        // On failure the image stays empty and the tinted tile underneath shows through.
         if (card.hasImage()) {
             Glide.with(holder.image)
                     .load(card.getImageUrl())
@@ -97,7 +96,7 @@ final class ReadingCardAdapter extends RecyclerView.Adapter<ReadingCardAdapter.H
     }
 
     static final class Holder extends RecyclerView.ViewHolder {
-        final TextView label, title, meta, thumb;
+        final TextView label, title, meta;
         final ImageView image;
         final MaterialCardView thumbCard;
 
@@ -106,7 +105,6 @@ final class ReadingCardAdapter extends RecyclerView.Adapter<ReadingCardAdapter.H
             label = itemView.findViewById(R.id.tvReadingLabel);
             title = itemView.findViewById(R.id.tvReadingTitle);
             meta = itemView.findViewById(R.id.tvReadingMeta);
-            thumb = itemView.findViewById(R.id.tvReadingThumb);
             thumbCard = itemView.findViewById(R.id.cardReadingThumb);
             image = itemView.findViewById(R.id.imgReadingThumb);
         }
