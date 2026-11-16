@@ -76,6 +76,15 @@ public final class AmapVetSearch {
                 + "&key=" + encode(key);
     }
 
+    /**
+     * Rough box around China (latitude 18 to 54, longitude 73 to 135). AMap has no places
+     * outside China, so an empty result outside this box is explained differently. The box also
+     * covers some neighbouring countries; it is only used to pick a message.
+     */
+    public static boolean mayBeInChina(double latitude, double longitude) {
+        return latitude >= 18 && latitude <= 54 && longitude >= 73 && longitude <= 135;
+    }
+
     /** AMap wants "longitude,latitude" with at most 6 decimals. */
     static String lngLat(double longitude, double latitude) {
         return String.format(Locale.US, "%.6f,%.6f", longitude, latitude);

@@ -89,6 +89,8 @@ public class HealthAlertsActivity extends AppCompatActivity {
     private boolean vetsApproximate;
     /** Set when Android will no longer show the permission popup; the button then opens Settings. */
     private boolean locationBlocked;
+    /** Location is off for the whole phone, so the button opens the phone's location settings. */
+    private boolean locationOff;
     private boolean locating;
     private int vetRequestId;
 
@@ -355,6 +357,10 @@ public class HealthAlertsActivity extends AppCompatActivity {
             openAppSettings();
             return;
         }
+        if (locationOff) {
+            openLocationSettings();
+            return;
+        }
         if (!new AmapVetSearch(BuildConfig.AMAP_KEY).hasKey()) {
             showVetsStatus(R.string.vets_not_set_up);
             return;
@@ -396,6 +402,16 @@ public class HealthAlertsActivity extends AppCompatActivity {
                 Uri.fromParts("package", getPackageName(), null)));
     }
 
+    private void openLocationSettings() {
+        locationOff = false;
+        btnFindVets.setText(R.string.btn_find_vets);
+        try {
+            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        } catch (ActivityNotFoundException e) {
+            startActivity(new Intent(Settings.ACTION_SETTINGS));
+        }
+    }
+
     private void locateAndSearch() {
         final int id = ++vetRequestId;
         vetsApproximate = !hasPermission(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -410,11 +426,19 @@ public class HealthAlertsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String errorMessage) {
+            public void onError(int reason, String errorMessage) {
                 if (id != vetRequestId) return;
                 locating = false;
                 Log.w(TAG, "No location: " + errorMessage);
-                showVetsStatus(R.string.vets_no_location);
+                if (reason == LocationHelper.ERROR_LOCATION_OFF) {
+                    locationOff = true;
+                    showVetsStatus(R.string.vets_location_off);
+                    btnFindVets.setText(R.string.btn_turn_on_location);
+                } else if (reason == LocationHelper.ERROR_TIMEOUT) {
+                    showVetsStatus(R.string.vets_location_timeout);
+                } else {
+                    showVetsStatus(R.string.vets_no_location);
+                }
             }
         });
     }
@@ -445,7 +469,8 @@ public class HealthAlertsActivity extends AppCompatActivity {
                 vets = new ArrayList<>(finalFound);
                 btnFindVets.setText(R.string.btn_find_vets_again);
                 if (vets.isEmpty()) {
-                    showVetsStatus(R.string.vets_none);
+                    showVetsStatus(AmapVetSearch.mayBeInChina(latitude, longitude)
+                            ? R.string.vets_none : R.string.vets_none_outside_china);
                 } else {
                     renderVets();
                 }
