@@ -62,7 +62,7 @@ public class CatProfileActivity extends AppCompatActivity {
     private static final int WEIGHT_PREVIEW_LIMIT = 3;
 
     private TextView tvProfileName, tvProfileDetails, tvProfileAgePill, tvWeightChartHint;
-    private TextView tvHealthStatusIcon, tvHealthStatusTitle, tvHealthStatusSub;
+    private TextView tvHealthStatusTitle, tvHealthStatusSub;
     private TextView tvStatWeight, tvStatWeightPill, tvStatLogged, tvStatLoggedPill;
     private TextView tvStatLifestyle, tvStatLifestylePill;
     private View cardHealthStatus;
@@ -101,7 +101,6 @@ public class CatProfileActivity extends AppCompatActivity {
         tvProfileDetails = findViewById(R.id.tvProfileDetails);
         tvProfileAgePill = findViewById(R.id.tvProfileAgePill);
         cardHealthStatus = findViewById(R.id.cardHealthStatus);
-        tvHealthStatusIcon = findViewById(R.id.tvHealthStatusIcon);
         tvHealthStatusTitle = findViewById(R.id.tvHealthStatusTitle);
         tvHealthStatusSub = findViewById(R.id.tvHealthStatusSub);
         tvStatWeight = findViewById(R.id.tvStatWeight);
@@ -235,7 +234,6 @@ public class CatProfileActivity extends AppCompatActivity {
     private void bindHealthStatus(ProfileHealth health) {
         int fill;
         int titleColour;
-        String icon;
         String title;
         String sub;
         HealthRule rule = health.topRule;
@@ -243,26 +241,25 @@ public class CatProfileActivity extends AppCompatActivity {
             String alertTitle = CheckInContent.text(this, rule.getTitleKey(), currentCat.getName());
             sub = getString(R.string.profile_status_sub_alerts, alertTitle);
             if (rule.isUrgent()) {
-                fill = R.color.pastel_coral; titleColour = R.color.error_red; icon = "🚨";
+                fill = R.color.pastel_coral; titleColour = R.color.error_red;
                 title = getString(R.string.profile_status_urgent);
             } else if (rule.isVetVisit()) {
-                fill = R.color.card_clay; titleColour = R.color.muted_pinkish_brown; icon = "🩺";
+                fill = R.color.card_clay; titleColour = R.color.muted_pinkish_brown;
                 title = getString(R.string.profile_status_vet);
             } else {
-                fill = R.color.card_oat; titleColour = R.color.muted_pinkish_brown; icon = "👀";
+                fill = R.color.card_oat; titleColour = R.color.muted_pinkish_brown;
                 title = getString(R.string.profile_status_watch);
             }
         } else if (health.lastCheckin != null) {
-            fill = R.color.card_sage; titleColour = R.color.sage_primary; icon = "🌿";
+            fill = R.color.card_sage; titleColour = R.color.sage_primary;
             title = getString(R.string.profile_status_normal);
             sub = getString(R.string.profile_status_sub_last, formatIsoDate(health.lastCheckin));
         } else {
-            fill = R.color.card_oat; titleColour = R.color.sage_primary; icon = "📝";
+            fill = R.color.card_oat; titleColour = R.color.sage_primary;
             title = getString(R.string.profile_status_none);
             sub = getString(R.string.profile_status_sub_none);
         }
         cardHealthStatus.setBackground(pill(fill, true));
-        tvHealthStatusIcon.setText(icon);
         tvHealthStatusTitle.setText(title);
         tvHealthStatusTitle.setTextColor(ContextCompat.getColor(this, titleColour));
         tvHealthStatusSub.setText(sub);
