@@ -314,8 +314,7 @@ public class HomeActivity extends AppCompatActivity {
                                 checkin.getAnswers())) {
                             forYou.add(new ReadingCard(ReadingCard.KIND_FOR_YOU,
                                     CheckInContent.text(this, article.getTitleKey()),
-                                    CheckInContent.text(this, article.getSourceKey()), 0,
-                                    ReadingCard.emojiForReading(article.getId()), "blush",
+                                    CheckInContent.text(this, article.getSourceKey()), 0, "blush",
                                     article.getUrl(), article.getImageUrl()));
                         }
                     }
