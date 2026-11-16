@@ -7,7 +7,6 @@
       "url": "https://www.catsonly.vet/blog/a-beginner-s-guide-to-daily-cat-health-and-happiness",
       "image": "https://storage.googleapis.com/ai-templates.appspot.com/bot/TRn1OFURfQTPamMxxBru/customImages/AdobeStock_511860915_compressed.webp",
       "minutes": 8,
-      "emoji": "🏡",
       "tint": "oat"
     },
     {
@@ -16,7 +15,6 @@
       "source": "Hinesburg Animal Hospital",
       "url": "https://www.hinesburgvtvet.com/blogs/essential-cat-care-tips-every-pet-parent-should-know/",
       "minutes": 4,
-      "emoji": "🩺",
       "tint": "sage"
     },
     {
@@ -25,7 +23,6 @@
       "source": "Purina",
       "url": "https://www.purina.com/articles/cat/health/routine-care/how-to-care-for-a-cat",
       "minutes": 6,
-      "emoji": "🍽️",
       "tint": "clay"
     },
     {
@@ -35,7 +32,6 @@
       "url": "https://cats.com/cat-care-for-beginners",
       "image": "https://cats.com/wp-content/uploads/2023/07/Frisco-Dematting-Rake-3-compressed-compressed.jpg",
       "minutes": 9,
-      "emoji": "📋",
       "tint": "blush"
     },
     {
@@ -44,7 +40,6 @@
       "source": "Cornell Feline Health Center",
       "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/choosing-and-caring-your-new-cat",
       "minutes": 7,
-      "emoji": "🐾",
       "tint": "sage"
     },
     {
@@ -54,7 +49,6 @@
       "url": "https://icatcare.org/articles/playing-with-your-cat",
       "image": "https://icatcare.org/img/asset/aW1hZ2VzL2tpdHRlbl9wbGF5LmpwZw/kitten_play.jpg?p=default&w=1200&h=630&fit=crop&s=67629c055574f93be9905b0210025d1f",
       "minutes": 6,
-      "emoji": "🧶",
       "tint": "oat"
     }
   ]

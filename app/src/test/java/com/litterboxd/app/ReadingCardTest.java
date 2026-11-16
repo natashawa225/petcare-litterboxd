@@ -45,13 +45,5 @@ public class ReadingCardTest {
                 + "{\"title\":\"Bad\",\"source\":\"S\",\"url\":\"http://example.org/b\"}]}");
         assertEquals(1, cards.size());
         assertEquals("Ok", cards.get(0).getTitle());
-        assertEquals("🐾", cards.get(0).getEmoji()); // default thumbnail
-    }
-
-    @Test
-    public void logReadingsGetTopicThumbnails() {
-        assertEquals("💤", ReadingCard.emojiForReading("source_lethargy"));
-        assertEquals("🌧️", ReadingCard.emojiForReading("source_stress"));
-        assertEquals("🐾", ReadingCard.emojiForReading("something_else"));
     }
 }

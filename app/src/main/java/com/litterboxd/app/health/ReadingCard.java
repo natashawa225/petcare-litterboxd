@@ -11,7 +11,7 @@ import java.util.List;
  * One card in the Daily "Reading Corner": a label chip ("For you" / "Cat care"), a title, the
  * source and reading time, and a thumbnail. The thumbnail is the article's own teaser image
  * (its og:image, looked up once and stored in the seed data, loaded with Glide); articles without
- * one, or offline, show a placeholder emoji on a soft tint.
+ * one, or offline, show a plain tinted tile.
  * Plain Java so the parsing is unit-tested.
  */
 public final class ReadingCard {
@@ -25,18 +25,16 @@ public final class ReadingCard {
     private final String title;
     private final String source;
     private final int minutes;      // 0 = unknown, not shown
-    private final String emoji;
     private final String tint;      // "oat" | "sage" | "clay" | "blush"
     private final String url;
-    private final String imageUrl;  // "" = no teaser image, the emoji tile is shown
+    private final String imageUrl;  // "" = no teaser image, the tinted tile is shown
 
-    public ReadingCard(String kind, String title, String source, int minutes, String emoji,
+    public ReadingCard(String kind, String title, String source, int minutes,
                        String tint, String url, String imageUrl) {
         this.kind = kind;
         this.title = title;
         this.source = source;
         this.minutes = minutes;
-        this.emoji = emoji;
         this.tint = tint;
         this.url = url;
         this.imageUrl = imageUrl == null ? "" : imageUrl;
@@ -46,7 +44,6 @@ public final class ReadingCard {
     public String getTitle() { return title; }
     public String getSource() { return source; }
     public int getMinutes() { return minutes; }
-    public String getEmoji() { return emoji; }
     public String getTint() { return tint; }
     public String getUrl() { return url; }
     public String getImageUrl() { return imageUrl; }
@@ -65,25 +62,11 @@ public final class ReadingCard {
                     o.getString("title"),
                     o.getString("source"),
                     o.optInt("minutes", 0),
-                    o.optString("emoji", "🐾"),
                     o.optString("tint", "oat"),
                     url,
                     httpsOrEmpty(o.optString("image", ""))));
         }
         return cards;
-    }
-
-    /** Thumbnail emoji for a log-based reading, by the article it points to. */
-    public static String emojiForReading(String articleId) {
-        if (articleId == null) return "🐾";
-        switch (articleId) {
-            case "source_inappetence": return "🍽️";
-            case "source_hydration": return "💧";
-            case "source_constipation": return "🧺";
-            case "source_lethargy": return "💤";
-            case "source_stress": return "🌧️";
-            default: return "🐾";
-        }
     }
 
     private static String httpsOrEmpty(String url) {
