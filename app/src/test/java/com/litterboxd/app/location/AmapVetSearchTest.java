@@ -115,4 +115,28 @@ public class AmapVetSearchTest {
         assertFalse(AmapVetSearch.mayBeInChina(37.4220, -122.0840));    // emulator default, California
         assertFalse(AmapVetSearch.mayBeInChina(51.5074, -0.1278));      // London
     }
+
+    @Test
+    public void amapCodesAreGroupedByWhatTheOwnerCanDo() {
+        assertEquals(AmapVetSearch.PROBLEM_QUOTA, AmapVetSearch.problemFor("10044"));
+        assertEquals(AmapVetSearch.PROBLEM_QUOTA, AmapVetSearch.problemFor("10003"));
+        assertEquals(AmapVetSearch.PROBLEM_BUSY, AmapVetSearch.problemFor("10021"));
+        assertEquals(AmapVetSearch.PROBLEM_BUSY, AmapVetSearch.problemFor("10004"));
+        assertEquals(AmapVetSearch.PROBLEM_KEY, AmapVetSearch.problemFor("10001"));
+        assertEquals(AmapVetSearch.PROBLEM_KEY, AmapVetSearch.problemFor("10009"));
+        assertEquals(AmapVetSearch.PROBLEM_OTHER, AmapVetSearch.problemFor("20003"));
+        assertEquals(AmapVetSearch.PROBLEM_OTHER, AmapVetSearch.problemFor(null));
+    }
+
+    @Test
+    public void refusalKeepsAmapsCode() {
+        try {
+            AmapVetSearch.parseAround("{\"status\":\"0\",\"info\":\"USER_DAILY_QUERY_OVER_LIMIT\","
+                    + "\"infocode\":\"10044\"}");
+            fail("expected a refusal");
+        } catch (AmapVetSearch.ServiceException e) {
+            assertEquals("10044", e.getInfocode());
+            assertEquals(AmapVetSearch.PROBLEM_QUOTA, e.getProblem());
+        }
+    }
 }
