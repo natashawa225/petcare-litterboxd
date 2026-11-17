@@ -420,7 +420,7 @@ public class HealthAlertsActivity extends AppCompatActivity {
             public void onLocationResult(Location location) {
                 if (id != vetRequestId) return;
                 locating = false;
-                searchVets(id, location.getLatitude(), location.getLongitude());
+                searchVets(id, location);
             }
 
             @Override
@@ -442,33 +442,41 @@ public class HealthAlertsActivity extends AppCompatActivity {
     }
 
     /** The position is only sent to AMap for this one search; it is never stored. */
-    private void searchVets(int id, double latitude, double longitude) {
+    private void searchVets(int id, Location location) {
+        final double latitude = location.getLatitude();
+        final double longitude = location.getLongitude();
+        // Shown only when nothing is found, so a wrong position is easy to spot on the phone.
+        final String searchedAt = getString(R.string.vets_searched_at,
+                String.format(Locale.US, "%.4f, %.4f", latitude, longitude),
+                location.getProvider() == null ? "?" : location.getProvider(),
+                Math.round(location.hasAccuracy() ? location.getAccuracy() : 0));
         showVetsBusy(R.string.vets_searching);
         AppExecutors.getInstance().diskIO().execute(() -> {
             List<VetClinic> found = null;
-            int error = 0;
+            String error = null;
             try {
                 found = new AmapVetSearch(BuildConfig.AMAP_KEY).findNearby(latitude, longitude);
             } catch (IOException e) {
                 Log.w(TAG, "Vet search network error", e);
-                error = R.string.vets_network_error;
+                error = getString(R.string.vets_network_error);
             } catch (AmapVetSearch.ServiceException e) {
-                Log.w(TAG, "AMap refused the vet search: " + e.getMessage());
-                error = R.string.vets_service_error;
+                Log.w(TAG, "AMap refused the vet search: " + e.getMessage() + " " + e.getInfocode());
+                error = serviceErrorText(e);
             }
             final List<VetClinic> finalFound = found;
-            final int finalError = error;
+            final String finalError = error;
             AppExecutors.getInstance().mainThread().execute(() -> {
                 if (isFinishing() || isDestroyed() || id != vetRequestId) return;
-                if (finalError != 0) {
+                if (finalError != null) {
                     showVetsStatus(finalError);
                     return;
                 }
                 vets = new ArrayList<>(finalFound);
                 btnFindVets.setText(R.string.btn_find_vets_again);
                 if (vets.isEmpty()) {
-                    showVetsStatus(AmapVetSearch.mayBeInChina(latitude, longitude)
-                            ? R.string.vets_none : R.string.vets_none_outside_china);
+                    showVetsStatus(getString(AmapVetSearch.mayBeInChina(latitude, longitude)
+                            ? R.string.vets_none : R.string.vets_none_outside_china)
+                            + "\n" + searchedAt);
                 } else {
                     renderVets();
                 }
@@ -486,10 +494,29 @@ public class HealthAlertsActivity extends AppCompatActivity {
     }
 
     private void showVetsStatus(int messageRes) {
+        showVetsStatus(getString(messageRes));
+    }
+
+    private void showVetsStatus(CharSequence message) {
         progressVets.setVisibility(View.GONE);
         tvVetsStatus.setVisibility(View.VISIBLE);
-        tvVetsStatus.setText(messageRes);
+        tvVetsStatus.setText(message);
         btnFindVets.setEnabled(true);
+    }
+
+    /** AMap's refusal in plain words, with its code so the cause can be looked up. */
+    private String serviceErrorText(AmapVetSearch.ServiceException e) {
+        String code = e.getInfocode().isEmpty() ? e.getMessage() : e.getInfocode();
+        switch (e.getProblem()) {
+            case AmapVetSearch.PROBLEM_QUOTA:
+                return getString(R.string.vets_quota_error, code);
+            case AmapVetSearch.PROBLEM_BUSY:
+                return getString(R.string.vets_busy_error, code);
+            case AmapVetSearch.PROBLEM_KEY:
+                return getString(R.string.vets_key_error, code);
+            default:
+                return getString(R.string.vets_service_error, code);
+        }
     }
 
     /** Up to 3 clinics, closest first and highlighted. */

@@ -328,7 +328,11 @@
     <string name="vets_location_off">Location is turned off on this phone. Turn it on, then try again.</string>
     <string name="vets_location_timeout">Couldn\'t find where you are in time. Move near a window or outside, then try again.</string>
     <string name="vets_network_error">Connect device to wifi, then try again.</string>
-    <string name="vets_service_error">The vet search isn\'t working right now. Try again later.</string>
+    <string name="vets_service_error">The vet search isn\'t working right now. Try again later. (AMap code %1$s)</string>
+    <string name="vets_quota_error">Today\'s vet search limit has been used up. Try again tomorrow. (AMap code %1$s)</string>
+    <string name="vets_busy_error">The vet search is busy. Wait a minute, then try again. (AMap code %1$s)</string>
+    <string name="vets_key_error">AMap didn\'t accept this app\'s search key. (AMap code %1$s)</string>
+    <string name="vets_searched_at">Searched around %1$s (%2$s, about %3$d m).</string>
     <string name="vets_none">No vet clinics found within 10 km.</string>
     <string name="vets_none_outside_china">No vet clinics found within 10 km. Vet search uses AMap, which only covers China.</string>
     <string name="vets_stopped">Search stopped. Tap to try again.</string>
