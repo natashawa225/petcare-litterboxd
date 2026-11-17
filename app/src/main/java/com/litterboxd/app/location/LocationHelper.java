@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -44,27 +45,35 @@ public class LocationHelper {
         void onError(int reason, String errorMessage);
     }
 
-    private static final long FRESH_MS = 5 * 60 * 1000L;
-    /** After a timeout, a fix up to an hour old is still good enough to find vets within 10 km. */
-    private static final long FALLBACK_MS = 60 * 60 * 1000L;
+    /** Overall limit for finding the phone. */
     private static final long TIMEOUT_MS = 30 * 1000L;
+    /** A fix at least this accurate (GPS outdoors, good Wi-Fi) is used straight away. */
+    static final float GOOD_ACCURACY_M = 50f;
+    /** After a rougher fix, wait this long for a better one (usually GPS) before using the best. */
+    private static final long SETTLE_MS = 8 * 1000L;
+    /** Clock slack when checking that a fix was taken after the request started. */
+    private static final long CLOCK_SLACK_MS = 1000L;
 
     private final LocationManager locationManager;
     private LocationListener activeListener;
     private final List<LocationListener> singleListeners = new ArrayList<>();
     private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
     private Runnable timeoutRunnable;
+    private Runnable settleRunnable;
+    private Location bestSoFar;
 
     public LocationHelper(Context context) {
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
     /**
-     * Attempts to get a single location fix. Uses the newest last known location from any provider
-     * if it is under 5 minutes old. Otherwise asks every enabled provider at once (GPS, Network and,
-     * from Android 12, the system's own "fused" one) and takes the first answer, because GPS alone
-     * often finds nothing indoors while Wi-Fi based Network location does.
-     * After 30 seconds with no answer it falls back to a last known location up to an hour old.
+     * Finds where the phone is right now. Saved positions are never used: every enabled provider
+     * (GPS, Network and, from Android 12, the system's "fused" one) is asked for a new fix, and only
+     * fixes taken after this call count, because some phones hand back an old saved position (or
+     * 0,0) the moment updates are requested.
+     * A fix within 50 m is used at once. A rougher one (Wi-Fi or cell towers) is kept while the
+     * others get 8 more seconds to do better, since GPS is slower but more exact; then the most
+     * accurate fix is used. With no fix at all after 30 seconds, it reports a time-out.
      */
     public void getSingleLocation(Context context, @NonNull LocationCallback callback) {
         stop();
@@ -92,24 +101,19 @@ public class LocationHelper {
                 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
 
         final List<String> providers = enabledProviders(hasFine);
-        final Location fresh = newestLastKnown(providers, FRESH_MS);
-        if (fresh != null) {
-            callback.onLocationResult(fresh);
-            return;
-        }
-
         if (providers.isEmpty()) {
             callback.onError(ERROR_LOCATION_OFF, "No location providers are enabled.");
             return;
         }
 
+        final long startNanos = SystemClock.elapsedRealtimeNanos();
+        final long startWallMs = System.currentTimeMillis();
         try {
             for (String provider : providers) {
                 LocationListener listener = new LocationListener() {
                     @Override
                     public void onLocationChanged(@NonNull Location location) {
-                        stop();
-                        callback.onLocationResult(location);
+                        onFix(location, startNanos, startWallMs, callback);
                     }
 
                     @Override
@@ -131,15 +135,51 @@ public class LocationHelper {
         }
 
         timeoutRunnable = () -> {
+            Location best = bestSoFar;
             stop();
-            Location older = newestLastKnown(providers, FALLBACK_MS);
-            if (older != null) {
-                callback.onLocationResult(older);
+            if (best != null) {
+                callback.onLocationResult(best);
             } else {
                 callback.onError(ERROR_TIMEOUT, "Location request timed out.");
             }
         };
         timeoutHandler.postDelayed(timeoutRunnable, TIMEOUT_MS);
+    }
+
+    private void onFix(Location location, long startNanos, long startWallMs, LocationCallback callback) {
+        if (location == null || !isPlausible(location.getLatitude(), location.getLongitude())) return;
+        if (!takenAfter(location.getElapsedRealtimeNanos(), location.getTime(), startNanos, startWallMs)) {
+            return; // an old position handed back again: keep waiting for a new one
+        }
+        if (location.hasAccuracy() && location.getAccuracy() <= GOOD_ACCURACY_M) {
+            stop();
+            callback.onLocationResult(location);
+            return;
+        }
+        if (bestSoFar == null || accuracyOf(location) < accuracyOf(bestSoFar)) {
+            bestSoFar = location;
+        }
+        if (settleRunnable == null) {
+            settleRunnable = () -> {
+                Location best = bestSoFar;
+                stop();
+                callback.onLocationResult(best);
+            };
+            timeoutHandler.postDelayed(settleRunnable, SETTLE_MS);
+        }
+    }
+
+    private static float accuracyOf(Location location) {
+        return location.hasAccuracy() ? location.getAccuracy() : Float.MAX_VALUE;
+    }
+
+    /**
+     * True if a fix was taken after the request started. Uses the phone's uptime clock when the
+     * fix has it (a wrong date setting can't upset it), otherwise the wall clock.
+     */
+    static boolean takenAfter(long fixNanos, long fixWallMs, long startNanos, long startWallMs) {
+        if (fixNanos > 0) return fixNanos >= startNanos - CLOCK_SLACK_MS * 1_000_000L;
+        return fixWallMs >= startWallMs - CLOCK_SLACK_MS;
     }
 
     private List<String> enabledProviders(boolean hasFine) {
@@ -164,24 +204,11 @@ public class LocationHelper {
         }
     }
 
-    /** Newest last known fix no older than maxAgeMs; the passive provider adds fixes other apps got. */
-    private Location newestLastKnown(List<String> providers, long maxAgeMs) {
-        List<String> all = new ArrayList<>(providers);
-        all.add(LocationManager.PASSIVE_PROVIDER);
-        long oldestAllowed = System.currentTimeMillis() - maxAgeMs;
-        Location best = null;
-        for (String provider : all) {
-            try {
-                Location last = locationManager.getLastKnownLocation(provider);
-                if (last != null && last.getTime() > oldestAllowed
-                        && (best == null || last.getTime() > best.getTime())) {
-                    best = last;
-                }
-            } catch (SecurityException | IllegalArgumentException ignored) {
-                // no permission for, or no such, provider: try the next one
-            }
-        }
-        return best;
+    /** False for NaN, out-of-range values and 0,0, which some phones report when they have no fix. */
+    static boolean isPlausible(double latitude, double longitude) {
+        if (Double.isNaN(latitude) || Double.isNaN(longitude)) return false;
+        if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return false;
+        return Math.abs(latitude) > 0.001 || Math.abs(longitude) > 0.001;
     }
 
     /**
@@ -240,6 +267,11 @@ public class LocationHelper {
             timeoutHandler.removeCallbacks(timeoutRunnable);
             timeoutRunnable = null;
         }
+        if (settleRunnable != null) {
+            timeoutHandler.removeCallbacks(settleRunnable);
+            settleRunnable = null;
+        }
+        bestSoFar = null;
         if (locationManager == null) return;
         if (activeListener != null) {
             try {
