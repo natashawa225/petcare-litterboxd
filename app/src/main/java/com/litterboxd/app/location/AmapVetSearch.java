@@ -33,14 +33,57 @@ public final class AmapVetSearch {
     static final int RADIUS_METERS = 10000;
     static final int PAGE_SIZE = 10;
     public static final int MAX_RESULTS = 3;
-    private static final int TIMEOUT_MS = 8000;
+    private static final int TIMEOUT_MS = 15000;
+    private static final long RETRY_DELAY_MS = 1500;
     private static final int MAX_BYTES = 200_000;
+
+    /** What kind of refusal AMap gave, so the screen can say what to do about it. */
+    public static final int PROBLEM_QUOTA = 1;  // daily limit used up
+    public static final int PROBLEM_BUSY = 2;   // too many requests per second or minute
+    public static final int PROBLEM_KEY = 3;    // key wrong, deleted, wrong type or not allowed
+    public static final int PROBLEM_OTHER = 4;
 
     /** AMap answered, but with status 0 (for example a wrong key or a used-up daily quota). */
     public static final class ServiceException extends Exception {
+        private final String infocode;
+
         public ServiceException(String info) {
-            super(info);
+            this(info, "");
         }
+
+        public ServiceException(String info, String infocode) {
+            super(info);
+            this.infocode = infocode == null ? "" : infocode;
+        }
+
+        /** AMap's numeric code, such as 10044; "" if the reply had none. */
+        public String getInfocode() {
+            return infocode;
+        }
+
+        public int getProblem() {
+            return problemFor(infocode);
+        }
+    }
+
+    /** Groups AMap's info codes (Web Service "info" table). */
+    static int problemFor(String infocode) {
+        switch (infocode == null ? "" : infocode) {
+            case "10003": case "10010": case "10044": case "40000":
+                return PROBLEM_QUOTA;
+            case "10004": case "10014": case "10015": case "10016":
+            case "10019": case "10020": case "10021": case "10029":
+                return PROBLEM_BUSY;
+            case "10001": case "10002": case "10005": case "10006": case "10007":
+            case "10008": case "10009": case "10012": case "10013": case "10026": case "10041":
+                return PROBLEM_KEY;
+            default:
+                return PROBLEM_OTHER;
+        }
+    }
+
+    private interface Parser<T> {
+        T parse(String json) throws ServiceException;
     }
 
     private final String key;
@@ -56,9 +99,28 @@ public final class AmapVetSearch {
     /** Background thread. Up to {@link #MAX_RESULTS} clinics, closest first. */
     public List<VetClinic> findNearby(double wgsLatitude, double wgsLongitude)
             throws IOException, ServiceException {
-        double[] gcj = parseConvert(get(convertUrl(key, wgsLongitude, wgsLatitude)));
-        List<VetClinic> clinics = parseAround(get(aroundUrl(key, gcj[0], gcj[1])));
+        double[] gcj = request(convertUrl(key, wgsLongitude, wgsLatitude), AmapVetSearch::parseConvert);
+        List<VetClinic> clinics = request(aroundUrl(key, gcj[0], gcj[1]), AmapVetSearch::parseAround);
         return clinics.size() > MAX_RESULTS ? new ArrayList<>(clinics.subList(0, MAX_RESULTS)) : clinics;
+    }
+
+    /** One retry after a short pause when the network drops or AMap says it is busy. */
+    private <T> T request(String url, Parser<T> parser) throws IOException, ServiceException {
+        for (int attempt = 1; ; attempt++) {
+            try {
+                return parser.parse(get(url));
+            } catch (IOException e) {
+                if (attempt >= 2) throw e;
+            } catch (ServiceException e) {
+                if (attempt >= 2 || e.getProblem() != PROBLEM_BUSY) throw e;
+            }
+            try {
+                Thread.sleep(RETRY_DELAY_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IOException("Interrupted");
+            }
+        }
     }
 
     static String convertUrl(String key, double longitude, double latitude) throws IOException {
@@ -129,7 +191,8 @@ public final class AmapVetSearch {
     private static JSONObject checkStatus(String json) throws JSONException, ServiceException {
         JSONObject root = new JSONObject(json);
         if (!"1".equals(root.optString("status"))) {
-            throw new ServiceException(root.optString("info", "Unknown error"));
+            throw new ServiceException(root.optString("info", "Unknown error"),
+                    root.optString("infocode", ""));
         }
         return root;
     }
