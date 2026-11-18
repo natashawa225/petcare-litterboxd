@@ -176,7 +176,7 @@
     <!-- Profile tab: sample data, reset and about (formerly Settings) -->
     <string name="btn_load_sample_data">Load Sample Data</string>
     <string name="msg_sample_data_already_loaded">Sample cats are already loaded.</string>
-    <string name="msg_sample_data_loaded">Sample cats (Mochi &amp; Biscuit) loaded successfully!</string>
+    <string name="msg_sample_data_loaded">Sample cats (Mochi, Biscuit &amp; Pip) loaded successfully!</string>
     <string name="btn_reset_app">Reset App</string>
     <string name="msg_reset_app_title">Reset App</string>
     <string name="msg_reset_app_message">Are you sure you want to reset all app data and start over?</string>
