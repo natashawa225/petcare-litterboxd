@@ -15,15 +15,30 @@
         android:paddingEnd="@dimen/margin_horizontal"
         android:paddingBottom="@dimen/spacing_small">
 
-        <TextView
-            android:id="@+id/tvReaderTitle"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/spacing_small"
             android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvReaderTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+            <!-- The site being shown, so the owner always knows where they are. -->
+            <TextView
+                android:id="@+id/tvReaderSite"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="middle"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnReaderClose"
