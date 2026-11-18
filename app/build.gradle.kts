@@ -11,9 +11,13 @@ fun amapKeyFrom(fileName: String): String? {
     if (!file.exists()) return null
     val props = Properties()
     file.inputStream().use { props.load(it) }
-    return props.getProperty("AMAP_KEY")?.trim()?.takeIf { it.isNotEmpty() }
+    return props.getProperty("AMapKey")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: props.getProperty("AMap_KEY")?.trim()?.takeIf { it.isNotEmpty() }
+        ?: props.getProperty("AMAP_KEY")?.trim()?.takeIf { it.isNotEmpty() }
 }
 val amapKey: String = (project.findProperty("AMAP_KEY") as String?)
+    ?: (project.findProperty("AMapKey") as String?)
+    ?: (project.findProperty("AMap_KEY") as String?)
     ?: amapKeyFrom("local.properties")
     ?: amapKeyFrom("amap.properties")
     ?: ""
