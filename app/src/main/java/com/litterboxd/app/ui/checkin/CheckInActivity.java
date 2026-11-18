@@ -398,8 +398,9 @@ public class CheckInActivity extends AppCompatActivity {
             boolean saved;
             HealthAlert urgentAlert = null;
             try {
-                String cutoff = LocalDate.now().minusDays(DailyCheckinDao.RETENTION_DAYS).toString();
-                new DailyCheckinDao(dbHelper).saveCheckinAndTrim(catId, checkinDate, answers, cutoff);
+                // Every check-in is kept: the calendar, health rules and the Diary's care history
+                // all read the full log, so nothing is trimmed on save.
+                new DailyCheckinDao(dbHelper).saveCheckin(catId, checkinDate, answers);
                 saved = true;
             } catch (SQLiteException e) {
                 Log.e(TAG, "Could not save the check-in", e);
