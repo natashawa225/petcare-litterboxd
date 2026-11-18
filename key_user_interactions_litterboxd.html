@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Key User Interactions in Litterboxd</title>
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #FBF9F5;
+    color: #211E1B;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    margin: 0;
+  }
+  .figure-container {
+    width: 1200px;
+    background: #FBF9F5;
+    border: 1.5px solid #E2DDD5;
+    border-radius: 16px;
+    padding: 24px 28px 28px 28px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  }
+  /* Figure Header */
+  .figure-header {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ECE7DE;
+    padding-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .figure-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #211E1B;
+    letter-spacing: -0.3px;
+  }
+  .figure-meta {
+    font-size: 11.5px;
+    color: #6F6A63;
+    font-weight: 500;
+  }
+  /* Three Horizontal Panels Grid */
+  .panels-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .panel-card {
+    background: #FFFFFF;
+    border: 1.5px solid #E5E0D6;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  }
+  .panel-header {
+    background: #FAFAF8;
+    border-bottom: 1px solid #ECE7DE;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #384235;
+    letter-spacing: -0.2px;
+  }
+  .panel-badge {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #68765F;
+    background: #E5E8DD;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.3px;
+  }
+  .panel-body {
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .panel-caption {
+    background: #FBF9F5;
+    border-top: 1px solid #ECE7DE;
+    padding: 10px 16px;
+    font-size: 11.5px;
+    font-style: italic;
+    color: #55504A;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  /* ==========================================================
+     PANEL 1: Daily Check-in (Simplified Android Phone Mockup)
+     ========================================================== */
+  .phone-frame {
+    background: #FAF8F5;
+    border: 1.5px solid #D8D3C8;
+    border-radius: 20px;
+    padding: 10px 12px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+  }
+  .phone-notch-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px 8px 4px;
+    border-bottom: 1px solid #EDE9E1;
+    margin-bottom: 10px;
+  }
+  .phone-time {
+    font-size: 10px;
+    font-weight: 700;
+    color: #211E1B;
+  }
+  .phone-speaker {
+    width: 36px;
+    height: 3.5px;
+    background: #D0CBC0;
+    border-radius: 2px;
+  }
+  .phone-icons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    color: #6F6A63;
+  }
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .app-header-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #211E1B;
+  }
+  .cat-pill {
+    background: #E5E8DD;
+    color: #384235;
+    font-size: 9.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .chip-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #384235;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .chip-row {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 7px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 9.5px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 12px;
+    border: 1px solid #D5D0C5;
+    background: #FFFFFF;
+    color: #6F6A63;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .chip.selected {
+    background: #68765F;
+    border-color: #68765F;
+    color: #FFFFFF;
+    font-weight: 600;
+  }
+  .chip.selected-subtle {
+    background: #E5E8DD;
+    border-color: #A4B29B;
+    color: #384235;
+    font-weight: 600;
+  }
+  /* Conditional Follow-up Box */
+  .followup-card {
+    background: #FFFFFF;
+    border: 1.5px solid #68765F;
+    border-radius: 9px;
+    padding: 8px 9px;
+    margin: 4px 0 9px 0;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(104, 118, 95, 0.08);
+  }
+  .followup-card::before {
+    content: "↳";
+    position: absolute;
+    top: -9px;
+    left: 20px;
+    background: #FFFFFF;
+    color: #68765F;
+    font-weight: 800;
+    font-size: 12px;
+    line-height: 1;
+    padding: 0 4px;
+  }
+  .followup-badge {
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #68765F;
+    margin-bottom: 3px;
+  }
+  .followup-question {
+    font-size: 10px;
+    font-weight: 700;
+    color: #211E1B;
+    margin-bottom: 6px;
+  }
+  .followup-options {
+    display: flex;
+    gap: 4px;
+  }
+  .followup-chip {
+    font-size: 9px;
+    padding: 3px 7px;
+    border-radius: 6px;
+    border: 1px solid #D5D0C5;
+    background: #FAF9F6;
+    color: #55504A;
+  }
+  .followup-chip.selected {
+    background: #96716A;
+    border-color: #96716A;
+    color: #FFFFFF;
+    font-weight: 600;
+  }
+  .save-btn {
+    margin-top: auto;
+    background: #68765F;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    padding: 7px;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 0.2px;
+  }
+
+  /* ==========================================================
+     PANEL 2: Health Monitoring (Health Alert & Timeline)
+     ========================================================== */
+  .alert-card-inner {
+    background: #FFFFFF;
+    border: 1.5px solid #E0DDD5;
+    border-radius: 12px;
+    padding: 13px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .alert-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .alert-category-tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #68765F;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .status-badge {
+    background: #F8DED2;
+    border: 1px solid #F2A087;
+    color: #7B1E2B;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .status-badge::before {
+    content: "●";
+    font-size: 9px;
+    color: #BA1A1A;
+  }
+  .alert-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #211E1B;
+    margin-bottom: 4px;
+  }
+  .alert-desc {
+    font-size: 10px;
+    color: #6F6A63;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+  /* Comparative Timeline Box */
+  .timeline-box {
+    background: #FAF9F6;
+    border: 1px solid #ECE7DE;
+    border-radius: 9px;
+    padding: 10px 11px;
+    margin-bottom: 10px;
+  }
+  .timeline-heading {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #384235;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 7px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .timeline-row {
+    margin-bottom: 8px;
+  }
+  .timeline-row:last-child {
+    margin-bottom: 0;
+  }
+  .timeline-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    margin-bottom: 3px;
+  }
+  .timeline-label {
+    font-weight: 600;
+    color: #55504A;
+  }
+  .timeline-stat {
+    font-weight: 700;
+    color: #68765F;
+  }
+  .timeline-stat.alert {
+    color: #7B1E2B;
+  }
+  .track {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #FFFFFF;
+    border: 1px solid #E5E1D8;
+    border-radius: 6px;
+    padding: 5px 6px;
+  }
+  .dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7.5px;
+    font-weight: 700;
+  }
+  .dot.normal {
+    background: #E5E8DD;
+    color: #55504A;
+  }
+  .dot.none {
+    background: #F4F1EA;
+    color: #A9A49B;
+  }
+  .dot.alert {
+    background: #F2A087;
+    color: #7B1E2B;
+    border: 1px solid #DE886F;
+  }
+  .comparison-pill {
+    background: #F6E4DE;
+    border-left: 2.5px solid #7B1E2B;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    color: #7B1E2B;
+    font-weight: 600;
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .alert-causes {
+    font-size: 9px;
+    color: #55504A;
+    line-height: 1.35;
+    margin-bottom: 6px;
+  }
+  .alert-causes strong {
+    color: #384235;
+  }
+  .alert-source {
+    font-size: 8.5px;
+    color: #68765F;
+    font-style: italic;
+    margin-top: auto;
+    padding-top: 6px;
+    border-top: 1px dashed #EDE8E0;
+  }
+
+  /* ==========================================================
+     PANEL 3: Personal Diary (Interleaved Timeline)
+     ========================================================== */
+  .diary-container {
+    background: #FAF8F5;
+    border: 1.5px solid #E0DDD5;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+  }
+  .diary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #ECE7DE;
+  }
+  .diary-header-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #211E1B;
+  }
+  .diary-date-marker {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #68765F;
+  }
+  .timeline-stream {
+    position: relative;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+  /* Continuous vertical spine */
+  .timeline-stream::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: #D8D2C5;
+  }
+
+  /* Entry 1: Owner-written Personal Memory */
+  .diary-entry-wrap {
+    position: relative;
+  }
+  .timeline-node {
+    position: absolute;
+    left: -18px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #68765F;
+    border: 2px solid #FAF8F5;
+    z-index: 2;
+  }
+  .timeline-node.system {
+    background: #FFFFFF;
+    border: 2px solid #6F6A63;
+  }
+  .entry-card {
+    border-radius: 9px;
+    padding: 9px 10px;
+  }
+  .entry-card.personal {
+    background: #FFFFFF;
+    border: 1.5px solid #DDE3D3;
+    box-shadow: 0 2px 6px rgba(104, 118, 95, 0.06);
+  }
+  .entry-type-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .entry-badge {
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .entry-badge.personal {
+    background: #E5E8DD;
+    color: #384235;
+  }
+  .entry-badge.system {
+    background: #E6E8DC;
+    color: #55504A;
+  }
+  .entry-time {
+    font-size: 8.5px;
+    color: #6F6A63;
+    font-weight: 500;
+  }
+  .memory-body {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .photo-placeholder {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    background: #EFE5CF;
+    border: 1px solid #DCD1B8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #96716A;
+    flex-shrink: 0;
+  }
+  .photo-icon {
+    font-size: 16px;
+    line-height: 1;
+    margin-bottom: 1px;
+  }
+  .photo-tag {
+    font-size: 6.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #96716A;
+  }
+  .memory-text {
+    flex: 1;
+  }
+  .memory-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #211E1B;
+    margin-bottom: 2px;
+  }
+  .memory-caption {
+    font-size: 9px;
+    color: #55504A;
+    line-height: 1.3;
+  }
+
+  /* Entry 2: Automatically Generated Care History */
+  .entry-card.system {
+    background: #F5F6F2;
+    border: 1.5px dashed #B8C2B0;
+  }
+  .system-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #211E1B;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .system-details {
+    font-size: 9px;
+    color: #384235;
+    line-height: 1.35;
+  }
+  .system-metric {
+    font-size: 9px;
+    font-weight: 600;
+    color: #68765F;
+    margin-top: 2px;
+  }
+  .system-origin {
+    font-size: 8px;
+    font-style: italic;
+    color: #6F6A63;
+    margin-top: 4px;
+    padding-top: 3px;
+    border-top: 1px dotted #D0CDC4;
+  }
+
+  /* Visual Distinction Legend */
+  .diary-legend {
+    margin-top: auto;
+    background: #FFFFFF;
+    border: 1px solid #ECE7DE;
+    border-radius: 6px;
+    padding: 6px 8px;
+    display: flex;
+    justify-content: space-around;
+    font-size: 8px;
+    color: #6F6A63;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .legend-swatch {
+    width: 12px;
+    height: 7px;
+    border-radius: 2px;
+  }
+  .legend-swatch.personal {
+    background: #FFFFFF;
+    border: 1px solid #68765F;
+  }
+  .legend-swatch.system {
+    background: #F5F6F2;
+    border: 1px dashed #6F6A63;
+  }
+</style>
+</head>
+<body>
+
+<div class="figure-container">
+  <!-- Figure Header -->
+  <div class="figure-header">
+    <div class="figure-title">Key User Interactions in Litterboxd</div>
+    <div class="figure-meta">Mobile UI Mockups · Software Architecture & Interaction Model</div>
+  </div>
+
+  <!-- Three Horizontal Panels -->
+  <div class="panels-grid">
+
+    <!-- PANEL 1: Daily Check-in -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <span class="panel-title">(a) Daily Check-in</span>
+        <span class="panel-badge">Routine Log</span>
+      </div>
+      <div class="panel-body">
+        <!-- Simplified Android Phone Mockup -->
+        <div class="phone-frame">
+          <div class="phone-notch-bar">
+            <span class="phone-time">09:41</span>
+            <div class="phone-speaker"></div>
+            <div class="phone-icons">
+              <span>●●●</span>
+              <span>100%</span>
+            </div>
+          </div>
+
+          <div class="app-header">
+            <span class="app-header-title">Today's Check-in</span>
+            <span class="cat-pill">Pip ▾</span>
+          </div>
+
+          <!-- Appetite Chip Group -->
+          <div class="chip-group-label">
+            <span>Appetite</span>
+            <span style="font-weight: normal; color: #6F6A63; text-transform: none;">Required</span>
+          </div>
+          <div class="chip-row">
+            <span class="chip selected">✓ Ate less</span>
+            <span class="chip">Ate normally</span>
+            <span class="chip">Ate more</span>
+          </div>
+
+          <!-- Conditional Follow-up Question -->
+          <div class="followup-card">
+            <div class="followup-badge">Conditional Follow-up (Eating Less)</div>
+            <div class="followup-question">Has Pip vomited today?</div>
+            <div class="followup-options">
+              <span class="followup-chip">No</span>
+              <span class="followup-chip selected">✓ Once</span>
+              <span class="followup-chip">More than once</span>
+            </div>
+          </div>
+
+          <!-- Water Chip Group -->
+          <div class="chip-group-label"><span>Water Intake</span></div>
+          <div class="chip-row">
+            <span class="chip">Drank less</span>
+            <span class="chip selected-subtle">✓ Normal</span>
+            <span class="chip">Drank more</span>
+          </div>
+
+          <!-- Litter Chip Group -->
+          <div class="chip-group-label"><span>Litter Box</span></div>
+          <div class="chip-row">
+            <span class="chip">Fewer visits</span>
+            <span class="chip selected-subtle">✓ Usual</span>
+            <span class="chip">More visits</span>
+            <span class="chip">Straining</span>
+          </div>
+
+          <!-- Energy & Mood Chip Groups -->
+          <div class="chip-group-label"><span>Energy &amp; Mood</span></div>
+          <div class="chip-row">
+            <span class="chip selected-subtle">✓ Energy: Normal</span>
+            <span class="chip selected-subtle">✓ Mood: Usual</span>
+          </div>
+
+          <!-- Bottom Action -->
+          <div class="save-btn">Save Today's Check-in</div>
+        </div>
+      </div>
+      <div class="panel-caption">
+        Quick check-ins with relevant follow-up questions.
+      </div>
+    </div>
+
+    <!-- PANEL 2: Health Monitoring -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <span class="panel-title">(b) Health Monitoring</span>
+        <span class="panel-badge">Pattern Rule</span>
+      </div>
+      <div class="panel-body">
+        <div class="alert-card-inner">
+          <div class="alert-header-row">
+            <span class="alert-category-tag">Pattern Detection</span>
+            <span class="status-badge">Worth watching</span>
+          </div>
+
+          <div class="alert-title">Litter visits above usual</div>
+          <div class="alert-desc">
+            Compared with Pip's earlier records, "more visits" appeared twice as often this past week.
+          </div>
+
+          <!-- Timeline Comparison -->
+          <div class="timeline-box">
+            <div class="timeline-heading">
+              <span>Observation Timeline Comparison</span>
+            </div>
+
+            <!-- 14-Day Baseline Track -->
+            <div class="timeline-row">
+              <div class="timeline-meta">
+                <span class="timeline-label">14-Day Baseline (Weeks 1–2)</span>
+                <span class="timeline-stat">Avg: 1.1 visits / day</span>
+              </div>
+              <div class="track">
+                <span class="dot normal" title="Day 1">1</span>
+                <span class="dot none" title="Day 2">0</span>
+                <span class="dot normal" title="Day 3">1</span>
+                <span class="dot normal" title="Day 4">1</span>
+                <span class="dot none" title="Day 5">0</span>
+                <span class="dot normal" title="Day 6">1</span>
+                <span class="dot normal" title="Day 7">2</span>
+                <span class="dot none" title="Day 8">0</span>
+                <span class="dot normal" title="Day 9">1</span>
+                <span class="dot normal" title="Day 10">1</span>
+                <span class="dot normal" title="Day 11">1</span>
+                <span class="dot none" title="Day 12">0</span>
+                <span class="dot normal" title="Day 13">1</span>
+                <span class="dot normal" title="Day 14">1</span>
+              </div>
+            </div>
+
+            <!-- Recent 7-Day Window Track -->
+            <div class="timeline-row">
+              <div class="timeline-meta">
+                <span class="timeline-label">Recent Window (Last 7 Days)</span>
+                <span class="timeline-stat alert">Avg: 2.4 visits / day</span>
+              </div>
+              <div class="track" style="justify-content: space-between;">
+                <span class="dot normal" title="Mon">1</span>
+                <span class="dot normal" title="Tue">1</span>
+                <span class="dot alert" title="Wed (Elevated)">2</span>
+                <span class="dot alert" title="Thu (Elevated)">3</span>
+                <span class="dot alert" title="Fri (Elevated)">2</span>
+                <span class="dot alert" title="Sat (Elevated)">3</span>
+                <span class="dot alert" title="Sun (Elevated)">3</span>
+              </div>
+            </div>
+
+            <!-- Statistical comparison callout -->
+            <div class="comparison-pill">
+              <span>Rule condition met: 2.2× baseline frequency</span>
+              <span>Threshold: ≥ 2.0×</span>
+            </div>
+          </div>
+
+          <div class="alert-causes">
+            <strong>Possible reasons:</strong> Bladder inflammation (cystitis), urine infection, or environmental stress.
+          </div>
+
+          <div class="alert-source">
+            Evidence-based rule derived from International Cat Care (icatcare.org)
+          </div>
+        </div>
+      </div>
+      <div class="panel-caption">
+        Alerts based on changes in the cat's usual patterns.
+      </div>
+    </div>
+
+    <!-- PANEL 3: Personal Diary -->
+    <div class="panel-card">
+      <div class="panel-header">
+        <span class="panel-title">(c) Personal Diary</span>
+        <span class="panel-badge">Unified Log</span>
+      </div>
+      <div class="panel-body">
+        <div class="diary-container">
+          <div class="diary-header">
+            <span class="diary-header-title">Diary &amp; Care Log</span>
+            <span class="diary-date-marker">Today · 18 Nov</span>
+          </div>
+
+          <div class="timeline-stream">
+
+            <!-- Owner-written Memory Entry -->
+            <div class="diary-entry-wrap">
+              <div class="timeline-node"></div>
+              <div class="entry-card personal">
+                <div class="entry-type-row">
+                  <span class="entry-badge personal">Owner Memory</span>
+                  <span class="entry-time">10:30 AM</span>
+                </div>
+                <div class="memory-body">
+                  <div class="photo-placeholder">
+                    <span class="photo-icon">📷</span>
+                    <span class="photo-tag">Photo</span>
+                  </div>
+                  <div class="memory-text">
+                    <div class="memory-title">Morning nap in sunbeam</div>
+                    <div class="memory-caption">Pip found the warmest patch of light on the living room rug.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Automatically Generated Care History Entry -->
+            <div class="diary-entry-wrap">
+              <div class="timeline-node system"></div>
+              <div class="entry-card system">
+                <div class="entry-type-row">
+                  <span class="entry-badge system">Care History · System</span>
+                  <span class="entry-time">08:45 AM</span>
+                </div>
+                <div class="system-title">
+                  <span>⚡ Daily Check-in Recorded</span>
+                </div>
+                <div class="system-details">
+                  Ate normally · Drank normally · Usual energy
+                </div>
+                <div class="system-metric">
+                  Weight logged: 4.2 kg (stable)
+                </div>
+                <div class="system-origin">
+                  Automatically generated from morning daily check-in
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Visual distinction legend -->
+          <div class="diary-legend">
+            <div class="legend-item">
+              <div class="legend-swatch personal"></div>
+              <span>Owner entry (memory &amp; photo)</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-swatch system"></div>
+              <span>System record (care history)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-caption">
+        Personal memories alongside care history.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

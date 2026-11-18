@@ -2,6 +2,8 @@
 
 This document records how the group report was produced, what was verified against the source code, and what still needs the team's confirmation before submission. It is a working document for the team, not part of the submitted report itself.
 
+**Note on revision 2 (2026-11-18):** the report was shortened and restructured to follow the user-supplied course template, `~/Downloads/CSI301_Sample_Report.docx`. That file's title page ("Department of Computer Science and Software Engineering") and the `student.xjtlu.edu.cn` email already found in the project's own git history together indicate this is a Xi'an Jiaotong-Liverpool University CSI301 submission; the department line in the title block reflects that, but the university name itself is not restated since it isn't independently confirmed in the repository. The template specifies a much shorter report (its own Introduction guidance says only "at least 2 pages" total) than the original detailed rubric this report first followed, so the body was cut from ~5,500 words / 7 pages to ~2,300 words / 4 pages, and Figure 1 is now given as Mermaid source (matching the request not to generate a rendered diagram image) rather than a PNG.
+
 ## 1. Source of truth
 
 All claims in the report were checked against the repository at `/Users/natashawilfrid/Downloads/litterboxd/Litterboxd` on the `main` branch (HEAD at the time of writing: `3490624`, "improved UI, organised articles in horizontal carouse. seed diary entries"). Only the `app/` Gradle module is active (`settings.gradle.kts` includes only `:app`). A second, nested copy of an older project state exists at `petcare-litterboxd-main/` — see Section 4.4.
@@ -33,19 +35,17 @@ See Section 2.4 of the report for the full grouped list. Line counts (via `wc -l
 
 ## 4. Architecture summary
 
-Three-layer, non-MVVM structure (Activities + plain-Java domain classes + SQLiteOpenHelper/DAO data layer), explicitly chosen because the team's own `docs/course_reference.md` forbids Room, Compose, Fragments, Navigation Component, and coroutines/RxJava/LiveData/ViewModel. This constraint is stated in-repo, not assumed. See Figure 1 in the report (`architecture_diagram.png`, generated from `make_diagram.py`, not hand-drawn or AI-hallucinated box positions — every box corresponds to a real class or package named in Section 2.4).
+Three-layer, non-MVVM structure (Activities + plain-Java domain classes + SQLiteOpenHelper/DAO data layer), explicitly chosen because the team's own `docs/course_reference.md` forbids Room, Compose, Fragments, Navigation Component, and coroutines/RxJava/LiveData/ViewModel. This constraint is stated in-repo, not assumed. Figure 1 in the report is given as Mermaid flowchart source (rendered inline as a bordered code block in the `.docx`/`.pdf`, per the request not to generate a diagram image) — every node corresponds to a real class or package named in the Components paragraph, not an invented layer. Paste the code block into a Mermaid renderer (e.g. mermaid.live) to view it as a diagram.
 
-## 5. Development challenges identified (and why these five)
+## 5. Development challenges identified (and why these three)
 
-The five challenges in Section 3.1 of the report were chosen because each has direct, dated evidence in the repository (a commit, a test file, or an explicit code comment), not because they were the only plausible candidates:
+Evaluation point 1/2 of the report names three problems, each with direct, dated evidence in the repository (a commit, a test file, or an explicit code comment), condensed from the five discussed in the longer first draft so the Evaluation section matches the template's four-point structure rather than five lettered subsections:
 
 1. The 24-item audit (`AUDIT_REPORT.md`) — primary evidence is the document itself plus its 20+ remediation commits on 2026-10-24.
-2. The care-task duplication problem — evidence is the `CareTaskSetup` Javadoc explicitly stating "Replaces the old seeder that gave every cat the same six generic tasks."
+2. The care-task duplication problem — evidence is the `CareTaskSetup` Javadoc explicitly stating "Replaces the old seeder that gave every cat the same six generic tasks," and `FeedingTaskPlanner`'s time-based matching logic.
 3. The baseline-vs-signal rule design — evidence is the two distinct code paths (`matchesSignals` / `matchesBaseline`) in `HealthRuleEvaluator.java`.
-4. The Glide exception — evidence is `docs/course_reference.md` explicitly forbidding Glide, cross-referenced against `app/build.gradle.kts`, which includes it with an explanatory comment.
-5. The icatcare.org scraping safeguards — evidence is the host-validation code in `HealthArticleClient.get()`.
 
-Other candidate challenges (e.g., rotation handling, Validators decimal parsing) exist in the audit but were folded into challenge 1 rather than listed separately, to avoid padding the count with sub-items of the same root cause.
+Two further decisions are kept in the report but moved out of the "problems" list: the Glide exception is now a shorter aside at the end of point 2 (evidence: `docs/course_reference.md` forbidding Glide, cross-referenced against `app/build.gradle.kts`), and the icatcare.org host-validation safeguard moved to the ethics/legal point 4, since it is a security control rather than a development problem. Other candidates (e.g., rotation handling, Validators decimal parsing) exist in the audit but are folded into problem 1 rather than listed separately.
 
 ## 6. Evidence supporting group contributions
 
@@ -77,18 +77,18 @@ Built entirely from `git log --no-merges --pretty=format:'COMMIT|%an|%s' --name-
 
 | Requirement | Status |
 |---|---|
-| Minimum 2,000 words | Met — report body is approximately 3,800–4,200 words excluding references (verified by word count of `LITTERBOXD_Report_Source.md` minus the Mermaid diagram block and reference list) |
-| MS Word (.docx) and PDF | `.docx` generated with docx (Node.js); PDF exported from the `.docx` with LibreOffice and visually verified page-by-page (7 pages) in this session |
+| Matches the course's own sample report (`CSI301_Sample_Report.docx`) | Followed its section set (Abstract, Introduction, App Design, Evaluation's four numbered points, Conclusion, References) and its single-column title/abstract + two-column body layout |
+| Minimum 2,000 words | Met — report body is approximately 2,300 words excluding references (verified by word count of `LITTERBOXD_Report_Source.md` minus the Mermaid code block and reference list) |
+| MS Word (.docx) and PDF | `.docx` generated with docx (Node.js); PDF exported from the `.docx` with LibreOffice and visually verified page-by-page (4 pages) in this session |
 | US Letter paper | Set explicitly (8.5in × 11in) in `build_docx.js` page properties |
-| Two-column layout | Set explicitly (`column: { count: 2 }`) for all body sections; title, abstract, Figure 1, and the contribution table use single-column continuous sections for readability, which is standard IEEE practice for wide elements |
+| Two-column body / single-column title, abstract, figure, and table | Matches the column pattern found in the sample template's own `document.xml` (`w:cols num="1"` then `num="2"`) |
 | Single-spaced | Default paragraph spacing used throughout; no added line spacing |
-| 10-point Times New Roman | Set explicitly (`font: "Times New Roman", size: 20` half-points = 10pt) as the document default style |
-| IEEE-style structure | Followed: title block, abstract, numbered sections, numbered references, figure/table captions |
+| 10-point Times New Roman | Set explicitly (`font: "Times New Roman", size: 20` half-points = 10pt); the sample template's own `docDefaults` also specifies Times New Roman |
 | Abstract 100–200 words | Abstract is approximately 175 words |
 | Required sections (Abstract, Introduction, App Design, Evaluation, Conclusion, References) | All present, in order |
-| Architecture diagram | Figure 1, generated programmatically from the verified class/package structure (not hand-wavy) |
-| Contribution table | Table 1, present with explicit confirmation flags where evidence is incomplete |
-| IEEE-style numbered citations [n] | Used throughout; 11 references, all real and checked (Section 10) |
+| Architecture diagram | Figure 1, given as Mermaid flowchart source in a bordered code block (not a rendered image, per instruction); every node maps to a real class/package |
+| Contribution table | Present (2 columns: member, components developed), matching the template's own ask ("which component is developed by which member") rather than a wider rubric-style table |
+| Numbered citations [n] | Used throughout; 11 references, all real and checked (Section 10) |
 | No fabricated content | No invented test results, user studies, member names, or API claims; every technical claim traces to a named file |
 
 ## 10. Reference verification notes
@@ -101,7 +101,7 @@ Built entirely from `git log --no-merges --pretty=format:'COMMIT|%an|%s' --name-
 
 ## 11. Issues that could affect the final submission
 
-1. **PDF verified.** This machine had no LibreOffice, pandoc, or LaTeX installation to render the `.docx` into a verifiable PDF. LibreOffice was installed via Homebrew during this session; `LITTERBOXD_Group_Report.pdf` was then generated from the final `.docx` and all 7 pages were rendered to images and visually checked (Letter size, two-column body, Times New Roman, figure and table placement, page numbers). If the `.docx` is edited later, regenerate the PDF with `soffice --headless --convert-to pdf LITTERBOXD_Group_Report.docx` and re-check it before resubmitting.
+1. **PDF verified.** This machine had no LibreOffice, pandoc, or LaTeX installation to render the `.docx` into a verifiable PDF. LibreOffice was installed via Homebrew during this session; `LITTERBOXD_Group_Report.pdf` was then generated from the final `.docx` and all 4 pages were rendered to images and visually checked (Letter size, two-column body, Times New Roman, Mermaid code block and table placement, page numbers). If the `.docx` is edited later, regenerate the PDF with `soffice --headless --convert-to pdf LITTERBOXD_Group_Report.docx` and re-check it before resubmitting.
 2. **Group member names.** The report cannot be considered final until the team supplies real names for the Git identities, particularly the `k4chow`/`kachow` contributor, who is currently a named placeholder.
 3. **No independent usability or security testing was performed as part of this report.** All functional and architectural claims come from static code reading, not from running the app end-to-end in this session (though the earlier `AUDIT_REPORT.md` in the repository does include a prior emulator verification pass, which this report cites rather than repeats).
 4. **The `petcare-litterboxd-main/` directory** should be addressed by the team (Section 4.4) — its presence is reported honestly but not resolved.
