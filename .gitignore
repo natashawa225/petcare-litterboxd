@@ -14,3 +14,11 @@
 /captures
 .externalNativeBuild
 .cxx
+
+# Reports and coursework write-ups are kept outside this repo
+*REPORT*.md
+*_Report/
+LITTERBOXD_Group_Report/
+key_user_interactions_*
+# Downloaded copies of this repo
+petcare-litterboxd-main/
