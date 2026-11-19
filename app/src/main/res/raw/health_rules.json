@@ -63,6 +63,24 @@
       "sourceKey": "alert_source_icatcare",
       "url": "https://icatcare.org/articles/stress-in-cats",
       "image": "https://icatcare.org/img/asset/aW1hZ2VzL2FydGljbGVzL3RodW1ibmFpbHMvYWRvYmVzdG9ja18zMzg5MDU1MjEuanBn/adobestock_338905521.jpg?p=default&w=1200&h=630&fit=crop&s=ff1e1c1216998988940cd388e9903931"
+    },
+    {
+      "id": "source_weight_loss",
+      "titleKey": "alert_source_weight_loss_title",
+      "sourceKey": "alert_source_cornell",
+      "url": "https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center/health-information/feline-health-topics/obesity"
+    },
+    {
+      "id": "source_weight_management",
+      "titleKey": "alert_source_weight_management_title",
+      "sourceKey": "alert_source_aaha",
+      "url": "https://www.aaha.org/resources/2021-aaha-nutrition-and-weight-management-guidelines/"
+    },
+    {
+      "id": "source_kitten_growth",
+      "titleKey": "alert_source_kitten_growth_title",
+      "sourceKey": "alert_source_icatcare",
+      "url": "https://icatcare.org/advice/caring-for-your-kitten/"
     }
   ],
   "readings": [

@@ -6,7 +6,7 @@ import java.util.Locale;
 
 public class DateFormatUtils {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MMM dd, yyyy", Locale.US);
-    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm a", Locale.US);
+    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("h:mm a", Locale.US);
 
     public static String formatDate(long timestamp) {
         return DATE_FORMAT.format(new Date(timestamp));

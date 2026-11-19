@@ -20,61 +20,33 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.litterboxd.app.R;
-import com.litterboxd.app.checkin.AnswerOption;
-import com.litterboxd.app.checkin.DecisionTree;
-import com.litterboxd.app.checkin.Question;
 import com.litterboxd.app.data.dao.CatDao;
-import com.litterboxd.app.data.dao.DailyCheckinDao;
 import com.litterboxd.app.data.dao.DiaryDao;
-import com.litterboxd.app.data.dao.WeightLogDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.file.FileStorageHelper;
 import com.litterboxd.app.data.model.Cat;
-import com.litterboxd.app.data.model.DailyCheckin;
 import com.litterboxd.app.data.model.DiaryEntry;
-import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.session.AppPrefs;
-import com.litterboxd.app.ui.checkin.CheckInActivity;
-import com.litterboxd.app.ui.checkin.CheckInContent;
 import com.litterboxd.app.ui.home.CatSwitcher;
 import com.litterboxd.app.ui.nav.BottomNavHelper;
-import com.litterboxd.app.ui.profile.CatProfileActivity;
 import com.litterboxd.app.util.AppExecutors;
-import com.litterboxd.app.util.DateFormatUtils;
 import com.litterboxd.app.util.DiaryDates;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * Diary tab: a personal archive of the selected cat's life. Shows the owner's memories and
- * milestones (diary_entries) mixed with a quiet line of care history read straight from the
- * existing weight and check-in tables, newest first under date headings, with simple filters.
+ * Diary tab: a personal archive of the selected cat's life. Shows only the owner's own memories
+ * and milestones (diary_entries), newest first under date headings, with simple filters.
+ * Check-ins and weigh-ins stay on the Daily and profile screens so the diary reads as a diary.
  */
 public class DiaryActivity extends AppCompatActivity {
 
     private static final String STATE_FILTER = "diary_filter";
-    private static final int FILTER_ALL = 0, FILTER_MEMORIES = 1, FILTER_MILESTONES = 2, FILTER_HISTORY = 3;
-
-    /** One row of the timeline: a diary entry or a piece of care history. */
-    private static final class TimelineItem {
-        static final int ENTRY = 0, WEIGHT = 1, CHECKIN = 2;
-        final int kind;
-        final long time;
-        DiaryEntry entry;
-        WeightLog weight;
-        DailyCheckin checkin;
-
-        TimelineItem(int kind, long time) {
-            this.kind = kind;
-            this.time = time;
-        }
-    }
+    private static final int FILTER_ALL = 0, FILTER_MEMORIES = 1, FILTER_MILESTONES = 2;
 
     private TextView tvCatName, tvCounts, tvTimelineEmpty, tvMemoriesSubtitle, tvNoPhotosBody;
     private ShapeableImageView imgCat, imgMemoriesPreview;
@@ -86,14 +58,11 @@ public class DiaryActivity extends AppCompatActivity {
     private AppPrefs appPrefs;
     private CatDao catDao;
     private DiaryDao diaryDao;
-    private WeightLogDao weightLogDao;
-    private DailyCheckinDao checkinDao;
     private FileStorageHelper fileStorageHelper;
-    private DecisionTree checkInTree;
 
     private Cat currentCat;
     private List<Cat> allCats = new ArrayList<>();
-    private List<TimelineItem> items = new ArrayList<>();
+    private List<DiaryEntry> items = new ArrayList<>();
     private int filter = FILTER_ALL;
 
     @Override
@@ -105,8 +74,6 @@ public class DiaryActivity extends AppCompatActivity {
         LitterboxdDbHelper dbHelper = LitterboxdDbHelper.getInstance(this);
         catDao = new CatDao(dbHelper);
         diaryDao = new DiaryDao(dbHelper);
-        weightLogDao = new WeightLogDao(dbHelper);
-        checkinDao = new DailyCheckinDao(dbHelper);
         fileStorageHelper = new FileStorageHelper(this);
 
         tvCatName = findViewById(R.id.tvDiaryCatName);
@@ -130,7 +97,7 @@ public class DiaryActivity extends AppCompatActivity {
 
         filterButtons = new MaterialButton[]{
                 findViewById(R.id.btnFilterAll), findViewById(R.id.btnFilterMemories),
-                findViewById(R.id.btnFilterMilestones), findViewById(R.id.btnFilterHistory)};
+                findViewById(R.id.btnFilterMilestones)};
         for (int i = 0; i < filterButtons.length; i++) {
             final int which = i;
             filterButtons[i].setOnClickListener(v -> {
@@ -139,7 +106,8 @@ public class DiaryActivity extends AppCompatActivity {
             });
         }
         if (savedInstanceState != null) {
-            filter = savedInstanceState.getInt(STATE_FILTER, FILTER_ALL);
+            // Clamp: an older build also had a "Care history" filter (index 3).
+            filter = Math.min(savedInstanceState.getInt(STATE_FILTER, FILTER_ALL), FILTER_MILESTONES);
         }
         updateFilterButtons();
     }
@@ -191,7 +159,6 @@ public class DiaryActivity extends AppCompatActivity {
     // ---- Loading ----
 
     private void loadData() {
-        final DecisionTree cachedTree = checkInTree;
         AppExecutors.getInstance().diskIO().execute(() -> {
             List<Cat> cats = catDao.getAllCats();
             long selectedId = appPrefs.getSelectedCatId();
@@ -203,35 +170,14 @@ public class DiaryActivity extends AppCompatActivity {
                 selected = cats.get(0);
                 appPrefs.setSelectedCatId(selected.getId());
             }
-            DecisionTree tree = cachedTree != null ? cachedTree : CheckInContent.loadTree(this);
-
-            // Every source is filtered by the selected cat's id.
-            List<TimelineItem> loaded = new ArrayList<>();
-            if (selected != null) {
-                for (DiaryEntry entry : diaryDao.getEntriesForCat(selected.getId())) {
-                    TimelineItem item = new TimelineItem(TimelineItem.ENTRY, entry.getEntryAt());
-                    item.entry = entry;
-                    loaded.add(item);
-                }
-                for (WeightLog log : weightLogDao.getWeightLogsForCat(selected.getId())) {
-                    TimelineItem item = new TimelineItem(TimelineItem.WEIGHT, log.getDate());
-                    item.weight = log;
-                    loaded.add(item);
-                }
-                for (DailyCheckin checkin : checkinDao.getCheckinsForCat(selected.getId())) {
-                    TimelineItem item = new TimelineItem(TimelineItem.CHECKIN, checkin.getCreatedAt());
-                    item.checkin = checkin;
-                    loaded.add(item);
-                }
-                // Newest first; Collections.sort is stable, so equal times keep each source's order.
-                Collections.sort(loaded, (a, b) -> Long.compare(b.time, a.time));
-            }
+            // Newest first (DiaryDao orders by entry time), for the selected cat only.
+            List<DiaryEntry> loaded = selected != null
+                    ? diaryDao.getEntriesForCat(selected.getId()) : new ArrayList<>();
             final Cat finalSelected = selected;
             AppExecutors.getInstance().mainThread().execute(() -> {
                 if (isFinishing() || isDestroyed()) return;
                 allCats = cats;
                 currentCat = finalSelected;
-                checkInTree = tree;
                 items = loaded;
                 renderHeader();
                 renderMemoriesCard();
@@ -255,9 +201,8 @@ public class DiaryActivity extends AppCompatActivity {
         imgCat.setContentDescription(getString(R.string.cd_cat_photo, currentCat.getName()));
         fileStorageHelper.showCatPhoto(imgCat, currentCat.getPhotoPath());
         int memories = 0, milestones = 0;
-        for (TimelineItem item : items) {
-            if (item.kind != TimelineItem.ENTRY) continue;
-            if (item.entry.getType() == DiaryEntry.Type.MILESTONE) milestones++; else memories++;
+        for (DiaryEntry entry : items) {
+            if (entry.getType() == DiaryEntry.Type.MILESTONE) milestones++; else memories++;
         }
         tvCounts.setText(getString(R.string.diary_counts,
                 getResources().getQuantityString(R.plurals.diary_memory_count, memories, memories),
@@ -268,10 +213,10 @@ public class DiaryActivity extends AppCompatActivity {
     private void renderMemoriesCard() {
         DiaryEntry latestWithPhoto = null;
         int photos = 0;
-        for (TimelineItem item : items) {
-            if (item.kind != TimelineItem.ENTRY || !item.entry.hasPhoto()) continue;
+        for (DiaryEntry entry : items) {
+            if (!entry.hasPhoto()) continue;
             photos++;
-            if (latestWithPhoto == null) latestWithPhoto = item.entry; // items is newest-first
+            if (latestWithPhoto == null) latestWithPhoto = entry; // items is newest-first
         }
         boolean hasPhotos = photos > 0;
         cardMemories.setVisibility(hasPhotos ? View.VISIBLE : View.GONE);
@@ -293,16 +238,11 @@ public class DiaryActivity extends AppCompatActivity {
         }
     }
 
-    private boolean matchesFilter(TimelineItem item) {
+    private boolean matchesFilter(DiaryEntry entry) {
         switch (filter) {
-            case FILTER_MEMORIES:
-                return item.kind == TimelineItem.ENTRY && item.entry.getType() == DiaryEntry.Type.MEMORY;
-            case FILTER_MILESTONES:
-                return item.kind == TimelineItem.ENTRY && item.entry.getType() == DiaryEntry.Type.MILESTONE;
-            case FILTER_HISTORY:
-                return item.kind != TimelineItem.ENTRY;
-            default:
-                return true;
+            case FILTER_MEMORIES: return entry.getType() == DiaryEntry.Type.MEMORY;
+            case FILTER_MILESTONES: return entry.getType() == DiaryEntry.Type.MILESTONE;
+            default: return true;
         }
     }
 
@@ -313,21 +253,19 @@ public class DiaryActivity extends AppCompatActivity {
         long now = System.currentTimeMillis();
         String lastHeading = null;
         int shown = 0;
-        for (TimelineItem item : items) {
-            if (!matchesFilter(item)) continue;
+        for (DiaryEntry entry : items) {
+            if (!matchesFilter(entry)) continue;
             // One bad record must not break the whole diary.
             try {
-                DiaryDates.Heading heading = DiaryDates.headingFor(item.time, now);
+                DiaryDates.Heading heading = DiaryDates.headingFor(entry.getEntryAt(), now);
                 if (!heading.key().equals(lastHeading)) {
                     TextView title = (TextView) inflater.inflate(R.layout.item_diary_heading, layoutTimeline, false);
-                    title.setText(headingText(heading, item.time));
+                    title.setText(headingText(heading, entry.getEntryAt()));
                     ViewCompat.setAccessibilityHeading(title, true);
                     layoutTimeline.addView(title);
                     lastHeading = heading.key();
                 }
-                layoutTimeline.addView(item.kind == TimelineItem.ENTRY
-                        ? createEntryCard(inflater, item.entry)
-                        : createHistoryRow(inflater, item));
+                layoutTimeline.addView(createEntryCard(inflater, entry));
                 shown++;
             } catch (RuntimeException e) {
                 Log.w("DiaryActivity", "Skipping a diary item that could not be shown", e);
@@ -345,7 +283,6 @@ public class DiaryActivity extends AppCompatActivity {
         switch (filter) {
             case FILTER_MEMORIES: return getString(R.string.diary_empty_memories);
             case FILTER_MILESTONES: return getString(R.string.diary_empty_milestones);
-            case FILTER_HISTORY: return getString(R.string.diary_empty_history);
             default: return getString(R.string.diary_empty_all, currentCat.getName());
         }
     }
@@ -385,10 +322,10 @@ public class DiaryActivity extends AppCompatActivity {
             caption.setVisibility(View.VISIBLE);
             caption.setText(entry.getDescription());
         }
-        // Milestones are about the day; memories also show the time.
-        String when = milestone ? DateFormatUtils.formatDate(entry.getEntryAt()) : DateFormatUtils.formatTime(entry.getEntryAt());
+        // The date heading above already says when; the card only adds the owner's tags.
         String tags = tagLabels(entry.getTags());
-        meta.setText(tags.isEmpty() ? when : getString(R.string.diary_meta_tags, when, tags));
+        meta.setVisibility(tags.isEmpty() ? View.GONE : View.VISIBLE);
+        meta.setText(tags);
         if (entry.hasPhoto()) {
             thumb.setVisibility(View.VISIBLE);
             thumb.setContentDescription(getString(R.string.cd_diary_photo, entry.getTitle()));
@@ -420,56 +357,5 @@ public class DiaryActivity extends AppCompatActivity {
             }
         }
         return String.join(" ", shown);
-    }
-
-    /** Care history stays small and quiet: one line plus "Logged observation, not a diagnosis". */
-    private View createHistoryRow(LayoutInflater inflater, TimelineItem item) {
-        View row = inflater.inflate(R.layout.item_diary_history, layoutTimeline, false);
-        TextView text = row.findViewById(R.id.tvHistoryText);
-        if (item.kind == TimelineItem.WEIGHT) {
-            WeightLog log = item.weight;
-            String kg = String.valueOf(log.getWeight());
-            text.setText(log.getNotes() != null && !log.getNotes().isEmpty()
-                    ? getString(R.string.diary_history_weight_note, kg, log.getNotes())
-                    : getString(R.string.diary_history_weight, kg));
-            // The cat profile is where weight history lives.
-            row.setOnClickListener(v -> {
-                Intent intent = new Intent(this, CatProfileActivity.class);
-                intent.putExtra("cat_id", log.getCatId());
-                startActivity(intent);
-            });
-        } else {
-            DailyCheckin checkin = item.checkin;
-            text.setText(getString(R.string.diary_history_checkin, checkinSummary(checkin)));
-            // Only today's check-in can be opened (and updated); past days have no detail screen.
-            if (LocalDate.now().toString().equals(checkin.getCheckinDate())) {
-                row.setOnClickListener(v -> {
-                    Intent intent = new Intent(this, CheckInActivity.class);
-                    intent.putExtra(CheckInActivity.EXTRA_CAT_ID, checkin.getCatId());
-                    startActivity(intent);
-                });
-            } else {
-                row.setClickable(false);
-                row.setBackground(null);
-            }
-        }
-        return row;
-    }
-
-    /** The answers that weren't the "usual" choice, e.g. "Ate less, Low energy", else "all as usual". */
-    private String checkinSummary(DailyCheckin checkin) {
-        if (checkInTree == null) return getString(R.string.diary_history_all_normal);
-        List<String> unusual = new ArrayList<>();
-        for (Question group : checkInTree.getGroups()) {
-            List<String> values = checkin.getAnswers().get(group.getId());
-            if (values == null) continue;
-            for (String value : values) {
-                AnswerOption option = group.getOption(value);
-                if (option != null && !option.isNormal()) {
-                    unusual.add(CheckInContent.text(this, option.getLabelKey()));
-                }
-            }
-        }
-        return unusual.isEmpty() ? getString(R.string.diary_history_all_normal) : String.join(", ", unusual);
     }
 }

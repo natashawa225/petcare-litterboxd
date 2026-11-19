@@ -106,12 +106,8 @@ public class DiaryEntryDetailActivity extends AppCompatActivity {
         boolean milestone = entry.getType() == DiaryEntry.Type.MILESTONE;
         tvType.setText(milestone ? R.string.diary_type_milestone : R.string.diary_type_memory);
         tvType.setBackground(pill(milestone ? R.color.card_oat : R.color.card_sage));
-        // Milestones are about the day; memories also show the time (as on the timeline).
-        tvDate.setText(milestone
-                ? DateFormatUtils.formatDate(entry.getEntryAt())
-                : getString(R.string.diary_detail_date_time,
-                        DateFormatUtils.formatDate(entry.getEntryAt()),
-                        DateFormatUtils.formatTime(entry.getEntryAt())));
+        // A diary page is about the day, not the minute.
+        tvDate.setText(DateFormatUtils.formatDate(entry.getEntryAt()));
         tvTitle.setText(entry.getTitle());
 
         String text = entry.getDescription();

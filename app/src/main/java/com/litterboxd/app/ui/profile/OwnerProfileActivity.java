@@ -168,9 +168,13 @@ public class OwnerProfileActivity extends AppCompatActivity {
     private void loadSampleData() {
         AppExecutors.getInstance().diskIO().execute(() -> {
             int added = SampleData.load(this);
-            AppExecutors.getInstance().mainThread().execute(() -> Toast.makeText(this,
-                    added > 0 ? R.string.msg_sample_data_loaded : R.string.msg_sample_data_already_loaded,
-                    Toast.LENGTH_SHORT).show());
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                Toast.makeText(this,
+                        added > 0 ? R.string.msg_sample_data_loaded : R.string.msg_sample_data_already_loaded,
+                        Toast.LENGTH_SHORT).show();
+                // The sample load selects Biscuit, so refresh "Manage cats" to name him.
+                if (!isFinishing()) loadSelectedCat();
+            });
         });
     }
 

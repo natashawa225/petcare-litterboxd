@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Health recap legend swatch: the same fill and outline SignalStripView draws for this day state. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <size android:width="10dp" android:height="10dp" />
+    <solid android:color="@color/card_sage" />
+    <stroke android:width="1.5dp" android:color="@color/sage_primary" />
+</shape>

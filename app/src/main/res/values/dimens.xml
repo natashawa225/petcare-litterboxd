@@ -84,4 +84,11 @@
     <dimen name="my_cats_bleed">-16dp</dimen>
     <!-- Health alerts "all clear" card -->
     <dimen name="week_dot">12dp</dimen>
+
+    <!-- Health recap card -->
+    <dimen name="recap_dot_size">10dp</dimen>
+    <dimen name="recap_bar_width">4dp</dimen>
+    <dimen name="recap_bar_height">18dp</dimen>
+    <dimen name="recap_signal_row_height">36dp</dimen>
+    <dimen name="recap_highlight_icon_size">18dp</dimen>
 </resources>

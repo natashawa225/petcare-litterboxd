@@ -87,7 +87,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPickReminderTime"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.Litterboxd.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/button_height"
                 android:text="@string/btn_pick_reminder_time"
@@ -104,7 +104,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPickDueDate"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.Litterboxd.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/button_height"
                 android:layout_marginTop="@dimen/spacing_card"
@@ -113,7 +113,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPickDueTime"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.Litterboxd.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/button_height"
                 android:layout_marginTop="@dimen/spacing_small"
@@ -122,7 +122,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnClearDue"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                style="@style/Widget.Litterboxd.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minHeight="@dimen/button_height"

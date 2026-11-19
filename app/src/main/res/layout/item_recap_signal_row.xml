@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One Health recap signal row (HealthRecapCardView): label, day strip that fills the spare
+     width and "n/m" normal days. Tapping opens SignalDetailActivity. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/recap_signal_row_height"
+    android:orientation="horizontal"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <TextView
+        android:id="@+id/tvSignalLabel"
+        android:layout_width="64dp"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:textColor="@color/black"
+        android:textSize="@dimen/text_size_small"
+        android:textStyle="bold" />
+
+    <com.litterboxd.app.ui.profile.SignalStripView
+        android:id="@+id/stripSignal"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/tvSignalRatio"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:maxLines="1"
+        android:textColor="@color/text_dark_gray"
+        android:textSize="@dimen/text_size_caption" />
+</LinearLayout>

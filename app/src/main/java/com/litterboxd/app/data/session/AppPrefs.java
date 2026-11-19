@@ -17,6 +17,7 @@ public class AppPrefs {
     private static final String KEY_TODAY_LIST_REMINDER_HOUR = "today_list_reminder_hour";
     private static final String KEY_TODAY_LIST_REMINDER_MINUTE = "today_list_reminder_minute";
     private static final String KEY_REMINDER_SLOT_PREFIX = "reminder_slot_posted_";
+    private static final String KEY_RECAP_PERIOD = "recap_period_days";
 
     /** Owner avatar values: "bundled:<drawable name>", "file:<private file name>", or none. */
     public static final String AVATAR_BUNDLED_PREFIX = "bundled:";
@@ -50,6 +51,14 @@ public class AppPrefs {
 
     public void setSelectedCatId(long catId) {
         prefs.edit().putLong(KEY_SELECTED_CAT_ID, catId).apply();
+    }
+
+    public int getRecapPeriod() {
+        return prefs.getInt(KEY_RECAP_PERIOD, 30);
+    }
+
+    public void setRecapPeriod(int periodDays) {
+        prefs.edit().putInt(KEY_RECAP_PERIOD, periodDays).apply();
     }
 
     public boolean isNotificationPermissionAsked() {

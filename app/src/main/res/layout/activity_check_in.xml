@@ -40,7 +40,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAllNormal"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.Litterboxd.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_card"
@@ -116,7 +116,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCheckInBack"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.Litterboxd.Button.Text"
             android:layout_width="match_parent"
             android:layout_height="@dimen/button_height"
             android:layout_marginTop="@dimen/spacing_small"
