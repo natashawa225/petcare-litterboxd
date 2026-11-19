@@ -61,7 +61,7 @@
 
         <activity
             android:name=".ui.profile.CatProfileActivity"
-            android:exported="false" />
+            android:exported="true" />
 
         <!-- Bottom-navigation tabs: Daily = HomeActivity, Tasks, Diary, Profile (see BottomNavHelper). -->
         <activity
@@ -117,6 +117,10 @@
         <activity
             android:name=".ui.health.HealthArticleReaderActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboardHidden"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.health.SignalDetailActivity"
             android:exported="false" />
 
         <receiver

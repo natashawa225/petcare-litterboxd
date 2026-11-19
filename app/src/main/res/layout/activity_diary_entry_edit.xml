@@ -105,7 +105,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRemoveDiaryPhoto"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/Widget.Litterboxd.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_small"
@@ -150,7 +150,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDiaryDate"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                style="@style/Widget.Litterboxd.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/button_height"
                 android:layout_marginTop="@dimen/spacing_medium"
@@ -172,7 +172,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteDiaryEntry"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                style="@style/Widget.Litterboxd.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

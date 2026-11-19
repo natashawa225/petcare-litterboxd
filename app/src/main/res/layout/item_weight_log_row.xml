@@ -1,30 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- One weigh-in in the Weight details sheet: date and note, weight and change, delete icon. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
+    android:minHeight="56dp"
     android:orientation="horizontal"
-    android:paddingTop="@dimen/spacing_tiny"
-    android:paddingBottom="@dimen/spacing_tiny">
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
-    <TextView
-        android:id="@+id/tvWeightLogText"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textColor="@color/black"
-        android:textSize="@dimen/text_size_small" />
+        android:orientation="vertical">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnDeleteWeightLog"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        <TextView
+            android:id="@+id/tvWeightLogDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_small"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvWeightLogNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="@color/text_dark_gray"
+            android:textSize="@dimen/text_size_caption"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="0dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:text="@string/btn_delete"
-        android:textColor="@color/error_red"
-        app:rippleColor="@color/pastel_coral" />
+        android:gravity="end"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvWeightLogKg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_body"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvWeightLogChange"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_dark_gray"
+            android:textSize="@dimen/text_size_caption"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnDeleteWeightLog"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/cd_delete_weight"
+        android:src="@drawable/ic_delete_outline" />
 </LinearLayout>

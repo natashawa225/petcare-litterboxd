@@ -106,7 +106,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDiarySwitchCat"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/Widget.Litterboxd.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minHeight="@dimen/button_height"
@@ -187,16 +187,9 @@
                     android:orientation="vertical"
                     android:padding="@dimen/card_padding">
 
-                    <ImageView
-                        android:layout_width="@dimen/diary_empty_icon_size"
-                        android:layout_height="@dimen/diary_empty_icon_size"
-                        android:contentDescription="@string/cd_no_photos"
-                        app:srcCompat="@drawable/ic_cat_face" />
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
                         android:text="@string/diary_no_photos_title"
                         android:textColor="@color/black"
                         android:textSize="@dimen/text_size_body"
@@ -255,15 +248,7 @@
                         style="@style/Widget.Litterboxd.Chip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/spacing_small"
                         android:text="@string/diary_filter_milestones" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnFilterHistory"
-                        style="@style/Widget.Litterboxd.Chip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/diary_filter_history" />
                 </LinearLayout>
             </HorizontalScrollView>
 

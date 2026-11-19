@@ -70,7 +70,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSkip"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.Litterboxd.Button.Secondary"
         android:layout_width="0dp"
         android:layout_height="@dimen/button_height"
         android:layout_marginBottom="32dp"

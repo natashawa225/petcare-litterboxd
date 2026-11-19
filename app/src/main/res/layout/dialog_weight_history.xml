@@ -1,15 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Weight "More info" bottom sheet: what the latest change means and its source, then every
+     weigh-in (date and note, weight and change since the one before, a delete icon). -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp">
+    android:background="@drawable/bg_bottom_sheet">
 
     <LinearLayout
-        android:id="@+id/containerWeightHistoryRows"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp" />
-</ScrollView>
+        android:paddingStart="@dimen/margin_horizontal"
+        android:paddingEnd="@dimen/margin_horizontal"
+        android:paddingBottom="24dp">
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_sheet_handle" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/dialog_weight_history_title"
+            android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+        <TextView
+            android:id="@+id/tvWeightSheetSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_dark_gray"
+            android:textSize="@dimen/text_size_caption" />
+
+        <LinearLayout
+            android:id="@+id/containerWeightInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_profile_stats"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvWeightInfoHeadline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="@dimen/text_size_subtitle"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvWeightInfoNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:lineSpacingMultiplier="1.15"
+                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+            <TextView
+                android:id="@+id/tvWeightInfoSource"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="40dp"
+                android:textColor="@color/sage_primary"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/weight_sheet_all"
+            android:textColor="@color/text_dark_gray"
+            android:textSize="@dimen/text_size_caption"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/containerWeightHistoryRows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

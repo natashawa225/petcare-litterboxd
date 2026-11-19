@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/off_white_background"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationContentDescription="@string/cd_back"
+        app:titleTextColor="@color/black"
+        app:titleTextAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:padding="@dimen/margin_horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="32dp">
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/tvSignalDetailSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+            <!-- 6-Week Calendar Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/profile_card_corner">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <!-- Day of week header -->
+                    <LinearLayout
+                        android:id="@+id/rowDayOfWeek"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingBottom="8dp" />
+
+                    <!-- Calendar Grid Container (6 rows of 7 days) -->
+                    <LinearLayout
+                        android:id="@+id/gridCalendar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <!-- Legend: the same swatches the calendar draws. -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            style="@style/Litterboxd.RecapLegend"
+                            app:drawableStartCompat="@drawable/bg_recap_swatch_normal"
+                            android:text="@string/recap_legend_normal" />
+
+                        <TextView
+                            style="@style/Litterboxd.RecapLegend"
+                            app:drawableStartCompat="@drawable/bg_recap_swatch_off"
+                            android:text="@string/recap_legend_off" />
+
+                        <TextView
+                            style="@style/Litterboxd.RecapLegend"
+                            app:drawableStartCompat="@drawable/bg_recap_swatch_concern"
+                            android:text="@string/recap_legend_concern" />
+
+                        <TextView
+                            style="@style/Litterboxd.RecapLegend"
+                            app:drawableStartCompat="@drawable/bg_recap_swatch_none"
+                            android:text="@string/recap_legend_not_logged" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Selected Day Detail Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSelectedDay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/card_oat"
+                app:cardCornerRadius="@dimen/corner_radius">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:id="@+id/tvSelectedDayTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/title_font"
+                        android:text="@string/signal_detail_tap_hint"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/text_size_body"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSelectedDayDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Related Reading Card (if applicable) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardReading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/profile_card_corner">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/signal_detail_reading_title"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+                    <TextView
+                        android:id="@+id/tvReadingTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/text_size_subtitle"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvReadingSource"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnOpenArticle"
+                        style="@style/Widget.Litterboxd.Button.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginTop="12dp"
+                        android:text="@string/btn_read_more_article" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
