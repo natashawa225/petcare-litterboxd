@@ -460,7 +460,7 @@ public class HomeActivity extends AppCompatActivity {
         if (alertCount <= 0) {
             tvHealthAlertsStatus.setText(R.string.daily_alerts_none);
         } else {
-            tvHealthAlertsStatus.setText(getString(R.string.daily_alerts_count, alertCount));
+            tvHealthAlertsStatus.setText(getResources().getQuantityString(R.plurals.daily_alerts_count, alertCount, alertCount));
         }
     }
 

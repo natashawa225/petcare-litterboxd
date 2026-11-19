@@ -87,6 +87,8 @@ public class DailyCheckinDao {
 
     /**
      * Saves today's answers, then drops this cat's check-ins older than {@link #RETENTION_DAYS}.
+     * Not used by the app, which keeps the whole log (the Diary shows it as care history); kept
+     * as an opt-in clean-up.
      * @return the id of the saved check-in row
      */
     public long saveCheckinAndTrim(long catId, String checkinDate, Map<String, List<String>> answers,

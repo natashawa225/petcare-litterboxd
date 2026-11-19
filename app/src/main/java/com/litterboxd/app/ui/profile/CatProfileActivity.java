@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -35,11 +36,15 @@ import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.health.HealthAlert;
 import com.litterboxd.app.health.HealthContent;
+import com.litterboxd.app.health.HealthRecap;
 import com.litterboxd.app.health.HealthRule;
 import com.litterboxd.app.health.HealthRuleEvaluator;
+import com.litterboxd.app.health.RecapResult;
 import com.litterboxd.app.health.WeightPoints;
 import com.litterboxd.app.ui.checkin.CheckInContent;
 import com.litterboxd.app.ui.health.HealthAlertsActivity;
+import com.litterboxd.app.ui.health.HealthArticleReaderActivity;
+import com.litterboxd.app.ui.health.SignalDetailActivity;
 import com.litterboxd.app.reminders.CareReminderScheduler;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.ui.onboarding.AddEditCatActivity;
@@ -56,12 +61,12 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class CatProfileActivity extends AppCompatActivity {
 
-    private static final int WEIGHT_PREVIEW_LIMIT = 3;
 
-    private TextView tvProfileName, tvProfileDetails, tvProfileAgePill, tvWeightChartHint;
+    private TextView tvProfileName, tvProfileDetails, tvProfileAgePill;
     private TextView tvHealthStatusTitle, tvHealthStatusSub;
     private TextView tvStatWeight, tvStatWeightPill, tvStatLogged, tvStatLoggedPill;
     private TextView tvStatLifestyle, tvStatLifestylePill;
@@ -70,7 +75,14 @@ public class CatProfileActivity extends AppCompatActivity {
     private LinearLayout containerWeightLogs, containerFeedingMeals;
     private MaterialButton btnAddWeight, btnWeightHistory;
     private WeightChartView weightChart;
-    private AlertDialog weightHistoryDialog;
+    private BottomSheetDialog weightHistoryDialog;
+
+    // Health Recap and Weight Insight
+    private HealthRecapCardView healthRecapCard;
+    private TextView tvWeightInsight;
+    /** Latest recap, so "More info" can explain the weight change and cite its source. */
+    private RecapResult latestRecap;
+    private int currentRecapPeriod = 30;
 
     private long catId = -1L;
     private CatDao catDao;
@@ -113,9 +125,27 @@ public class CatProfileActivity extends AppCompatActivity {
         containerWeightLogs = findViewById(R.id.containerWeightLogs);
         containerFeedingMeals = findViewById(R.id.containerFeedingMeals);
         weightChart = findViewById(R.id.weightChart);
-        tvWeightChartHint = findViewById(R.id.tvWeightChartHint);
         btnAddWeight = findViewById(R.id.btnAddWeight);
         btnWeightHistory = findViewById(R.id.btnWeightHistory);
+
+        // Health recap and weight insight
+        healthRecapCard = new HealthRecapCardView(findViewById(android.R.id.content));
+        tvWeightInsight = findViewById(R.id.tvWeightInsight);
+
+        if (savedInstanceState != null) {
+            currentRecapPeriod = savedInstanceState.getInt("recap_period", appPrefs.getRecapPeriod());
+        } else {
+            currentRecapPeriod = appPrefs.getRecapPeriod();
+        }
+
+        healthRecapCard.getToggleGroup().check(currentRecapPeriod == 7 ? R.id.btnRecap7d : R.id.btnRecap30d);
+        healthRecapCard.getToggleGroup().addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                currentRecapPeriod = (checkedId == R.id.btnRecap7d) ? 7 : 30;
+                appPrefs.setRecapPeriod(currentRecapPeriod);
+                loadCatProfile();
+            }
+        });
 
         btnAddWeight.setOnClickListener(v -> showAddWeightDialog());
         btnWeightHistory.setOnClickListener(v -> showWeightHistoryDialog());
@@ -152,6 +182,22 @@ public class CatProfileActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        // A sheet left open across rotation would leak its window (or be shown on a dead activity).
+        if (weightHistoryDialog != null) {
+            weightHistoryDialog.dismiss();
+            weightHistoryDialog = null;
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("recap_period", currentRecapPeriod);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         loadCatProfile();
@@ -167,9 +213,10 @@ public class CatProfileActivity extends AppCompatActivity {
             Cat loaded = catDao.getCatById(catId);
             List<WeightLog> weightLogs = weightLogDao.getWeightLogsForCat(catId);
             List<FeedingMeal> feedingMeals = feedingScheduleDao.getFeedingMealsForCat(catId);
-            final ProfileHealth health = loadHealth(weightLogs);
+            final ProfileHealth health = loadHealth(weightLogs, loaded);
 
             AppExecutors.getInstance().mainThread().execute(() -> {
+                if (isFinishing() || isDestroyed()) return;
                 currentCat = loaded;
                 if (currentCat != null) {
                     tvProfileName.setText(currentCat.getName());
@@ -187,6 +234,31 @@ public class CatProfileActivity extends AppCompatActivity {
 
                     populateWeightLogs(weightLogs);
                     populateFeedingMeals(feedingMeals);
+
+                    // Health recap & weight insight
+                    boolean isKitten = currentCat.getApproxAgeYears() == 0
+                            || (currentCat.getApproxAgeMonths() > 0 && currentCat.getApproxAgeMonths() <= 12);
+                    healthRecapCard.bind(health.recap, isKitten,
+                            (sigId, label) -> {
+                                Intent intent = new Intent(this, SignalDetailActivity.class);
+                                intent.putExtra(SignalDetailActivity.EXTRA_CAT_ID, catId);
+                                intent.putExtra(SignalDetailActivity.EXTRA_SIGNAL_ID, sigId);
+                                intent.putExtra(SignalDetailActivity.EXTRA_SIGNAL_LABEL, label);
+                                startActivity(intent);
+                            },
+                            ruleId -> {
+                                Intent intent = new Intent(this, HealthAlertsActivity.class);
+                                intent.putExtra(HealthAlertsActivity.EXTRA_CAT_ID, catId);
+                                startActivity(intent);
+                            });
+
+                    latestRecap = health.recap;
+                    if (health.recap != null && health.recap.getWeightInsightText() != null) {
+                        tvWeightInsight.setVisibility(View.VISIBLE);
+                        tvWeightInsight.setText(health.recap.getWeightInsightText());
+                    } else {
+                        tvWeightInsight.setVisibility(View.GONE);
+                    }
                 } else {
                     finish();
                 }
@@ -201,10 +273,11 @@ public class CatProfileActivity extends AppCompatActivity {
         HealthRule topRule;      // most severe current alert, or null
         String lastCheckin;      // yyyy-MM-dd, or null if never logged
         int loggedThisWeek;      // days with a check-in in the last 7 days (incl. today)
+        RecapResult recap;       // health recap result
     }
 
     /** Background thread. Same rules and dismissals as the Health alerts screen. */
-    private ProfileHealth loadHealth(List<WeightLog> weightLogs) {
+    private ProfileHealth loadHealth(List<WeightLog> weightLogs, Cat cat) {
         ProfileHealth health = new ProfileHealth();
         LitterboxdDbHelper db = LitterboxdDbHelper.getInstance(this);
         Map<String, Map<String, List<String>>> answers =
@@ -222,13 +295,35 @@ public class CatProfileActivity extends AppCompatActivity {
             }
         }
         HealthContent content = HealthContent.load(this);
+        List<HealthAlert> alerts = java.util.Collections.emptyList();
         if (content != null) {
-            List<HealthAlert> alerts = HealthRuleEvaluator.evaluate(content.getRules(),
+            alerts = HealthRuleEvaluator.evaluate(content.getRules(),
                     content.getArticlesById(), answers, today,
                     appPrefs.getDismissedHealthAlertIds(catId), WeightPoints.fromLogs(weightLogs));
             if (!alerts.isEmpty()) health.topRule = alerts.get(0).getRule(); // sorted by severity
         }
+
+        // Compute Health Recap
+        String checkinTreeJson = loadRawString(R.raw.checkin_tree);
+        Map<String, String> normalValues = HealthRecap.extractNormalValues(checkinTreeJson);
+        Set<String> concernPairs = HealthRecap.extractConcernPairs(content != null ? content.getRules() : null);
+        boolean isKitten = cat != null && (cat.getApproxAgeYears() == 0
+                || (cat.getApproxAgeMonths() > 0 && cat.getApproxAgeMonths() <= 12));
+        String catName = cat != null ? cat.getName() : "Cat";
+        health.recap = HealthRecap.compute(answers, WeightPoints.fromLogs(weightLogs),
+                currentRecapPeriod, today, normalValues, concernPairs, alerts, isKitten, catName);
+
         return health;
+    }
+
+    private String loadRawString(int rawRes) {
+        try (java.io.InputStream in = getResources().openRawResource(rawRes)) {
+            byte[] buf = new byte[in.available()];
+            int read = in.read(buf);
+            return new String(buf, 0, read, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private void bindHealthStatus(ProfileHealth health) {
@@ -338,65 +433,74 @@ public class CatProfileActivity extends AppCompatActivity {
     }
 
     private void populateWeightLogs(List<WeightLog> logs) {
-        int rowPadding = getResources().getDimensionPixelSize(R.dimen.spacing_tiny);
         containerWeightLogs.removeAllViews();
         weightChart.setWeightLogs(logs);
-        tvWeightChartHint.setVisibility(logs.size() >= 2 ? View.VISIBLE : View.GONE);
+        weightChart.setPeriod(currentRecapPeriod, LocalDate.now());
         btnWeightHistory.setEnabled(!logs.isEmpty());
         if (logs.isEmpty()) {
             TextView tv = new TextView(this);
             tv.setText(R.string.empty_weight_logs);
             tv.setTextColor(ContextCompat.getColor(this, R.color.text_dark_gray));
             containerWeightLogs.addView(tv);
-            return;
         }
-
-        int previewCount = Math.min(WEIGHT_PREVIEW_LIMIT, logs.size());
-        for (int i = 0; i < previewCount; i++) {
-            TextView tv = new TextView(this);
-            tv.setText(formatWeightLogLine(logs.get(i)));
-            tv.setTextColor(ContextCompat.getColor(this, R.color.black));
-            tv.setPadding(0, rowPadding, 0, rowPadding);
-            containerWeightLogs.addView(tv);
-        }
-        if (logs.size() > WEIGHT_PREVIEW_LIMIT) {
-            TextView more = new TextView(this);
-            more.setText(getString(R.string.weight_history_more, logs.size() - WEIGHT_PREVIEW_LIMIT));
-            more.setTextColor(ContextCompat.getColor(this, R.color.text_dark_gray));
-            more.setPadding(0, rowPadding, 0, rowPadding);
-            containerWeightLogs.addView(more);
-        }
-    }
-
-    private String formatWeightLogLine(WeightLog log) {
-        String dateStr = DateFormatUtils.formatDate(log.getDate());
-        if (log.getNotes() != null && !log.getNotes().isEmpty()) {
-            return getString(R.string.weight_log_row_with_notes,
-                    String.valueOf(log.getWeight()), dateStr, log.getNotes());
-        }
-        return getString(R.string.weight_log_row, String.valueOf(log.getWeight()), dateStr);
+        // Otherwise the chart shows the weigh-ins and "More info" lists every one of them.
     }
 
     private void showWeightHistoryDialog() {
         View layout = LayoutInflater.from(this).inflate(R.layout.dialog_weight_history, null, false);
         LinearLayout rows = layout.findViewById(R.id.containerWeightHistoryRows);
+        bindWeightInfo(layout);
 
-        weightHistoryDialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_weight_history_title)
-                .setView(layout)
-                .setNegativeButton(R.string.btn_cancel, null)
-                .create();
+        weightHistoryDialog = new BottomSheetDialog(this);
+        weightHistoryDialog.setContentView(layout);
+        weightHistoryDialog.getBehavior().setSkipCollapsed(true);
+        weightHistoryDialog.setOnShowListener(d -> {
+            // Let the sheet's own rounded, ink-edged background show instead of the default surface.
+            View sheet = weightHistoryDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (sheet != null) sheet.setBackgroundResource(android.R.color.transparent);
+            weightHistoryDialog.getBehavior().setState(
+                    com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED);
+        });
+        TextView subtitle = layout.findViewById(R.id.tvWeightSheetSubtitle);
 
         AppExecutors.getInstance().diskIO().execute(() -> {
             List<WeightLog> logs = weightLogDao.getWeightLogsForCat(catId);
             AppExecutors.getInstance().mainThread().execute(() -> {
-                if (isFinishing() || weightHistoryDialog == null) return;
+                if (isFinishing() || isDestroyed() || weightHistoryDialog == null) return;
                 populateWeightHistoryRows(rows, logs);
+                String name = currentCat != null ? currentCat.getName() : getString(R.string.this_cat);
+                subtitle.setText(getResources().getQuantityString(
+                        R.plurals.weight_sheet_subtitle, logs.size(), name, logs.size()));
                 if (!weightHistoryDialog.isShowing()) {
                     weightHistoryDialog.show();
                 }
             });
         });
+    }
+
+    /** Fills the top of "More info": the change, what it means, and the source to read. */
+    private void bindWeightInfo(View layout) {
+        View box = layout.findViewById(R.id.containerWeightInfo);
+        RecapResult recap = latestRecap;
+        if (recap == null || recap.getWeightInsightText() == null) {
+            box.setVisibility(View.GONE);
+            return;
+        }
+        box.setVisibility(View.VISIBLE);
+        ((TextView) layout.findViewById(R.id.tvWeightInfoHeadline)).setText(recap.getWeightInsightText());
+        TextView note = layout.findViewById(R.id.tvWeightInfoNote);
+        note.setVisibility(recap.getWeightInsightNote() != null ? View.VISIBLE : View.GONE);
+        note.setText(recap.getWeightInsightNote());
+        TextView source = layout.findViewById(R.id.tvWeightInfoSource);
+        if (recap.getWeightCitationTitle() != null) {
+            source.setVisibility(View.VISIBLE);
+            source.setText(getString(R.string.weight_insight_source,
+                    recap.getWeightCitationSource() + " · " + recap.getWeightCitationTitle()));
+            source.setOnClickListener(v -> HealthArticleReaderActivity.start(this,
+                    recap.getWeightCitationTitle(), recap.getWeightCitationUrl()));
+        } else {
+            source.setVisibility(View.GONE);
+        }
     }
 
     private void populateWeightHistoryRows(LinearLayout rows, List<WeightLog> logs) {
@@ -409,13 +513,43 @@ public class CatProfileActivity extends AppCompatActivity {
             return;
         }
         LayoutInflater inflater = LayoutInflater.from(this);
-        for (WeightLog log : logs) {
+        int divider = ContextCompat.getColor(this, R.color.surface_card);
+        for (int i = 0; i < logs.size(); i++) {
+            WeightLog log = logs.get(i); // newest first
+            if (i > 0) {
+                View line = new View(this);
+                line.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                        Math.max(1, Math.round(getResources().getDisplayMetrics().density))));
+                line.setBackgroundColor(divider);
+                rows.addView(line);
+            }
             View row = inflater.inflate(R.layout.item_weight_log_row, rows, false);
-            TextView tv = row.findViewById(R.id.tvWeightLogText);
-            MaterialButton btnDelete = row.findViewById(R.id.btnDeleteWeightLog);
-            tv.setText(formatWeightLogLine(log));
-            btnDelete.setContentDescription(getString(R.string.cd_delete_weight));
-            btnDelete.setOnClickListener(v -> confirmDeleteWeightLog(log));
+            ((TextView) row.findViewById(R.id.tvWeightLogDate)).setText(DateFormatUtils.formatDate(log.getDate()));
+            TextView note = row.findViewById(R.id.tvWeightLogNote);
+            boolean hasNote = log.getNotes() != null && !log.getNotes().trim().isEmpty();
+            note.setVisibility(hasNote ? View.VISIBLE : View.GONE);
+            if (hasNote) note.setText(log.getNotes());
+            String kg = WeightChartView.formatKg(log.getWeight());
+            ((TextView) row.findViewById(R.id.tvWeightLogKg)).setText(getString(R.string.weight_kg, kg));
+
+            // Change since the weigh-in before this one (the next item, as the list is newest first).
+            TextView change = row.findViewById(R.id.tvWeightLogChange);
+            if (i + 1 < logs.size()) {
+                double diff = log.getWeight() - logs.get(i + 1).getWeight();
+                change.setVisibility(View.VISIBLE);
+                if (Math.abs(diff) < 0.005) {
+                    change.setText(R.string.weight_change_same);
+                } else {
+                    String amount = WeightChartView.formatKg(Math.abs(diff));
+                    change.setText(getString(diff < 0 ? R.string.weight_change_down : R.string.weight_change_up, amount));
+                }
+            } else {
+                change.setVisibility(View.GONE);
+            }
+
+            View delete = row.findViewById(R.id.btnDeleteWeightLog);
+            delete.setContentDescription(getString(R.string.cd_delete_weight));
+            delete.setOnClickListener(v -> confirmDeleteWeightLog(log));
             rows.addView(row);
         }
     }

@@ -30,6 +30,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.litterboxd.app.R;
 import com.litterboxd.app.data.CareTaskSetup;
 import com.litterboxd.app.data.dao.CareTaskDao;
+import com.litterboxd.app.data.dao.WeightLogDao;
+import com.litterboxd.app.data.model.WeightLog;
 import com.litterboxd.app.data.dao.CatDao;
 import com.litterboxd.app.data.db.LitterboxdDbHelper;
 import com.litterboxd.app.data.file.FileStorageHelper;
@@ -389,6 +391,14 @@ public class AddEditCatActivity extends AppCompatActivity {
 
             cat.setCreatedAt(System.currentTimeMillis());
             long catId = catDao.insertCat(cat);
+            // The weight typed here is the cat's first weigh-in, so the profile's weight card,
+            // chart and recap start from it instead of saying "No weigh-ins yet".
+            WeightLog firstWeighIn = new WeightLog();
+            firstWeighIn.setCatId(catId);
+            firstWeighIn.setWeight(weight);
+            firstWeighIn.setDate(cat.getCreatedAt());
+            firstWeighIn.setNotes(getString(R.string.weight_first_weigh_in));
+            new WeightLogDao(LitterboxdDbHelper.getInstance(AddEditCatActivity.this)).insertWeightLog(firstWeighIn);
             CareTaskSetup.prepareCat(AddEditCatActivity.this,
                     new CareTaskDao(LitterboxdDbHelper.getInstance(AddEditCatActivity.this)), catId);
             if (addAnother || appPrefs.getSelectedCatId() == -1L) {

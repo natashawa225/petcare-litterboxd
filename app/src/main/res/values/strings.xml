@@ -18,9 +18,9 @@
 
     <!-- Onboarding Step 2 / Add Edit Cat -->
     <string name="onboarding_step_2">Step 2 of 3</string>
-    <string name="title_add_cat">Add Cat Profile</string>
-    <string name="title_edit_cat">Edit Cat Profile</string>
-    <string name="prompt_cat_name">Cat Name</string>
+    <string name="title_add_cat">Add your cat</string>
+    <string name="title_edit_cat">Edit cat</string>
+    <string name="prompt_cat_name">Cat name</string>
     <string name="prompt_cat_breed">Breed</string>
     <string-array name="cat_breeds">
         <item>Domestic Shorthair</item>
@@ -42,24 +42,24 @@
     <string name="lifestyle_indoor">Indoor only</string>
     <string name="lifestyle_outdoor">Outdoor</string>
     <string name="lifestyle_indoor_outdoor">Indoor / Outdoor</string>
-    <string name="prompt_coat_color">Coat Color</string>
-    <string name="btn_select_photo">Select Photo</string>
-    <string name="btn_select_birthday">Select Birthday</string>
+    <string name="prompt_coat_color">Coat colour</string>
+    <string name="btn_select_photo">Choose a photo</string>
+    <string name="btn_select_birthday">Pick birthday</string>
     <string name="color_black">Black</string>
     <string name="color_white">White</string>
     <string name="color_ginger">Ginger</string>
     <string name="color_grey">Grey</string>
     <string name="color_calico">Calico</string>
     <string name="color_tabby">Tabby</string>
-    <string name="label_age_type">Age Type</string>
-    <string name="radio_birthday">Exact Birthday</string>
-    <string name="radio_approx_age">Approximate Age</string>
+    <string name="label_age_type">Age</string>
+    <string name="radio_birthday">Exact birthday</string>
+    <string name="radio_approx_age">Approximate age</string>
     <string name="prompt_years">Years</string>
     <string name="prompt_months">Months</string>
 
     <!-- Onboarding Step 3 -->
     <string name="onboarding_step_3">Step 3 of 3</string>
-    <string name="title_feeding_schedule">Feeding Schedule</string>
+    <string name="title_feeding_schedule">Feeding schedule</string>
     <string name="prompt_meals_per_day">Meals per day</string>
     <string name="meal_portion_prefix">Portion (grams)</string>
     <string name="meal_header">Meal %d</string>
@@ -75,13 +75,13 @@
     <!-- Home Activity -->
     <string name="default_owner_name">Cat Parent</string>
     <string name="no_cat_selected">No cat selected</string>
-    <string name="switch_cat">Switch Cat</string>
-    <string name="title_cat_switcher">Select Cat</string>
+    <string name="switch_cat">Switch cat</string>
+    <string name="title_cat_switcher">Choose a cat</string>
     <string name="add_another_cat">+ Add another cat</string>
     <string name="add_cat">Add cat</string>
     <string name="cd_cat_card">%s. Tap to switch to this cat.</string>
     <string name="cd_cat_card_selected">%s, selected. Tap to open profile.</string>
-    <string name="card_daily_checkin_title">Daily Check-in</string>
+    <string name="card_daily_checkin_title">Daily check-in</string>
     <string name="btn_add_task">Add task</string>
     <string name="btn_delete">Delete</string>
     <string name="prompt_task_name">Task name</string>
@@ -117,25 +117,32 @@
     <string name="notification_today_incomplete">You haven\'t done today\'s tasks for %1$s.</string>
 
     <!-- Cat Profile Activity -->
-    <string name="title_cat_profile">Cat Profile</string>
-    <string name="section_weight_history">Weight History</string>
-    <string name="btn_add_weight">Add Weight</string>
-    <string name="btn_weight_history">History</string>
-    <string name="dialog_add_weight_title">Log New Weight</string>
-    <string name="dialog_weight_history_title">All weigh-ins</string>
+    <string name="title_cat_profile">Cat profile</string>
+    <string name="section_weight_history">Weight</string>
+    <string name="btn_add_weight">Add weight</string>
+    <string name="btn_weight_history">More info</string>
+    <string name="dialog_add_weight_title">Log weight</string>
+    <string name="dialog_weight_history_title">Weight details</string>
     <string name="prompt_weight_grams">Weight (kg)</string>
     <string name="prompt_weight_notes">Notes (optional)</string>
-    <string name="section_feeding_schedule">Feeding Schedule</string>
-    <string name="btn_edit_schedule">Edit Schedule</string>
-    <string name="empty_weight_logs">No weight logs recorded yet.</string>
-    <string name="weight_log_row">• %1$s kg on %2$s</string>
-    <string name="weight_log_row_with_notes">• %1$s kg on %2$s (%3$s)</string>
-    <string name="weight_history_more">…and %d more. Open History to scroll or delete.</string>
+    <string name="section_feeding_schedule">Feeding schedule</string>
+    <string name="btn_edit_schedule">Edit schedule</string>
+    <string name="weight_sheet_all">All weigh-ins</string>
+    <plurals name="weight_sheet_subtitle">
+        <item quantity="one">%1$s · 1 weigh-in</item>
+        <item quantity="other">%1$s · %2$d weigh-ins</item>
+    </plurals>
+    <string name="weight_change_down">−%1$s kg</string>
+    <string name="weight_change_up">+%1$s kg</string>
+    <string name="weight_change_same">no change</string>
+    <string name="weight_kg">%1$s kg</string>
+    <string name="weight_first_weigh_in">First weigh-in</string>
+    <string name="empty_weight_logs">No weigh-ins yet.</string>
     <string name="msg_delete_weight_title">Delete this weigh-in?</string>
     <string name="msg_delete_weight_message">Remove %1$s kg logged on %2$s? This can\'t be undone.</string>
     <string name="msg_weight_deleted">Weigh-in deleted.</string>
     <string name="cd_delete_weight">Delete weigh-in</string>
-    <string name="empty_feeding_schedule">No feeding schedule configured.</string>
+    <string name="empty_feeding_schedule">No meals set yet.</string>
     <string name="feeding_meal_row">• %1$s at %2$s — %3$sg</string>
     <string name="this_cat">this cat</string>
     <!-- Add weight: when was it weighed -->
@@ -170,16 +177,16 @@
     <string name="profile_status_sub_alerts">%1$s · tap for details</string>
     <string name="profile_status_sub_last">Last check-in: %s</string>
     <string name="profile_status_sub_none">Log a check-in to start spotting patterns</string>
-    <string name="msg_delete_cat_title">Delete Cat Profile</string>
-    <string name="msg_delete_cat_message">Are you sure you want to delete %s? All associated weight logs, feeding schedules, and care tasks will be removed.</string>
+    <string name="msg_delete_cat_title">Delete this cat?</string>
+    <string name="msg_delete_cat_message">%s and all of their check-ins, weigh-ins, diary entries, meals and tasks will be deleted. This can\'t be undone.</string>
 
     <!-- Profile tab: sample data, reset and about (formerly Settings) -->
-    <string name="btn_load_sample_data">Load Sample Data</string>
+    <string name="btn_load_sample_data">Load sample cats</string>
     <string name="msg_sample_data_already_loaded">Sample cats are already loaded.</string>
-    <string name="msg_sample_data_loaded">Sample cats (Mochi &amp; Biscuit) loaded successfully!</string>
-    <string name="btn_reset_app">Reset App</string>
-    <string name="msg_reset_app_title">Reset App</string>
-    <string name="msg_reset_app_message">Are you sure you want to reset all app data and start over?</string>
+    <string name="msg_sample_data_loaded">Added the sample cats: Mochi, Biscuit and Pip.</string>
+    <string name="btn_reset_app">Reset app</string>
+    <string name="msg_reset_app_title">Reset app?</string>
+    <string name="msg_reset_app_message">This deletes every cat, log and diary entry on this phone. This can\'t be undone.</string>
     <string name="section_about">About Litterboxd</string>
     <string name="about_disclaimer">Disclaimer: Litterboxd is a companion tool for cat care tracking and does not replace professional veterinary advice or diagnosis.</string>
 
@@ -191,7 +198,7 @@
     <string name="error_invalid_weight">Weight must be between 0.5 and 15.0 kg.</string>
     <string name="error_invalid_portion">Please enter a valid portion in grams.</string>
     <string name="error_select_cat_name">Please enter a cat name.</string>
-    <string name="error_select_birthday">Please select a birthday, or choose Approximate Age.</string>
+    <string name="error_select_birthday">Pick a birthday, or choose an approximate age.</string>
 
     <!-- Notifications -->
     <string name="channel_care_reminders_name">Care reminders</string>
@@ -249,7 +256,7 @@
     <string name="checkin_all_normal">All normal</string>
     <string name="checkin_followups_title">A few more questions</string>
     <string name="checkin_followups_hint">Optional. Tap an answer, or skip any you\'re unsure about.</string>
-    <string name="checkin_followups_hint_history">Includes a question from recent logs. Optional — tap an answer, or skip any you\'re unsure about.</string>
+    <string name="checkin_followups_hint_history">One question comes from recent logs. All optional, skip any you\'re unsure about.</string>
     <string name="checkin_save">Save check-in</string>
     <string name="checkin_back">Back</string>
     <string name="checkin_saved">Check-in saved for %1$s</string>
@@ -272,9 +279,9 @@
     <string name="cd_change_cat_photo">Photo of %1$s. Tap to change it.</string>
     <string name="daily_log_title">How is your cat today?</string>
     <string name="daily_log_title_cat">How is %s today?</string>
-    <string name="daily_log_empty">Nothing logged yet today. It only takes about 20 seconds.</string>
+    <string name="daily_log_empty">Nothing logged yet today.</string>
     <string name="daily_log_loading">Loading today\'s log…</string>
-    <string name="daily_log_error">Couldn\'t load today\'s log. Pull it up again in a moment.</string>
+    <string name="daily_log_error">Couldn\'t load today\'s log. Try again in a moment.</string>
     <string name="daily_log_saved_at">Logged at %s</string>
     <string name="daily_log_answer_row">%1$s: %2$s</string>
     <string name="btn_log_today">Log today</string>
@@ -282,11 +289,10 @@
 
     <!-- Feature A: Flo-style health log calendar -->
     <string name="health_log_title">Health log</string>
-    <string name="health_log_subtitle">Tap a day to check in for %1$s — same quick chips, no typing.</string>
+    <string name="health_log_subtitle">Tap a day to log or update it for %1$s.</string>
     <string name="health_log_prev_month">‹</string>
     <string name="health_log_next_month">›</string>
-    <string name="health_log_legend">Sage = all-normal day · Coral = something noted that day (not a diagnosis).</string>
-    <string name="weight_chart_hint">Line goes left → right from older to newer weigh-ins.</string>
+    <string name="health_log_legend">Sage: all normal · Coral: something was noted</string>
     <string name="checkin_because_marked">Because you marked: %1$s</string>
     <string name="checkin_because_history">Because of recent logs</string>
     <string name="checkin_because_marked_and_history">Because you marked: %1$s · and recent logs</string>
@@ -327,7 +333,7 @@
     <string name="vets_no_location">Couldn\'t get your location. Try again in a moment.</string>
     <string name="vets_location_off">Location is turned off on this phone. Turn it on, then try again.</string>
     <string name="vets_location_timeout">Couldn\'t find where you are in time. Move near a window or outside, then try again.</string>
-    <string name="vets_network_error">Connect device to wifi, then try again.</string>
+    <string name="vets_network_error">No internet connection. Connect and try again.</string>
     <string name="vets_service_error">The vet search isn\'t working right now. Try again later. (AMap code %1$s)</string>
     <string name="vets_quota_error">Today\'s vet search limit has been used up. Try again tomorrow. (AMap code %1$s)</string>
     <string name="vets_busy_error">The vet search is busy. Wait a minute, then try again. (AMap code %1$s)</string>
@@ -368,7 +374,10 @@
     <string name="daily_link_all_tasks">All tasks</string>
     <string name="cd_reading_card">%1$s: %2$s, from %3$s. Opens the article.</string>
     <string name="daily_alerts_none">No new patterns from recent logs.</string>
-    <string name="daily_alerts_count">%1$d health alert(s) to review</string>
+    <plurals name="daily_alerts_count">
+        <item quantity="one">1 alert to review</item>
+        <item quantity="other">%1$d alerts to review</item>
+    </plurals>
 
     <string name="alert_water_rising_title">%1$s has been drinking more</string>
     <string name="alert_water_rising_message">Over the past week, water intake looks higher than usual on several days. Worth keeping an eye on — and reading up if it continues.</string>
@@ -417,6 +426,7 @@
     <string name="alert_source_stress_title">Stress in cats</string>
     <string name="alert_source_cornell">Cornell Feline Health Center</string>
     <string name="alert_source_icatcare">International Cat Care</string>
+    <string name="alert_source_aaha">AAHA</string>
     <string name="alert_source_cats_protection">Cats Protection</string>
     <string name="alert_source_flutd_title">Feline Lower Urinary Tract Disease</string>
     <string name="alert_source_thirst_title">Increased thirst and drinking</string>
@@ -425,10 +435,10 @@
     <string name="alert_source_hiding_title">Cats Hiding</string>
 
     <string name="health_articles_title">More info</string>
-    <string name="health_articles_intro">You can stop here. The note above is the quick read. Pages below are optional and open inside Litterboxd.</string>
+    <string name="health_articles_intro">Want to read more? These pages open inside Litterboxd.</string>
     <string name="health_articles_searching">Searching for current pages…</string>
-    <string name="health_articles_none">No current page mentioned all of these signs. The note above still applies.</string>
-    <string name="health_articles_error">Connect device to wifi, then try again. The note above still applies.</string>
+    <string name="health_articles_none">No articles matched these signs right now.</string>
+    <string name="health_articles_error">Couldn\'t load articles. Check your internet connection and try again.</string>
     <string name="btn_search_again">Search again</string>
     <string name="btn_read_more_article">Read more</string>
     <string name="health_article_load_failed">Couldn\'t load this article. Check your connection and try again.</string>
@@ -510,21 +520,13 @@
     <string name="diary_filter_all">All</string>
     <string name="diary_filter_memories">Memories</string>
     <string name="diary_filter_milestones">Milestones</string>
-    <string name="diary_filter_history">Care history</string>
     <string name="diary_empty_all">Nothing here yet. Every little moment counts, so add the first memory of %1$s.</string>
     <string name="diary_empty_memories">No memories yet. A sleepy sunbeam nap counts!</string>
     <string name="diary_empty_milestones">No milestones yet. First day home, a birthday, a brave vet visit…</string>
-    <string name="diary_empty_history">No weights or daily check-ins logged yet.</string>
     <string name="diary_today">Today</string>
     <string name="diary_yesterday">Yesterday</string>
     <string name="diary_type_memory">Memory</string>
     <string name="diary_type_milestone">Milestone</string>
-    <string name="diary_history_weight">Weight logged: %1$s kg</string>
-    <string name="diary_history_weight_note">Weight logged: %1$s kg · %2$s</string>
-    <string name="diary_history_checkin">Daily check-in: %1$s</string>
-    <string name="diary_history_all_normal">all as usual</string>
-    <string name="diary_history_observation">Logged observation</string>
-    <string name="diary_meta_tags">%1$s · %2$s</string>
     <string name="cd_diary_photo">Photo for %1$s</string>
     <string name="cd_no_photos">Sleeping cat mascot</string>
 
@@ -533,7 +535,6 @@
     <string name="diary_edit_title">Edit entry</string>
     <!-- Diary entry detail (read-only view) -->
     <string name="diary_detail_of_cat">%s\'s diary</string>
-    <string name="diary_detail_date_time">%1$s · %2$s</string>
     <string name="cd_diary_detail_photo">Diary photo</string>
     <string name="cd_back">Back</string>
     <string name="diary_for_cat">For %1$s</string>
@@ -602,4 +603,41 @@
     <string name="title_manage_cats">Manage cats</string>
     <string name="empty_manage_cats">No cat profiles yet</string>
     <string name="profile_details_summary">%1$s · %2$s</string>
+
+    <!-- Health Recap UI -->
+    <string name="recap_title">Health recap</string>
+    <string name="recap_7d">7d</string>
+    <string name="recap_30d">30d</string>
+    <string name="recap_all">All</string>
+    <string name="recap_logged_line">%1$d of %2$d days logged · %3$d-day streak</string>
+    <string name="recap_logged_line_no_streak">%1$d of %2$d days logged</string>
+    <string name="recap_normal_ratio">%1$d/%2$d</string>
+    <string name="recap_legend_normal">Normal</string>
+    <string name="recap_legend_off">A bit off</string>
+    <string name="recap_legend_concern">Concern</string>
+    <string name="recap_legend_not_logged">Not logged</string>
+    <string name="recap_empty_title">Still getting to know %s</string>
+    <string name="recap_empty_message">%1$d days logged so far. Log a few more to see trends.</string>
+    <string name="recap_trend_cd_steadier">Steadier than the period before</string>
+    <string name="recap_trend_cd_more_off">More off days than the period before</string>
+    <string name="recap_trend_cd_same">About the same as the period before</string>
+    <string name="recap_your_cat">your cat</string>
+    <string name="recap_signal_appetite">Appetite</string>
+    <string name="recap_signal_water">Water</string>
+    <string name="recap_signal_litter">Litter</string>
+    <string name="recap_signal_energy">Energy</string>
+    <string name="recap_signal_mood">Mood</string>
+    <string name="signal_detail_title">%1$s</string>
+    <string name="signal_detail_subtitle">%1$s · last 6 weeks</string>
+    <string name="signal_detail_tap_hint">Tap a day for details</string>
+    <string name="signal_detail_not_logged_short">Nothing logged this day</string>
+    <string name="signal_follow_urine_little">little or no urine</string>
+    <string name="signal_follow_urine_some">passed some urine</string>
+    <string name="signal_follow_vomit_once">vomited once</string>
+    <string name="signal_follow_vomit_repeated">vomited more than once</string>
+    <string name="signal_follow_peeing_more">also peeing more</string>
+    <string name="signal_detail_reading_title">Related reading</string>
+    <string name="cd_signal_row">%1$s: %2$d of %3$d days normal. %4$s.</string>
+    <string name="cd_recap_toggle">Recap time period toggle</string>
+    <string name="weight_insight_source">Source: %1$s ›</string>
 </resources>

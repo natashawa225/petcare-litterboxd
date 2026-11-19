@@ -225,7 +225,141 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== Weight card ===== -->
+        <!-- ===== Health recap card ===== -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardHealthRecap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/section_gap"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/profile_card_corner">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <!-- Header with Title + 7d / 30d toggle -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/recap_title"
+                            android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
+
+                        <!-- "27 of 30 days logged · 12-day streak" -->
+                        <TextView
+                            android:id="@+id/tvRecapLoggingLine"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/text_dark_gray"
+                            android:textSize="@dimen/text_size_caption" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/toggleRecapPeriod"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/cd_recap_toggle"
+                        app:checkedButton="@+id/btnRecap30d"
+                        app:selectionRequired="true"
+                        app:singleSelection="true">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnRecap7d"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:minWidth="0dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:text="@string/recap_7d"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnRecap30d"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:minWidth="0dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:text="@string/recap_30d"
+                            android:textSize="12sp" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+                </LinearLayout>
+
+                <!-- Empty state container (< 7 days) -->
+                <LinearLayout
+                    android:id="@+id/containerRecapEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_profile_stats"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvRecapEmptyTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/title_font"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/text_size_subtitle"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvRecapEmptyMessage"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textAppearance="@style/TextAppearance.Litterboxd.Supporting" />
+                </LinearLayout>
+
+                <!-- Full Recap content container -->
+                <LinearLayout
+                    android:id="@+id/containerRecapContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- The one most notable highlight -->
+                    <LinearLayout
+                        android:id="@+id/containerRecapHighlights"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical" />
+
+                    <!-- 5 signal rows (item_recap_signal_row) -->
+
+                    <LinearLayout
+                        android:id="@+id/containerSignalRows"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ===== Weight card =====
+             Title with a one-line change summary, the chart, then More info (history, what the
+             change means, the source) next to Add weight. -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -239,50 +373,31 @@
                 android:orientation="vertical"
                 android:padding="@dimen/card_padding">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:text="@string/section_weight_history"
+                    android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/section_weight_history"
-                        android:textAppearance="@style/TextAppearance.Litterboxd.SectionTitle" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnWeightHistory"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="0dp"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
-                        android:text="@string/btn_weight_history"
-                        android:textColor="@color/sage_primary" />
-                </LinearLayout>
+                <!-- e.g. "Down 0.3 kg (4.4%) in 4 weeks" -->
+                <TextView
+                    android:id="@+id/tvWeightInsight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_dark_gray"
+                    android:textSize="@dimen/text_size_caption"
+                    android:visibility="gone" />
 
                 <com.litterboxd.app.ui.profile.WeightChartView
                     android:id="@+id/weightChart"
                     android:layout_width="match_parent"
                     android:layout_height="140dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="12dp"
                     android:background="@color/card_oat"
                     android:padding="8dp"
                     android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/tvWeightChartHint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/weight_chart_hint"
-                    android:textColor="@color/text_dark_gray"
-                    android:textSize="@dimen/text_size_caption"
-                    android:visibility="gone" />
-
+                <!-- Only used for the "no weight logged yet" message. -->
                 <LinearLayout
                     android:id="@+id/containerWeightLogs"
                     android:layout_width="match_parent"
@@ -290,13 +405,29 @@
                     android:layout_marginTop="8dp"
                     android:orientation="vertical" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAddWeight"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/button_height"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/btn_add_weight"
-                    app:backgroundTint="@color/sage_primary" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnWeightHistory"
+                        style="@style/Widget.Litterboxd.Button.Secondary"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:text="@string/btn_weight_history" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAddWeight"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_weight="1"
+                        android:text="@string/btn_add_weight"
+                        app:backgroundTint="@color/sage_primary" />
+                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

@@ -149,12 +149,12 @@ public final class SampleData {
         complete(tasks, litter, now - 2 * 3_600_000L); // done earlier today
         long due = LocalDate.now().plusDays(12).atTime(10, 30)
                 .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        ownerTask(context, tasks, id, "Booster vaccination", "Booked at Willow Lane Vets (sample)",
+        ownerTask(context, tasks, id, "Booster vaccination", "Booked at Willow Lane Vets",
                 TaskFrequency.ONCE, 10, 30, due, now);
         long overdueDue = now - 3 * 86_400_000L; // 3 days ago
         ownerTask(context, tasks, id, "Microchip check", "Overdue initial check",
                 TaskFrequency.ONCE, 10, 0, overdueDue, now);
-        long bloodTest = ownerTask(context, tasks, id, "Kidney blood test", "New-cat health check (sample)",
+        long bloodTest = ownerTask(context, tasks, id, "Kidney blood test", "New-cat health check",
                 TaskFrequency.ONCE, 9, 30, now - 6 * DAY, now);
         complete(tasks, bloodTest, now - 5 * DAY); // a one-off in the Done list
         ownerTaskWithoutReminder(tasks, id, "Buy new kibble", "No date, no reminder", now);
@@ -231,8 +231,10 @@ public final class SampleData {
     private static long addBiscuit(Context context, LitterboxdDbHelper db, long now) {
         long id = insertCat(db, "Biscuit", 5, 0, "Maine Coon", "Male", true,
                 "Brown tabby", "Indoor / Outdoor", now - 300 * DAY);
-        weights(db, id, new double[]{6.9, 6.7, 6.5}, new int[]{40, 20, 2},
-                "Vet weigh-in", "Home scales", "Home scales");
+        weights(db, id, new double[]{6.9, 6.85, 6.8, 6.75, 6.7, 6.65, 6.5},
+                new int[]{40, 34, 27, 20, 13, 7, 2},
+                "Vet weigh-in", "Home scales", "Home scales", "Home scales",
+                "Home scales", "Home scales", "Home scales");
         meals(db, id, new String[][]{{"Morning feed", "07:30", "70"}, {"Evening feed", "19:00", "60"}});
         finishTasks(context, id);
 
@@ -249,20 +251,54 @@ public final class SampleData {
         ownerTask(context, tasks, id, context.getString(R.string.default_task_brushing),
                 null, TaskFrequency.DAILY, 19, 0, null, now);
         long vet = ownerTask(context, tasks, id, context.getString(R.string.default_task_vet),
-                "Annual check-up booked (sample)", TaskFrequency.MONTHLY, 10, 0, null, now);
+                "Annual check-up booked", TaskFrequency.MONTHLY, 10, 0, null, now);
         int dayOfMonth = LocalDate.now().getDayOfMonth();
         complete(tasks, vet, now - Math.min(3, dayOfMonth - 1) * DAY); // done this month
         ownerTask(context, tasks, id, context.getString(R.string.default_task_grooming),
                 null, TaskFrequency.MONTHLY, 10, 0, null, now);
 
-        // Drinking more on each of the last 5 days -> the "water rising" watch alert.
+        // Drinking more on each of the last 5-10 days -> the "water rising" watch alert.
         // Today he is also grumpy and low on energy -> two "For you" cards in the Reading Corner
         // (stress and lethargy), picked by the same check-in rules a real log uses.
+        // History extends back ~6 weeks (42 days) with realistic gaps (~85% logged).
         DailyCheckinDao checkins = new DailyCheckinDao(db);
-        for (int i = 1; i < 5; i++) {
+        Set<Integer> skippedDays = new HashSet<>(Arrays.asList(12, 19, 26, 33, 38, 41));
+
+        // Days 42 down to 10: mostly normal with occasional isolated grumpy/low-energy days
+        for (int i = 42; i >= 10; i--) {
+            if (skippedDays.contains(i)) continue;
+            String energy = (i == 15 || i == 28) ? "low" : "normal";
+            String mood = (i == 18 || i == 25) ? "grumpy" : "normal";
+            if (i == 21) {
+                // One straining day three weeks ago (urine still passed, back to normal the next
+                // day): shows the red "concern" state on his litter strip. Too old for the
+                // 2-day urine_blockage_urgent rule, so it raises no alert today.
+                checkin(checkins, id, i,
+                        answers("appetite", "normal", "water", "normal", "urination_more", "no",
+                                "litter", "straining", "urine_output", "some",
+                                "energy", energy, "mood", mood));
+                continue;
+            }
             checkin(checkins, id, i,
-                    answers("appetite", "normal", "water", "more", "urination_more", "no", "litter", "normal"));
+                    answers("appetite", "normal", "water", "normal", "urination_more", "no",
+                            "litter", "normal", "energy", energy, "mood", mood));
         }
+
+        // Days 9 down to 5: water rising pattern
+        for (int i = 9; i >= 5; i--) {
+            checkin(checkins, id, i,
+                    answers("appetite", "normal", "water", "more", "urination_more", "no",
+                            "litter", "normal", "energy", "normal", "mood", "normal"));
+        }
+
+        // Days 4 down to 1: existing water "more" pattern
+        for (int i = 4; i >= 1; i--) {
+            checkin(checkins, id, i,
+                    answers("appetite", "normal", "water", "more", "urination_more", "no",
+                            "litter", "normal", "energy", "normal", "mood", "normal"));
+        }
+
+        // Day 0: today's checkin
         checkin(checkins, id, 0,
                 answers("appetite", "normal", "water", "more", "urination_more", "no", "litter", "normal",
                         "energy", "low", "mood", "grumpy"));
@@ -319,16 +355,23 @@ public final class SampleData {
 
     private static long addPip(Context context, LitterboxdDbHelper db, long now) {
         long id = insertCat(db, "Pip", 0, 5, "Domestic Shorthair", "Female", false,
-                "Ginger tabby", "Indoor only", now - 20 * DAY);
-        weights(db, id, new double[]{2.1}, new int[]{6}, "First weigh-in");
+                "Ginger tabby", "Indoor only", now - 35 * DAY);
+        // About 100 g a week, the rapid-growth figure the kitten weight insight cites.
+        weights(db, id, new double[]{1.8, 1.9, 2.0, 2.1, 2.2, 2.3},
+                new int[]{35, 28, 21, 14, 7, 1},
+                "Adoption checkup", "Weekly weigh-in", "Weekly weigh-in",
+                "Weekly weigh-in", "Weekly weigh-in", "Weekly weigh-in");
         meals(db, id, new String[][]{{"Breakfast", "07:00", "25"}, {"Lunch", "12:30", "25"},
                 {"Supper", "18:30", "25"}});
         finishTasks(context, id);
 
         DailyCheckinDao checkins = new DailyCheckinDao(db);
-        for (int i = 0; i < 3; i++) {
-            checkin(checkins, id, i + 1,
-                    answers("appetite", "normal", "water", "normal", "litter", "normal", "energy", "high"));
+        Set<Integer> skippedDays = new HashSet<>(Arrays.asList(5, 11, 17, 23, 29, 34));
+        for (int i = 35; i >= 1; i--) {
+            if (skippedDays.contains(i)) continue;
+            checkin(checkins, id, i,
+                    answers("appetite", "normal", "water", "normal", "litter", "normal",
+                            "energy", "high", "mood", "normal"));
         }
 
         CareTaskDao tasks = new CareTaskDao(db);
