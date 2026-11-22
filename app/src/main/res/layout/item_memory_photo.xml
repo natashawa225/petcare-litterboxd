@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/spacing_small"
+    android:clickable="true"
+    android:focusable="true"
     app:cardCornerRadius="@dimen/diary_photo_corner">
 
     <ImageView
@@ -13,5 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/cd_diary_detail_photo"
         android:scaleType="fitCenter" />
 </com.google.android.material.card.MaterialCardView>

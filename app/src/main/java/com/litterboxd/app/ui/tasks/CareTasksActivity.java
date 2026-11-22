@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,6 +70,13 @@ public class CareTasksActivity extends AppCompatActivity {
     private Cat currentCat;
     private List<Cat> allCats = new ArrayList<>();
     private List<CareTask> careTasks = new ArrayList<>();
+
+    /** The open Add/Edit task dialog, so it can be saved across rotation and closed on destroy. */
+    private AlertDialog taskEditorDialog;
+    private java.util.function.Supplier<Bundle> taskEditorState;
+    /** Editor state saved before a rotation, reopened once the tasks have loaded. */
+    private Bundle pendingTaskEditor;
+    private static final String STATE_TASK_EDITOR = "task_editor";
     private boolean openAddWhenLoaded;
 
     @Override
@@ -103,6 +111,26 @@ public class CareTasksActivity extends AppCompatActivity {
         // Only on first creation: after a rotation the extra is still in the Intent but was handled.
         openAddWhenLoaded = savedInstanceState == null
                 && getIntent().getBooleanExtra(EXTRA_OPEN_ADD_TASK, false);
+        if (savedInstanceState != null) {
+            pendingTaskEditor = savedInstanceState.getBundle(STATE_TASK_EDITOR);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (taskEditorDialog != null && taskEditorDialog.isShowing() && taskEditorState != null) {
+            outState.putBundle(STATE_TASK_EDITOR, taskEditorState.get());
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (taskEditorDialog != null) {
+            taskEditorDialog.dismiss();
+            taskEditorDialog = null;
+        }
+        super.onDestroy();
     }
 
     /** The tab already exists and was brought to the front (FLAG_ACTIVITY_REORDER_TO_FRONT). */
@@ -166,6 +194,14 @@ public class CareTasksActivity extends AppCompatActivity {
                 if (openAddWhenLoaded && currentCat != null) {
                     openAddWhenLoaded = false;
                     showTaskEditor(null, null);
+                } else if (pendingTaskEditor != null && currentCat != null) {
+                    // Reopen the editor the user had open before rotating, with what they typed.
+                    Bundle restore = pendingTaskEditor;
+                    pendingTaskEditor = null;
+                    long editingId = restore.getLong("id", -1L);
+                    CareTask existing = null;
+                    for (CareTask t : careTasks) if (t.getId() == editingId) existing = t;
+                    if (editingId < 0 || existing != null) showTaskEditor(existing, null, restore);
                 }
             });
         });
@@ -381,6 +417,10 @@ public class CareTasksActivity extends AppCompatActivity {
      * @param template prefilled name/frequency/time for a new task (a suggested routine), or null
      */
     private void showTaskEditor(CareTask existing, CareTask template) {
+        showTaskEditor(existing, template, null);
+    }
+
+    private void showTaskEditor(CareTask existing, CareTask template, Bundle restore) {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_care_task, null, false);
         TextInputLayout tilName = dialogView.findViewById(R.id.tilTaskName);
         TextInputEditText etName = dialogView.findViewById(R.id.etTaskName);
@@ -464,6 +504,20 @@ public class CareTasksActivity extends AppCompatActivity {
             }
         }
 
+        if (restore != null) {
+            etName.setText(restore.getString("name", ""));
+            etDescription.setText(restore.getString("description", ""));
+            spinnerFrequency.setSelection(restore.getInt("frequency", 0));
+            spinnerCat.setSelection(Math.min(restore.getInt("cat", catIndex), Math.max(0, catNames.length - 1)));
+            cbReminder.setChecked(restore.getBoolean("reminder", true));
+            int[] t = restore.getIntArray("time");
+            int[] dd = restore.getIntArray("dueDate");
+            int[] dt = restore.getIntArray("dueTime");
+            if (t != null && t.length == 2) System.arraycopy(t, 0, time, 0, 2);
+            if (dd != null && dd.length == 3) System.arraycopy(dd, 0, dueDate, 0, 3);
+            if (dt != null && dt.length == 2) System.arraycopy(dt, 0, dueTime, 0, 2);
+        }
+
         Runnable refreshDueButtons = () -> {
             btnDueDate.setText(dueDate[0] < 0 ? getString(R.string.btn_due_date_none)
                     : getString(R.string.btn_due_date, DateFormatUtils.formatDate(dueMillis(dueDate, -1, -1))));
@@ -531,6 +585,26 @@ public class CareTasksActivity extends AppCompatActivity {
             builder.setNeutralButton(R.string.btn_delete, (dialog, which) -> confirmDeleteTask(existing));
         }
         AlertDialog dialog = builder.create();
+        taskEditorDialog = dialog;
+        taskEditorState = () -> {
+            Bundle b = new Bundle();
+            b.putLong("id", existing != null ? existing.getId() : -1L);
+            b.putString("name", etName.getText() != null ? etName.getText().toString() : "");
+            b.putString("description", etDescription.getText() != null ? etDescription.getText().toString() : "");
+            b.putInt("frequency", spinnerFrequency.getSelectedItemPosition());
+            b.putInt("cat", spinnerCat.getSelectedItemPosition());
+            b.putBoolean("reminder", cbReminder.isChecked());
+            b.putIntArray("time", time.clone());
+            b.putIntArray("dueDate", dueDate.clone());
+            b.putIntArray("dueTime", dueTime.clone());
+            return b;
+        };
+        dialog.setOnDismissListener(d -> {
+            if (taskEditorDialog == d) {
+                taskEditorDialog = null;
+                taskEditorState = null;
+            }
+        });
         dialog.show();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String name = etName.getText() != null ? etName.getText().toString().trim() : "";

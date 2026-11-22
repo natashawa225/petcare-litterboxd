@@ -76,6 +76,9 @@ public class CatProfileActivity extends AppCompatActivity {
     private MaterialButton btnAddWeight, btnWeightHistory;
     private WeightChartView weightChart;
     private BottomSheetDialog weightHistoryDialog;
+    /** The open Log weight dialog, kept so its input survives rotation. */
+    private AlertDialog addWeightDialog;
+    private java.util.function.Supplier<Bundle> addWeightState;
 
     // Health Recap and Weight Insight
     private HealthRecapCardView healthRecapCard;
@@ -148,6 +151,9 @@ public class CatProfileActivity extends AppCompatActivity {
         });
 
         btnAddWeight.setOnClickListener(v -> showAddWeightDialog());
+        if (savedInstanceState != null && savedInstanceState.getBundle("add_weight") != null) {
+            showAddWeightDialog(savedInstanceState.getBundle("add_weight"));
+        }
         btnWeightHistory.setOnClickListener(v -> showWeightHistoryDialog());
         View.OnClickListener editCat = v -> {
             Intent intent = new Intent(this, AddEditCatActivity.class);
@@ -188,6 +194,10 @@ public class CatProfileActivity extends AppCompatActivity {
             weightHistoryDialog.dismiss();
             weightHistoryDialog = null;
         }
+        if (addWeightDialog != null) {
+            addWeightDialog.dismiss();
+            addWeightDialog = null;
+        }
         super.onDestroy();
     }
 
@@ -195,6 +205,9 @@ public class CatProfileActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("recap_period", currentRecapPeriod);
+        if (addWeightDialog != null && addWeightDialog.isShowing() && addWeightState != null) {
+            outState.putBundle("add_weight", addWeightState.get());
+        }
     }
 
     @Override
@@ -604,7 +617,8 @@ public class CatProfileActivity extends AppCompatActivity {
 
         for (FeedingMeal meal : meals) {
             TextView tv = new TextView(this);
-            String text = getString(R.string.feeding_meal_row, meal.getMealLabel(), meal.getMealTime(), String.valueOf(meal.getPortionGrams()));
+            String text = getString(R.string.feeding_meal_row, meal.getMealLabel(),
+                    DateFormatUtils.formatClock(meal.getMealTime()), DateFormatUtils.formatGrams(meal.getPortionGrams()));
             tv.setText(text);
             tv.setTextColor(ContextCompat.getColor(this, R.color.black));
             tv.setPadding(0, rowPadding, 0, rowPadding);
@@ -613,7 +627,13 @@ public class CatProfileActivity extends AppCompatActivity {
     }
 
     private void showAddWeightDialog() {
+        showAddWeightDialog(null);
+    }
+
+    /** Log weight dialog. {@code restore} brings back what was typed before a rotation. */
+    private void showAddWeightDialog(Bundle restore) {
         View layout = LayoutInflater.from(this).inflate(R.layout.dialog_add_weight, null, false);
+        com.google.android.material.textfield.TextInputLayout tilWeight = layout.findViewById(R.id.tilDialogWeight);
         TextInputEditText etWeight = layout.findViewById(R.id.etDialogWeight);
         TextInputEditText etNotes = layout.findViewById(R.id.etDialogWeightNotes);
         MaterialButtonToggleGroup toggleDate = layout.findViewById(R.id.toggleWeightDate);
@@ -648,18 +668,47 @@ public class CatProfileActivity extends AppCompatActivity {
             pickedDay[0] = null;
             btnPickDate.setText(R.string.weight_date_pick);
         });
+        if (restore != null) {
+            etWeight.setText(restore.getString("weight", ""));
+            etNotes.setText(restore.getString("notes", ""));
+            if (restore.containsKey("day")) {
+                pickedDay[0] = restore.getLong("day");
+                btnPickDate.setText(DateFormatUtils.formatDate(pickedDay[0]));
+                toggleDate.check(R.id.btnWeightPickDate);
+            }
+        }
 
-        new AlertDialog.Builder(this)
+        AlertDialog weightDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_add_weight_title)
                 .setView(layout)
-                .setPositiveButton(R.string.btn_save, (dialog, which) -> {
+                .setPositiveButton(R.string.btn_save, null) // set below, so a typo keeps the dialog open
+                .setNegativeButton(R.string.btn_cancel, null)
+                .create();
+        addWeightDialog = weightDialog;
+        addWeightState = () -> {
+            Bundle b = new Bundle();
+            b.putString("weight", etWeight.getText() != null ? etWeight.getText().toString() : "");
+            b.putString("notes", etNotes.getText() != null ? etNotes.getText().toString() : "");
+            if (pickedDay[0] != null) b.putLong("day", pickedDay[0]);
+            return b;
+        };
+        weightDialog.setOnDismissListener(d -> {
+            if (addWeightDialog == d) {
+                addWeightDialog = null;
+                addWeightState = null;
+            }
+        });
+        weightDialog.show();
+        weightDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                     String wStr = etWeight.getText() != null ? etWeight.getText().toString() : "";
                     String notes = etNotes.getText() != null ? etNotes.getText().toString().trim() : "";
                     Double weight = Validators.parseDecimal(wStr);
                     if (weight == null || !Validators.isValidWeight(weight)) {
-                        Toast.makeText(this, R.string.error_invalid_weight, Toast.LENGTH_LONG).show();
+                        tilWeight.setError(getString(R.string.error_invalid_weight));
                         return;
                     }
+                    tilWeight.setError(null);
+                    weightDialog.dismiss();
                     final long date = pickedDay[0] != null ? pickedDay[0] : System.currentTimeMillis();
                     AppExecutors.getInstance().diskIO().execute(() -> {
                         WeightLog log = new WeightLog();
@@ -678,11 +727,11 @@ public class CatProfileActivity extends AppCompatActivity {
                             catDao.updateCat(cat);
                         }
 
-                        AppExecutors.getInstance().mainThread().execute(this::loadCatProfile);
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            if (!isFinishing() && !isDestroyed()) loadCatProfile();
+                        });
                     });
-                })
-                .setNegativeButton(R.string.btn_cancel, null)
-                .show();
+                });
     }
 
     private void showDeleteConfirmationDialog() {

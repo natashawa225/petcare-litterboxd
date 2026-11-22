@@ -136,6 +136,7 @@
     <string name="weight_change_up">+%1$s kg</string>
     <string name="weight_change_same">no change</string>
     <string name="weight_kg">%1$s kg</string>
+    <string name="weight_updated_in_profile">Updated in profile</string>
     <string name="weight_first_weigh_in">First weigh-in</string>
     <string name="empty_weight_logs">No weigh-ins yet.</string>
     <string name="msg_delete_weight_title">Delete this weigh-in?</string>
@@ -143,7 +144,7 @@
     <string name="msg_weight_deleted">Weigh-in deleted.</string>
     <string name="cd_delete_weight">Delete weigh-in</string>
     <string name="empty_feeding_schedule">No meals set yet.</string>
-    <string name="feeding_meal_row">• %1$s at %2$s — %3$sg</string>
+    <string name="feeding_meal_row">%1$s · %2$s · %3$s g</string>
     <string name="this_cat">this cat</string>
     <!-- Add weight: when was it weighed -->
     <string name="weight_date_label">Weighed on</string>
@@ -451,8 +452,14 @@
     <string name="daily_remind_turn_off">Don\'t remind me</string>
     <string name="cd_today_reminder_off">Turn on a reminder for unfinished tasks</string>
     <string name="cd_today_reminder_on">Reminder at %1$s. Tap to change.</string>
-    <string name="daily_tasks_summary">%1$d of %2$d tasks done</string>
-    <string name="daily_tasks_all_done">%1$d of %2$d tasks done · Purr-fect!</string>
+    <plurals name="daily_tasks_summary">
+        <item quantity="one">%1$d of %2$d task done</item>
+        <item quantity="other">%1$d of %2$d tasks done</item>
+    </plurals>
+    <plurals name="daily_tasks_all_done">
+        <item quantity="one">%1$d of %2$d task done · Purr-fect!</item>
+        <item quantity="other">%1$d of %2$d tasks done · Purr-fect!</item>
+    </plurals>
 
     <!-- Care Tasks tab -->
     <string name="tasks_title">Care tasks</string>
@@ -513,10 +520,9 @@
     <string name="diary_no_photos_body">Catch %1$s being wonderfully themselves and keep it here.</string>
     <string name="btn_add_first_memory">Add the first memory</string>
     <!-- Memories photo collage -->
-    <string name="diary_memories_title">Memories</string>
-    <string name="diary_memories_screen_title">%1$s\'s memories</string>
+    <string name="diary_memories_title">Photo album</string>
+    <string name="diary_memories_screen_title">%1$s\'s photo album</string>
     <string name="diary_memories_empty">No photos yet. Memories with photos will show up here.</string>
-    <string name="cd_open_memories">See %1$s\'s memory photos</string>
     <string name="diary_filter_all">All</string>
     <string name="diary_filter_memories">Memories</string>
     <string name="diary_filter_milestones">Milestones</string>
@@ -528,7 +534,6 @@
     <string name="diary_type_memory">Memory</string>
     <string name="diary_type_milestone">Milestone</string>
     <string name="cd_diary_photo">Photo for %1$s</string>
-    <string name="cd_no_photos">Sleeping cat mascot</string>
 
     <!-- Cat Diary: add / edit entry -->
     <string name="diary_new_title">New memory</string>
@@ -608,7 +613,6 @@
     <string name="recap_title">Health recap</string>
     <string name="recap_7d">7d</string>
     <string name="recap_30d">30d</string>
-    <string name="recap_all">All</string>
     <string name="recap_logged_line">%1$d of %2$d days logged · %3$d-day streak</string>
     <string name="recap_logged_line_no_streak">%1$d of %2$d days logged</string>
     <string name="recap_normal_ratio">%1$d/%2$d</string>
@@ -617,7 +621,10 @@
     <string name="recap_legend_concern">Concern</string>
     <string name="recap_legend_not_logged">Not logged</string>
     <string name="recap_empty_title">Still getting to know %s</string>
-    <string name="recap_empty_message">%1$d days logged so far. Log a few more to see trends.</string>
+    <plurals name="recap_empty_message">
+        <item quantity="one">%1$d day logged so far. Log a few more to see trends.</item>
+        <item quantity="other">%1$d days logged so far. Log a few more to see trends.</item>
+    </plurals>
     <string name="recap_trend_cd_steadier">Steadier than the period before</string>
     <string name="recap_trend_cd_more_off">More off days than the period before</string>
     <string name="recap_trend_cd_same">About the same as the period before</string>

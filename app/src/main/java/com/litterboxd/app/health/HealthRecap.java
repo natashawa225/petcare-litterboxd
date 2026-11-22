@@ -35,6 +35,8 @@ public final class HealthRecap {
     public static final String CITATION_VCA_URL =
             "https://vcahospitals.com/know-your-pet/abnormal-weight-loss-in-cats";
     static final double SIGNIFICANT_LOSS_PCT = 10.0;
+    /** A rise in "off" days only leads the recap once it covers a quarter of logged days. */
+    static final double MIN_OFF_SHARE_FOR_HIGHLIGHT = 0.25;
 
     /** Royal Canin: during rapid growth kittens gain around 100 grams each week. */
     public static final String CITATION_KITTEN_TITLE = "What is a healthy kitten weight?";
@@ -374,7 +376,8 @@ public final class HealthRecap {
                 String text = String.format(Locale.US, "%s on %d %s",
                         offPhrase, s.getConcernCount(), s.getConcernCount() == 1 ? "day" : "days");
                 candidates.add(new RecapResult.Highlight(text, "alert", 500.0 + s.getConcernCount(), null));
-            } else if (s.getComparison() == SignalSummary.Comparison.MORE_OFF && off > 0) {
+            } else if (s.getComparison() == SignalSummary.Comparison.MORE_OFF && off > 0
+                    && currRate >= MIN_OFF_SHARE_FOR_HIGHLIGHT) {
                 String text = String.format(Locale.US, "%s on %d of %d days", offPhrase, off, logged);
                 candidates.add(new RecapResult.Highlight(text, "trend_up", 100.0 + diff * 100.0, null));
             } else if (s.getComparison() == SignalSummary.Comparison.STEADIER && priorOff > off) {
@@ -407,13 +410,13 @@ public final class HealthRecap {
             case "appetite:more": return "Eating more";
             case "water:less": return "Drinking less";
             case "water:more": return "Drinking more";
-            case "litter:less": return "Fewer litter box visits";
-            case "litter:more": return "More litter box visits";
+            case "litter:less": return "Fewer litter visits";
+            case "litter:more": return "More litter visits";
             case "litter:straining": return "Straining in the litter box";
             case "energy:low": return "Low energy";
-            case "energy:high": return "Extra energy";
+            case "energy:high": return "Extra playful";
             case "mood:grumpy": return "Grumpy";
-            case "mood:clingy": return "Extra clingy";
+            case "mood:clingy": return "Extra cuddly";
             default: return capitalize(signalId) + " off";
         }
     }

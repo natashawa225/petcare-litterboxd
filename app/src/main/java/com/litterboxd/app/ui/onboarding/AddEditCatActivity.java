@@ -350,6 +350,8 @@ public class AddEditCatActivity extends AppCompatActivity {
         btnSaveCat.setEnabled(false);
 
         Cat cat = isEditMode() ? editingCat : new Cat();
+        // Editing the weight here counts as a new weigh-in, so the profile, chart and recap update.
+        final boolean weightChanged = isEditMode() && Math.abs(editingCat.getWeight() - weight) >= 0.005;
         cat.setName(name);
         if (rgAgeType.getCheckedRadioButtonId() == R.id.rbBirthday) {
             cat.setBirthday(selectedBirthdayMs);
@@ -381,6 +383,14 @@ public class AddEditCatActivity extends AppCompatActivity {
 
             if (isEditMode()) {
                 catDao.updateCat(cat);
+                if (weightChanged) {
+                    WeightLog update = new WeightLog();
+                    update.setCatId(cat.getId());
+                    update.setWeight(weight);
+                    update.setDate(System.currentTimeMillis());
+                    update.setNotes(getString(R.string.weight_updated_in_profile));
+                    new WeightLogDao(LitterboxdDbHelper.getInstance(AddEditCatActivity.this)).insertWeightLog(update);
+                }
                 if (oldPhoto != null && !oldPhoto.equals(photoFileName)
                         && oldPhoto.startsWith(FileStorageHelper.CAT_PHOTO_PREFIX)) {
                     fileStorageHelper.deleteImage(oldPhoto);

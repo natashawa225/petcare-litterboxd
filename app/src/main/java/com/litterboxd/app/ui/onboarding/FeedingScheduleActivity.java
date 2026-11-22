@@ -26,6 +26,7 @@ import com.litterboxd.app.data.model.FeedingMeal;
 import com.litterboxd.app.data.session.AppPrefs;
 import com.litterboxd.app.ui.home.HomeActivity;
 import com.litterboxd.app.util.AppExecutors;
+import com.litterboxd.app.util.DateFormatUtils;
 import com.litterboxd.app.util.Validators;
 
 import java.util.ArrayList;
@@ -135,7 +136,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
                 for (int i = 0; i < count; i++) {
                     FeedingMeal meal = meals.get(i);
                     pendingLabels[i] = meal.getMealLabel();
-                    pendingPortions[i] = String.valueOf(meal.getPortionGrams());
+                    pendingPortions[i] = DateFormatUtils.formatGrams(meal.getPortionGrams());
                     int[] time = parseTime(meal.getMealTime());
                     pendingHours[i] = time[0];
                     pendingMinutes[i] = time[1];
@@ -217,13 +218,13 @@ public class FeedingScheduleActivity extends AppCompatActivity {
             mealRow.btnTime = btnTime;
             mealRow.hour = defaultHour;
             mealRow.minute = 0;
-            btnTime.setText(String.format(Locale.US, "%02d:00", defaultHour));
+            btnTime.setText(DateFormatUtils.formatClock(defaultHour, 0));
             btnTime.setOnClickListener(v -> {
                 new TimePickerDialog(this, (view, hourOfDay, minute) -> {
                     mealRow.hour = hourOfDay;
                     mealRow.minute = minute;
-                    btnTime.setText(String.format(Locale.US, "%02d:%02d", hourOfDay, minute));
-                }, mealRow.hour, mealRow.minute, true).show(); // 24-hour, matching the HH:mm shown and stored
+                    btnTime.setText(DateFormatUtils.formatClock(hourOfDay, minute));
+                }, mealRow.hour, mealRow.minute, android.text.format.DateFormat.is24HourFormat(this)).show();
             });
 
             TextInputEditText etPortion = rowLayout.findViewById(R.id.etMealPortion);
@@ -236,7 +237,7 @@ public class FeedingScheduleActivity extends AppCompatActivity {
                 etPortion.setText(pendingPortions[i]);
                 mealRow.hour = pendingHours[i];
                 mealRow.minute = pendingMinutes[i];
-                btnTime.setText(String.format(Locale.US, "%02d:%02d", mealRow.hour, mealRow.minute));
+                btnTime.setText(DateFormatUtils.formatClock(mealRow.hour, mealRow.minute));
             }
 
             containerMealRows.addView(rowLayout);

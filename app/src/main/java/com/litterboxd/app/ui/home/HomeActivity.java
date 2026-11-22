@@ -489,8 +489,9 @@ public class HomeActivity extends AppCompatActivity {
         }
         progressTasks.setVisibility(View.VISIBLE);
         progressTasks.setProgress((int) Math.round(100.0 * done / total));
-        tvTaskSummary.setText(getString(done == total ? R.string.daily_tasks_all_done : R.string.daily_tasks_summary,
-                done, total));
+        // Plural follows the total ("0 of 1 task done", "2 of 5 tasks done").
+        tvTaskSummary.setText(getResources().getQuantityString(
+                done == total ? R.plurals.daily_tasks_all_done : R.plurals.daily_tasks_summary, total, done, total));
     }
 
     private View createTodayTaskRow(LayoutInflater inflater, CareTask task, boolean complete) {

@@ -369,9 +369,10 @@ public final class SampleData {
         Set<Integer> skippedDays = new HashSet<>(Arrays.asList(5, 11, 17, 23, 29, 34));
         for (int i = 35; i >= 1; i--) {
             if (skippedDays.contains(i)) continue;
+            // A healthy, playful kitten: usual energy most days, extra playful now and then.
             checkin(checkins, id, i,
                     answers("appetite", "normal", "water", "normal", "litter", "normal",
-                            "energy", "high", "mood", "normal"));
+                            "energy", i % 6 == 0 ? "high" : "normal", "mood", "normal"));
         }
 
         CareTaskDao tasks = new CareTaskDao(db);

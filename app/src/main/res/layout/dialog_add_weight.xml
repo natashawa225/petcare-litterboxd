@@ -11,6 +11,7 @@
     android:paddingBottom="@dimen/spacing_small">
 
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilDialogWeight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

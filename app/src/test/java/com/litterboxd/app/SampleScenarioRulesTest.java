@@ -203,7 +203,7 @@ public class SampleScenarioRulesTest {
             if (skippedDays.contains(i)) continue;
             byDate.put(today.minusDays(i).toString(),
                     answers("appetite", "normal", "water", "normal", "litter", "normal",
-                            "energy", "high", "mood", "normal"));
+                            "energy", i % 6 == 0 ? "high" : "normal", "mood", "normal"));
         }
 
         // Pip weights: 1.8 to 2.3 kg, about 100 g a week
@@ -226,5 +226,10 @@ public class SampleScenarioRulesTest {
         assertTrue(recap.getWeightChangeKg() > 0);
         assertTrue(recap.getWeightInsightText(), recap.getWeightInsightText().contains("about 10"));
         assertEquals(com.litterboxd.app.health.HealthRecap.CITATION_KITTEN_TITLE, recap.getWeightCitationTitle());
+        // A playful kitten: energy is mostly usual, so the recap doesn't lead with it as a concern.
+        com.litterboxd.app.health.SignalSummary energy = recap.getSignals().stream()
+                .filter(sig -> "energy".equals(sig.getSignalId())).findFirst().orElse(null);
+        assertNotNull(energy);
+        assertTrue(energy.getNormalCount() > energy.getOffOrConcernCount());
     }
 }

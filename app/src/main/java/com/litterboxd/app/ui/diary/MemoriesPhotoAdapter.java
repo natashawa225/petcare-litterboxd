@@ -39,6 +39,13 @@ public class MemoriesPhotoAdapter extends RecyclerView.Adapter<MemoriesPhotoAdap
         holder.image.setContentDescription(
                 holder.image.getContext().getString(R.string.cd_diary_photo, entry.getTitle()));
         fileStorageHelper.showImageFile(holder.image, entry.getPhotoPath(), R.drawable.ic_cat_face);
+        // Tap a photo to open its diary page (title, caption, date).
+        holder.itemView.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(v.getContext(), DiaryEntryDetailActivity.class);
+            intent.putExtra(DiaryEntryDetailActivity.EXTRA_ENTRY_ID, entry.getId());
+            intent.putExtra(DiaryEntryDetailActivity.EXTRA_CAT_ID, entry.getCatId());
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override

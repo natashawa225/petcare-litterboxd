@@ -76,7 +76,8 @@ public class HealthRecapCardView {
             String catName = recap.getCatName() != null ? recap.getCatName()
                     : context.getString(R.string.recap_your_cat);
             tvEmptyTitle.setText(context.getString(R.string.recap_empty_title, catName));
-            tvEmptyMessage.setText(context.getString(R.string.recap_empty_message, recap.getDaysLogged()));
+            tvEmptyMessage.setText(context.getResources().getQuantityString(
+                    R.plurals.recap_empty_message, recap.getDaysLogged(), recap.getDaysLogged()));
             return;
         }
 
