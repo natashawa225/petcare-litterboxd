@@ -50,4 +50,24 @@ public class AgeUtilsTest {
         future.add(Calendar.MONTH, 2);
         assertEquals("0 months", AgeUtils.getAgeDisplay(future.getTimeInMillis(), 0, 0));
     }
+
+    @Test
+    public void kittenUsesTheBirthdayWhenThereIsOne() {
+        Calendar adult = Calendar.getInstance();
+        adult.add(Calendar.YEAR, -5);
+        // Saved with a birthday, so the approximate age stays 0 years 0 months.
+        assertFalse(AgeUtils.isKitten(adult.getTimeInMillis(), 0, 0));
+
+        Calendar young = Calendar.getInstance();
+        young.add(Calendar.MONTH, -4);
+        assertTrue(AgeUtils.isKitten(young.getTimeInMillis(), 0, 0));
+    }
+
+    @Test
+    public void kittenFromApproximateAge() {
+        assertTrue(AgeUtils.isKitten(null, 0, 5));
+        assertTrue(AgeUtils.isKitten(null, 0, 11));
+        assertFalse(AgeUtils.isKitten(null, 1, 0));
+        assertFalse(AgeUtils.isKitten(null, 5, 3)); // months alone don't make a kitten
+    }
 }

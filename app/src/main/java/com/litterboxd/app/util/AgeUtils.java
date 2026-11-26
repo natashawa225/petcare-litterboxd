@@ -20,6 +20,15 @@ public class AgeUtils {
         return Math.max(totalMonths, 0);
     }
 
+    /**
+     * Under 12 months old (the AAHA/AAFP kitten stage), from the birthday if known, otherwise from
+     * the approximate age. A cat saved with a birthday keeps an approximate age of 0, so the
+     * approximate fields alone can't be used.
+     */
+    public static boolean isKitten(Long birthdayMs, int approxYears, int approxMonths) {
+        return totalMonths(birthdayMs, approxYears, approxMonths) < 12;
+    }
+
     public static String calculateLifeStage(Long birthdayMs, int approxYears, int approxMonths) {
         int totalMonths = totalMonths(birthdayMs, approxYears, approxMonths);
 
