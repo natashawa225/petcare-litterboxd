@@ -249,8 +249,8 @@ public class CatProfileActivity extends AppCompatActivity {
                     populateFeedingMeals(feedingMeals);
 
                     // Health recap & weight insight
-                    boolean isKitten = currentCat.getApproxAgeYears() == 0
-                            || (currentCat.getApproxAgeMonths() > 0 && currentCat.getApproxAgeMonths() <= 12);
+                    boolean isKitten = AgeUtils.isKitten(currentCat.getBirthday(),
+                            currentCat.getApproxAgeYears(), currentCat.getApproxAgeMonths());
                     healthRecapCard.bind(health.recap, isKitten,
                             (sigId, label) -> {
                                 Intent intent = new Intent(this, SignalDetailActivity.class);
@@ -320,8 +320,8 @@ public class CatProfileActivity extends AppCompatActivity {
         String checkinTreeJson = loadRawString(R.raw.checkin_tree);
         Map<String, String> normalValues = HealthRecap.extractNormalValues(checkinTreeJson);
         Set<String> concernPairs = HealthRecap.extractConcernPairs(content != null ? content.getRules() : null);
-        boolean isKitten = cat != null && (cat.getApproxAgeYears() == 0
-                || (cat.getApproxAgeMonths() > 0 && cat.getApproxAgeMonths() <= 12));
+        boolean isKitten = cat != null && AgeUtils.isKitten(cat.getBirthday(),
+                cat.getApproxAgeYears(), cat.getApproxAgeMonths());
         String catName = cat != null ? cat.getName() : "Cat";
         health.recap = HealthRecap.compute(answers, WeightPoints.fromLogs(weightLogs),
                 currentRecapPeriod, today, normalValues, concernPairs, alerts, isKitten, catName);
